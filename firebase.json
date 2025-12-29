@@ -1,0 +1,69 @@
+{
+  "hosting": {
+    "public": "dist",
+    "rewrites": [
+      // API routes (with /api/ prefix)
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "gophora-backend",
+          "region": "us-central1"
+        }
+      },
+      // Authentication routes
+      {
+        "source": "/auth/**",
+        "run": {
+          "serviceId": "gophora-backend",
+          "region": "us-central1"
+        }
+      },
+      // Jobs routes  
+      {
+        "source": "/jobs/**",
+        "run": {
+          "serviceId": "gophora-backend",
+          "region": "us-central1"
+        }
+      },
+      
+      // Chat routesac
+      {
+        "source": "/chat**",
+        "run": {
+          "serviceId": "gophora-backend",
+          "region": "us-central1"
+        }
+      },
+      // User routes (profile and resumes)
+      {
+        "source": "/user/**",
+        "run": {
+          "serviceId": "gophora-backend",
+          "region": "us-central1"
+        }
+      },
+      // Admin routes
+      {
+        "source": "/admin/**",
+        "run": {
+          "serviceId": "gophora-backend",
+          "region": "us-central1"
+        }
+      },
+      // Health routes (root and /health)
+      {
+        "source": "/health",
+        "run": {
+          "serviceId": "gophora-backend",
+          "region": "us-central1"
+        }
+      },
+      // React app catch-all (MUST BE LAST!)
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

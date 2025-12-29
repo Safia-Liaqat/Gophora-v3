@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GOPHORA</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+  /* 1. This targets the actual iframe Google creates */
+  iframe.goog-te-banner-frame {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* 2. Google often injects a class 'skiptranslate' to the html or body */
+  .skiptranslate {
+    display: none !important;
+  }
+
+  /* 3. This forces the page content back to the very top */
+  body {
+    top: 0 !important;
+    position: relative !important; /* Changed from static to ensure it takes the top 0 */
+  }
+
+  /* 4. Hide the "Original Text" popup when hovering */
+  #goog-gt-tt, 
+  .goog-te-balloon-frame,
+  .goog-tooltip,
+  .goog-tooltip:hover {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* 5. Clean up the highlight effect */
+  font {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+</style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
