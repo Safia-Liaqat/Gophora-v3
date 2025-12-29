@@ -13,7 +13,7 @@ Complete FastAPI backend + React frontend with automated job scraping, AI-powere
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/Safia-Liaqat/Gophora-v2.git
+git clone https://github.com/Safia-Liaqat/Gophora-v3.git
 cd Gophora-v2/GOPHORA-v2
 ```
 
