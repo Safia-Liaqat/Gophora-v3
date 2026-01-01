@@ -1,106 +1,158 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/gophora-plomo-logo.png";
+import ThemeToggle from "./ThemeToggle"; 
 
 export default function Navbar() {
   const [currentLang, setCurrentLang] = useState("en");
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    // 1. Define the initialization function for Google
+    // Initialize Google Translate with autoDisplay: false
     window.googleTranslateElementInit = () => {
       new window.google.translate.TranslateElement({
         pageLanguage: 'en',
         includedLanguages: 'en,es',
-        autoDisplay: false
+        autoDisplay: false,
+        layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
       }, 'google_translate_element');
     };
 
-    // 2. Add script if it doesn't exist
+    // Add script if it doesn't exist
     const existingScript = document.getElementById('google-translate-script');
     if (!existingScript) {
       const addScript = document.createElement('script');
       addScript.id = 'google-translate-script';
       addScript.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-      // Loading without async can sometimes help stability in React
       addScript.async = true; 
       document.body.appendChild(addScript);
     }
+
+    // Add scroll listener
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    
+    // IMPORTANT: Hide Google Translate banner
+    const hideTranslateBanner = () => {
+      const banner = document.querySelector('.goog-te-banner-frame');
+      if (banner) {
+        banner.style.display = 'none';
+      }
+      
+      // Also hide any iframes that might appear
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        if (iframe.src.includes('translate.google')) {
+          iframe.style.display = 'none';
+        }
+      });
+    };
+
+    // Run immediately and set interval to keep hiding it
+    hideTranslateBanner();
+    const interval = setInterval(hideTranslateBanner, 1000);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearInterval(interval);
+    };
   }, []);
 
   const changeLanguage = (lng) => {
     const googleCombo = document.querySelector(".goog-te-combo");
     
     if (googleCombo) {
-      // --- THE RESET LOGIC ---
-      
-      // If switching to English, we try to trigger Google's internal "Restore Original"
-      if (lng === 'en') {
-        const showOriginal = document.querySelector('.goog-te-banner-frame iframe');
-        if (showOriginal && showOriginal.contentDocument) {
-          const btn = showOriginal.contentDocument.getElementById(':1.restore');
-          if (btn) btn.click();
+      // Hide banner before changing language
+      const hideBanner = () => {
+        const banner = document.querySelector('.goog-te-banner-frame');
+        if (banner) {
+          banner.style.display = 'none';
         }
-      }
+      };
 
       // Update the dropdown value
       googleCombo.value = lng;
       googleCombo.dispatchEvent(new Event("change"));
       setCurrentLang(lng);
 
-      // --- COOKIE CLEANUP ---
-      // We clear the googtrans cookie to prevent the engine from getting "stuck"
-      setTimeout(() => {
-        if (lng === 'en') {
+      // Hide banner after change
+      setTimeout(hideBanner, 100);
+
+      // Clear cookies if switching to English
+      if (lng === 'en') {
+        setTimeout(() => {
           document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
           document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + document.domain;
-        }
-      }, 150);
-
-    } else {
-      console.warn("Translator engine still warming up...");
-      // Optional: if it's really stuck, a quick refresh helps
-      // window.location.reload(); 
+        }, 150);
+      }
     }
   };
 
   return (
-    <nav className="w-full bg-[#0A0F2C] border-b border-[#1F254A] px-4 py-4 flex justify-between items-center sticky top-0 z-[100]">
-      <div className="flex items-center">
-        <Link to="/">
-          <img src={logo} alt="Gophora Logo" className="h-8 w-auto" />
-        </Link>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <div className="flex bg-[#161B30] rounded-xl p-1 border border-[#1F254A]">
-          <button
-            onClick={() => changeLanguage("en")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
-              currentLang === "en" 
-                ? "bg-gradient-to-r from-[#6D5DD3] to-[#7E6DF4] text-white shadow-lg" 
-                : "text-gray-400 hover:text-gray-200"
-            }`}
-          >
-            EN
-          </button>
-          <button
-            onClick={() => changeLanguage("es")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
-              currentLang === "es" 
-                ? "bg-gradient-to-r from-[#6D5DD3] to-[#7E6DF4] text-white shadow-lg" 
-                : "text-gray-400 hover:text-gray-200"
-            }`}
-          >
-            ES
-          </button>
+    <nav className={`fixed top-0 left-0 right-0 z-[100] w-full px-4 sm:px-6 lg:px-8 py-4 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-background-secondary/90 backdrop-blur-md border-b border-border-color' 
+        : 'bg-transparent'
+    }`}>
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center">
+          <Link to="/">
+            <img 
+              src={logo} 
+              alt="Gophora Logo" 
+              className={`h-7 w-auto transition-all duration-300 ${
+                isScrolled ? '' : 'brightness-0 invert dark:invert-0'
+              }`}
+            />
+          </Link>
         </div>
-      </div>
 
-      {/* Hidden element for Google Translate injection */}
-      <div id="google_translate_element" style={{ display: 'none' }}></div>
+        {/* Theme Toggle and Language Switcher */}
+        <div className="flex items-center gap-3">
+          {/* Theme Toggle Button */}
+          <div className={isScrolled ? '' : 'bg-white/10 dark:bg-black/10 backdrop-blur-sm rounded-xl p-1 border border-white/20 dark:border-black/20'}>
+            <ThemeToggle transparent={!isScrolled} />
+          </div>
+          
+          {/* Language Toggle */}
+          <div className={`flex rounded-xl p-1 transition-all duration-300 ${
+            isScrolled 
+              ? 'bg-background-tertiary border border-border-color' 
+              : 'bg-white/10 dark:bg-black/10 backdrop-blur-sm border border-white/20 dark:border-black/20'
+          }`}>
+            <button
+              onClick={() => changeLanguage("en")}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
+                currentLang === "en" 
+                  ? "bg-accent text-white shadow-lg" 
+                  : isScrolled 
+                    ? "text-text-tertiary hover:text-text-secondary bg-background-secondary"
+                    : "text-white/80 hover:text-white bg-transparent"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => changeLanguage("es")}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
+                currentLang === "es" 
+                  ? "bg-accent text-white shadow-lg" 
+                  : isScrolled 
+                    ? "text-text-tertiary hover:text-text-secondary bg-background-secondary"
+                    : "text-white/80 hover:text-white bg-transparent"
+              }`}
+            >
+              ES
+            </button>
+          </div>
+        </div>
+
+        {/* Hidden element for Google Translate injection */}
+        <div id="google_translate_element" style={{ display: 'none' }}></div>
+      </div>
     </nav>
   );
 }
-
-
-

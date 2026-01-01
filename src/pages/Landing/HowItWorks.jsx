@@ -1,204 +1,313 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   BoltIcon, 
   ClockIcon, 
   SignalIcon,
   TrophyIcon,
-  CurrencyDollarIcon 
+  CurrencyDollarIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PlayIcon,
+  PauseIcon
 } from "@heroicons/react/24/solid";
 
 export default function HowWeWork() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const sliderRef = useRef(null);
+
+  const slides = [
+    {
+      id: 1,
+      icon: <BoltIcon className="h-7 w-7 text-white" />,
+      title: "Immediate Activation",
+      description: "Connect with real missions in less than 24 hours. No waiting, no bureaucracy.",
+      stats: "24h Activation",
+      color: "bg-gradient-accent"
+    },
+    {
+      id: 2,
+      icon: <SignalIcon className="h-7 w-7 text-white" />,
+      title: "Signal-Based",
+      description: "Analyze digital signals instead of traditional CVs for better matching.",
+      stats: "AI Matching",
+      color: "bg-gradient-accent"
+    },
+    {
+      id: 3,
+      icon: <ClockIcon className="h-7 w-7 text-white" />,
+      title: "Time is Sacred",
+      description: "No waiting months to be useful. Immediate deployment is key.",
+      stats: "0 Waiting",
+      color: "bg-gradient-accent"
+    },
+    {
+      id: 4,
+      icon: <TrophyIcon className="h-7 w-7 text-white" />,
+      title: "Mission-Driven",
+      description: "Assign purpose-driven missions that matter, not just jobs.",
+      stats: "100% Mission",
+      color: "bg-gradient-accent"
+    },
+    {
+      id: 5,
+      icon: <CurrencyDollarIcon className="h-7 w-7 text-white" />,
+      title: "PHORA System",
+      description: "Reputation tokens as evidence of mission accomplishment.",
+      stats: "Proof of Impact",
+      color: "bg-gradient-accent"
+    }
+  ];
+
+  useEffect(() => {
+    let interval;
+    if (isAutoPlaying) {
+      interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+      }, 4000);
+    }
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, slides.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
   return (
-    <section className="relative bg-gradient-to-b from-[#0A0F2C] to-[#0A0A2A] text-white py-16 px-4 sm:px-6 overflow-hidden">
-      <div className="absolute inset-0 purple-bg"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 z-[1]" />
-
-      <div className="relative z-[2] max-w-4xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-            HOW WE WORK <span className="text-[#A78BFA]">(IMMEDIATE ACTIVATION)</span>
-          </h2>
-          <p className="text-lg sm:text-xl text-gray-300 mb-2">
-            The problem is not lack of talent. It is lack of immediate activation.
-          </p>
-          <p className="text-base text-gray-400">
-            We believe time is sacred and nobody should wait months to be useful.
-          </p>
-        </div>
-
-        {/* Core Principle */}
-        <div className="bg-gradient-to-r from-[#8B5CF6]/15 via-[#A78BFA]/15 to-[#C4B5FD]/15 border border-[#A78BFA]/30 rounded-xl p-6 mb-12 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] mb-4">
-            <BoltIcon className="h-6 w-6 text-white" />
-          </div>
-          <h3 className="text-lg sm:text-xl font-bold mb-3 leading-relaxed">
-            GOPHORA is the infrastructure that connects common people with real missions in less than 24 hours.
-          </h3>
-        </div>
-
-        {/* GOPHORA Principles Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-12">
-          {[
-            {
-              icon: <SignalIcon className="h-6 w-6 text-[#A78BFA]" />,
-              title: "We don't hire, we activate.",
-              desc: "Immediate talent deployment"
-            },
-            {
-              icon: <ClockIcon className="h-6 w-6 text-[#A78BFA]" />,
-              title: "We don't ask for CVs, we read signals.",
-              desc: "Behavior and digital signal analysis"
-            },
-            {
-              icon: <TrophyIcon className="h-6 w-6 text-[#A78BFA]" />,
-              title: "We don't offer jobs, we assign missions.",
-              desc: "Purpose-driven assignments"
-            }
-          ].map((principle, index) => (
-            <div 
-              key={index}
-              className="bg-gradient-to-br from-[#1E1B4B]/40 to-[#2D1B69]/40 border border-[#2D1B69] rounded-xl p-5 text-center hover:border-[#A78BFA]/50 transition-all duration-300"
-            >
-              <div className="w-14 h-14 rounded-full bg-gradient-to-b from-[#1E1B4B] to-[#2D1B69] flex items-center justify-center mx-auto mb-4">
-                {principle.icon}
-              </div>
-              <h4 className="text-base font-bold mb-2 leading-tight">{principle.title}</h4>
-              <p className="text-sm text-gray-400">{principle.desc}</p>
-            </div>
-          ))}
-        </div>
-
-      {/* Activation Process - Animated Flow */}
-<div className="mb-16">
-  <h3 className="text-xl sm:text-2xl font-bold text-center mb-12 text-[#A78BFA]">
-    The Activation Flow
-  </h3>
-  
-  <div className="relative">
-    {/* Animated background line */}
-    <div className="hidden md:block absolute top-1/2 left-0 right-0 h-[2px] z-0 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#A78BFA]/10 to-transparent"></div>
-      <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-transparent via-[#A78BFA] to-transparent animate-shimmer"></div>
-    </div>
-    
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative z-10">
-      {[
-        {
-          step: "01",
-          title: "Signal Scan",
-          desc: "AI analyzes behavior & digital signals",
-          color: "#8B5CF6"
-        },
-        {
-          step: "02",
-          title: "Mission Match",
-          desc: "Receive purpose-driven assignment",
-          color: "#7C3AED"
-        },
-        {
-          step: "03",
-          title: "Execute",
-          desc: "Complete mission & build reputation",
-          color: "#6D28D9"
-        },
-        {
-          step: "04",
-          title: "Earn PHORA",
-          desc: "Receive reputation tokens",
-          color: "#5B21B6"
-        },
-        {
-          step: "05",
-          title: "Explorer",
-          desc: "Access advanced opportunities",
-          color: "#4C1D95"
-        }
-      ].map((item, index) => (
-        <div 
-          key={index}
-          className="relative group"
-        >
-          {/* Animated pulse ring */}
-          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-transparent via-transparent to-transparent group-hover:via-[#A78BFA]/5 group-hover:to-[#A78BFA]/10 animate-pulse-ring opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+    <section className="relative bg-primary py-10 md:py-14 lg:py-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-start">
           
-          {/* Card */}
-          <div className="relative bg-gradient-to-br from-[#0A0F2C] to-[#1E1B4B] border border-[#2D1B69] rounded-xl p-5 overflow-hidden transition-all duration-500 group-hover:border-[#A78BFA]/50 group-hover:shadow-[0_0_30px_rgba(139,92,246,0.15)]">
-            {/* Animated gradient bar */}
-            <div 
-              className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#A78BFA] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{
-                backgroundSize: '200% 100%',
-                animation: 'shimmer 2s infinite linear'
-              }}
-            ></div>
-            
-            {/* Step indicator with animation */}
-            <div className="relative w-12 h-12 mx-auto mb-4">
-              <div 
-                className="absolute inset-0 rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-500"
-                style={{ backgroundColor: item.color }}
-              ></div>
-              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#0A0F2C] to-[#1E1B4B] flex items-center justify-center">
-                <span 
-                  className="text-sm font-bold"
-                  style={{ color: item.color }}
-                >
-                  {item.step}
+          {/* Left Column - Static Content */}
+          <div className="space-y-6">
+            {/* Section Header */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-1 bg-gradient-accent"></div>
+                <span className="text-xs font-semibold text-tertiary uppercase tracking-wider">
+                  PROCESS
                 </span>
               </div>
-              <div 
-                className="absolute inset-0 rounded-full border-2 opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:animate-ping"
-                style={{ borderColor: item.color }}
-              ></div>
-            </div>
-            
-            {/* Content */}
-            <div className="text-center">
-              <h4 className="font-bold text-sm mb-2 text-white group-hover:text-[#A78BFA] transition-colors duration-300">
-                {item.title}
-              </h4>
-              <p className="text-xs text-gray-400 leading-relaxed">
-                {item.desc}
+              
+              <h2 className="text-2xl sm:text-3xl font-bold leading-tight text-primary">
+                How We Work
+                <span className="block text-gradient-accent">
+                  (Immediate Activation)
+                </span>
+              </h2>
+              
+              <p className="text-base text-secondary">
+                Problem: Not lack of talent, but lack of immediate activation.
               </p>
             </div>
-            
-            {/* Hover indicator dot */}
-            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-[#A78BFA] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          </div>
-          
-          {/* Mobile flow indicator */}
-          {index < 4 && (
-            <div className="md:hidden flex justify-center mt-4">
-              <div className="text-[#A78BFA] animate-bounce">↓</div>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
-        {/* PHORA Explanation */}
-        <div className="bg-gradient-to-br from-[#8B5CF6]/10 via-[#A78BFA]/10 to-transparent border border-[#A78BFA]/20 rounded-xl p-6">
-          <div className="flex flex-col sm:flex-row items-center">
-            <div className="sm:w-1/4 mb-4 sm:mb-0 flex justify-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] flex items-center justify-center">
-                <CurrencyDollarIcon className="h-8 w-8 text-white" />
+
+            {/* Compact 24-Hour Activation */}
+            <div className="card">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-accent flex items-center justify-center">
+                  <BoltIcon className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-primary mb-1">24-Hour Activation</h3>
+                  <p className="text-sm text-secondary">
+                    Infrastructure connecting people with real missions in <span className="font-semibold text-primary">less than 24 hours</span>. Eliminating waiting and bureaucracy.
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="sm:w-3/4 sm:pl-6 text-center sm:text-left">
-              <h4 className="text-xl font-bold mb-3">
-                <span className="text-[#A78BFA]">PHORA</span> is not a currency.
-              </h4>
-              <p className="text-base mb-3">
-                It is <span className="font-bold text-[#A78BFA]">evidence of mission accomplished</span>.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-                <div className="bg-gradient-to-r from-[#1E1B4B]/30 to-[#2D1B69]/30 p-3 rounded-lg">
-                  <p className="text-sm font-medium">Reputation, not speculation</p>
+
+            {/* Key Principles */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-bold text-primary">Our Principles</h3>
+              <div className="space-y-2">
+                {[
+                  "We activate, don't hire",
+                  "Read signals, not CVs",
+                  "Assign missions, not jobs",
+                  "Time is sacred - no delays"
+                ].map((principle, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-gradient-accent"></div>
+                    <span className="text-sm text-secondary">{principle}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile View - Activation Flow */}
+            <div className="lg:hidden mt-6 space-y-3">
+              <h3 className="text-base font-bold text-primary">Activation Flow</h3>
+              <div className="grid grid-cols-1 gap-3">
+                {[
+                  { step: "01", title: "Signal Scan", desc: "AI analyzes signals" },
+                  { step: "02", title: "Mission Match", desc: "Purpose assignment" },
+                  { step: "03", title: "Execute", desc: "Complete mission" },
+                  { step: "04", title: "Earn PHORA", desc: "Get reputation tokens" },
+                  { step: "05", title: "Explorer", desc: "Advanced access" }
+                ].map((item, index) => (
+                  <div 
+                    key={index}
+                    className="card hover:border-accent transition-colors duration-300"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gradient-accent/10 flex items-center justify-center">
+                        <span className="text-xs font-bold text-gradient-accent">
+                          {item.step}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-primary">{item.title}</h4>
+                        <p className="text-xs text-tertiary">{item.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Slider & PHORA */}
+          <div className="space-y-4">
+            {/* Slider Controls */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                  className="p-1.5 rounded-full bg-secondary border border-primary hover:border-accent transition-colors duration-300"
+                >
+                  {isAutoPlaying ? (
+                    <PauseIcon className="h-4 w-4 text-primary" />
+                  ) : (
+                    <PlayIcon className="h-4 w-4 text-primary" />
+                  )}
+                </button>
+                <span className="text-xs text-tertiary">
+                  Auto {isAutoPlaying ? "ON" : "OFF"}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={prevSlide}
+                  className="p-1.5 rounded-full bg-secondary border border-primary hover:border-accent transition-colors duration-300"
+                >
+                  <ChevronLeftIcon className="h-4 w-4 text-primary" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="p-1.5 rounded-full bg-secondary border border-primary hover:border-accent transition-colors duration-300"
+                >
+                  <ChevronRightIcon className="h-4 w-4 text-primary" />
+                </button>
+              </div>
+            </div>
+
+            {/* Slider Container */}
+            <div className="relative h-[320px] sm:h-[340px] rounded-xl overflow-hidden border border-primary futuristic-border">
+              {/* Background Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary to-tertiary"></div>
+              
+              {/* Slides */}
+              <div 
+                ref={sliderRef}
+                className="absolute inset-0 transition-transform duration-500 ease-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                <div className="flex w-full h-full">
+                  {slides.map((slide, index) => (
+                    <div
+                      key={slide.id}
+                      className="w-full h-full flex-shrink-0 flex items-center justify-center p-4 sm:p-6"
+                    >
+                      <div className="max-w-md w-full space-y-3 sm:space-y-4">
+                        {/* Slide Number */}
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs font-semibold text-tertiary">
+                            0{index + 1} / 0{slides.length}
+                          </div>
+                          <div className={`w-10 sm:w-12 h-1 ${slide.color}`}></div>
+                        </div>
+                        
+                        {/* Icon */}
+                        <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl ${slide.color} flex items-center justify-center`}>
+                          {slide.icon}
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="space-y-2 sm:space-y-3">
+                          <h3 className="text-lg sm:text-xl font-bold text-primary">{slide.title}</h3>
+                          <p className="text-sm text-secondary leading-relaxed">
+                            {slide.description}
+                          </p>
+                          <div className="pt-2 border-t border-primary">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary">
+                              <div className="w-1.5 h-1.5 rounded-full bg-gradient-accent"></div>
+                              <span className="text-xs font-semibold text-primary">{slide.stats}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="bg-gradient-to-r from-[#1E1B4B]/30 to-[#2D1B69]/30 p-3 rounded-lg">
-                  <p className="text-sm font-medium">Human impact, not transactions</p>
+              </div>
+
+              {/* Slide Indicators */}
+              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex items-center gap-1.5">
+                {slides.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                      index === currentSlide 
+                        ? 'bg-gradient-accent w-3 sm:w-4' 
+                        : 'bg-primary hover:bg-tertiary'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Ultra Compact PHORA Section */}
+            <div className="card">
+              <div className="flex items-start gap-2.5">
+                <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-accent flex items-center justify-center mt-0.5">
+                  <CurrencyDollarIcon className="h-3.5 w-3.5 text-white" />
+                </div>
+                <div className="space-y-1.5">
+                  <h3 className="text-sm font-bold flex items-center gap-1">
+                    <span className="text-gradient-accent">
+                      PHORA
+                    </span>
+                    <span className="text-primary">is not currency</span>
+                  </h3>
+                  <p className="text-xs text-secondary leading-tight">
+                    Evidence of mission accomplished - reputation tokens proving impact.
+                  </p>
+                  
+                  <div className="flex gap-2 pt-1">
+                    <div className="flex-1 bg-tertiary px-2 py-1.5 rounded">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-gradient-accent"></div>
+                        <span className="text-xs text-primary">Reputation</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 bg-tertiary px-2 py-1.5 rounded">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-gradient-accent"></div>
+                        <span className="text-xs text-primary">Human impact</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
