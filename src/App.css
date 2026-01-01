@@ -237,8 +237,6 @@ a {
   transition: color 0.3s ease;
 }
 
-
-
 /* ===== DIVIDERS ===== */
 .divider {
   height: 1px;
@@ -361,4 +359,78 @@ a {
 
 .animate-fade-in {
   animation: fadeIn 0.8s ease-out forwards;
+}
+
+/* ===== COMPLETE GOOGLE TRANSLATE HIDING SOLUTION ===== */
+/* Hide ALL Google Translate elements - MUST BE LAST IN FILE */
+.goog-te-banner-frame,
+.goog-te-banner,
+.skiptranslate,
+.goog-te-gadget,
+.goog-te-gadget-simple,
+.goog-te-menu-value,
+.goog-te-menu-value span,
+.VIpgJd-ZVi9od-ORHb,
+.VIpgJd-ZVi9od-l4eHX-hSRGPd,
+.goog-te-balloon-frame,
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip-text,
+iframe[src*="translate.google"],
+iframe[title="Website Translator"],
+div[id*="google_translate_element"],
+body > div[style*="position: absolute; top: -20px"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  z-index: -9999 !important;
+  pointer-events: none !important;
+}
+
+/* Reset body positioning that Google Translate modifies */
+body {
+  top: 0 !important;
+  position: static !important;
+  margin-top: 0 !important;
+}
+
+/* Hide any Google Translate selectors that might appear */
+select.goog-te-combo {
+  display: none !important;
+}
+
+/* Specifically target the "Show original" text that appears */
+.VIpgJd-ZVi9od-ORHb-OEVmcd {
+  display: none !important;
+}
+
+/* Hide the language switcher icon and text */
+.VIpgJd-ZVi9od-xl07Ob-l4eHXb,
+.VIpgJd-ZVi9od-l4eHXb-haAclf {
+  display: none !important;
+}
+
+/* Remove any space Google Translate might add */
+body > .skiptranslate {
+  display: none !important;
+}
+
+/* Prevent flash of translate elements */
+#google_translate_element {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
 }

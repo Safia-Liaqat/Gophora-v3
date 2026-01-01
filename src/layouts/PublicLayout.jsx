@@ -10,7 +10,7 @@ export default function MainLayout() {
 
       {/* 2. Content Area */}
       {/* pt-20 (padding-top) ensures content starts below the sticky/fixed navbar */}
-      <div className="flex-1 pt-6"> 
+      <div className="flex-1 "> 
         <Outlet />
       </div>
     </div>
