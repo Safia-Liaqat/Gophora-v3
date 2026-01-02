@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Footer from '../../components/common/Footer/Footer'
 import HeroSection from './HeroSection'
 import FoundationalThesis from './FoundationalThesis'
 import HowWeWork from './HowItWorks'
@@ -73,7 +72,8 @@ function LandingPage() {
           <CallToAction />
         </div>
       </main>
-      <Footer />
+    
+    
     </div>
   )
 }

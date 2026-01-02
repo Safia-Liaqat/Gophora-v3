@@ -11,7 +11,7 @@ export default function CallToAction() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative py-12 md:py-20 lg:py-32 xl:min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 xl:px-10">
+    <section className="relative py-12 md:py-20 lg:py-16 xl:min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 xl:px-10">
       {/* Fixed Split Background - Responsive */}
       <div className="absolute inset-0 lg:flex">
         {/* Mobile: White top, Black bottom */}
@@ -76,7 +76,7 @@ export default function CallToAction() {
           </div>
 
           {/* Right Side - For Organizations (Always Black) */}
-          <div className="flex-1 bg-black p-6 xs:p-7 sm:p-8 md:p-10 lg:p-9 xl:p-12 flex flex-col justify-center relative overflow-hidden">
+          <div className="flex-1 bg-black p-6 xs:p-7 sm:p-8 md:p-10 lg:p-9 xl:p-12 flex flex-col justify-center relative overflow-hidden ">
             {/* Background Pattern */}
             <div className="absolute bottom-2 left-2 xs:bottom-3 xs:left-3 sm:bottom-4 sm:left-4 md:bottom-6 md:left-6 lg:bottom-8 lg:left-8 xl:bottom-10 xl:left-10 w-32 h-32 xs:w-36 xs:h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 lg:w-56 lg:h-56 xl:w-64 xl:h-64 bg-gradient-to-tr from-[#8B5CF6]/10 to-transparent rounded-full blur-lg md:blur-xl xl:blur-3xl"></div>
             

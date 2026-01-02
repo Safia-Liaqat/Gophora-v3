@@ -87,8 +87,8 @@ const Footer = () => {
 
           {/* Navigation Column */}
           <div className="space-y-6">
-            <h3 className="font-semibold text-white text-lg flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+            <h3 className="font-semibold text-white text-lg flex !text-white items-center gap-2">
+              <div className="w-1.5 h-1.5 !text-white rounded-full bg-white"></div>
               Navigation
             </h3>
             <ul className="space-y-3 text-gray-400 text-sm">
@@ -102,9 +102,9 @@ const Footer = () => {
                 <li key={index}>
                   <ScrollLink 
                     to={item.path} 
-                    className="hover:text-white transition-all duration-300 flex items-center gap-2 group"
+                    className="hover:text-white !text-white transition-all duration-300 flex items-center gap-2 group"
                   >
-                    <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-xs">→</span>
+                    <span className="text-white !text-white opacity-0 group-hover:opacity-100 transition-opacity text-xs">→</span>
                     {item.name}
                   </ScrollLink>
                 </li>
@@ -114,11 +114,11 @@ const Footer = () => {
 
           {/* Legal Column */}
           <div className="space-y-6">
-            <h3 className="font-semibold text-white text-lg flex items-center gap-2">
+            <h3 className="font-semibold !text-white text-lg flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
               Legal
             </h3>
-            <ul className="space-y-3 text-gray-400 text-sm">
+            <ul className="space-y-3 !text-white text-sm">
               {[
                 { name: "Terms of Service", path: "/terms-of-service", external: true },
                 { name: "Privacy Policy", path: "/privacy-policy", external: true },
@@ -130,15 +130,15 @@ const Footer = () => {
                   {item.external ? (
                     <a 
                       href={item.path}
-                      className="hover:text-white transition-all duration-300 flex items-center gap-2 group"
+                      className="hover:text-white !text-white transition-all duration-300 flex items-center gap-2 group"
                     >
-                      <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-xs">→</span>
+                      <span className="text-white! opacity-0 group-hover:opacity-100 transition-opacity text-xs">→</span>
                       {item.name}
                     </a>
                   ) : (
                     <ScrollLink 
                       to={item.path} 
-                      className="hover:text-white transition-all duration-300 flex items-center gap-2 group"
+                      className="hover:text-white !text-white transition-all duration-300 flex items-center gap-2 group"
                     >
                       <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-xs">→</span>
                       {item.name}
@@ -151,33 +151,33 @@ const Footer = () => {
 
           {/* Contact Column */}
           <div className="space-y-6">
-            <h3 className="font-semibold text-white text-lg flex items-center gap-2">
+            <h3 className="font-semibold !text-white text-lg flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
               Contact
             </h3>
-            <ul className="space-y-3 text-gray-400 text-sm">
+            <ul className="space-y-3 !text-white text-sm">
               <li className="flex items-center gap-3">
-                <FaEnvelope className="text-gray-300 text-sm" />
+                <FaEnvelope className="!text-white text-sm" />
                 <span>contact@gophora.com</span>
               </li>
               <li className="flex items-center gap-3">
-                <FaMapMarkerAlt className="text-gray-300 text-sm" />
+                <FaMapMarkerAlt className="!text-white text-sm" />
                 <span>Florida, USA</span>
               </li>
             </ul>
             
             {/* Resources */}
             <div className="pt-4 border-t border-gray-800">
-              <h4 className="font-medium text-gray-400 text-sm mb-3">Resources</h4>
+              <h4 className="font-medium !text-white text-sm mb-3">Resources</h4>
               <ul className="space-y-2">
                 {[
-                  { icon: <FaQuestionCircle className="text-gray-300 text-sm" />, name: "Help Center", path: "/help-center" },
-                  { icon: <FaBuilding className="text-gray-300 text-sm" />, name: "For Companies", path: "/enterprise" },
+                  { icon: <FaQuestionCircle className="!text-white text-sm" />, name: "Help Center", path: "/help-center" },
+                  { icon: <FaBuilding className="!text-white text-sm" />, name: "For Companies", path: "/enterprise" },
                 ].map((item, index) => (
                   <li key={index}>
                     <ScrollLink 
                       to={item.path} 
-                      className="hover:text-white transition-all duration-300 flex items-center gap-2 group"
+                      className="hover:text-white  !text-white transition-all duration-300 flex items-center gap-2 group"
                     >
                       {item.icon}
                       <span className="text-sm">{item.name}</span>
