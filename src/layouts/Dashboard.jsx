@@ -19,7 +19,6 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
 
   const navItems = [
-    { label: "Dashboard", icon: <Home size={18} />, path: "/seeker/dashboard" },
     { label: "Explorer ID", icon: <User size={18} />, path: "/seeker/dashboard/profile" },
     // { label: "Wallet", icon: <Wallet size={18} />, path: "/seeker/dashboard/wallet" }, // Commented out for later use
     { label: "Missions", icon: <Briefcase size={18} />, path: "/seeker/dashboard/missions" },
@@ -71,9 +70,7 @@ export default function DashboardLayout() {
       >
         {/* Sidebar Header */}
         <div className="p-6 flex items-center justify-between border-b border-white/10">
-          <span className="text-xl font-bold text-fuschia tracking-wider">
-            <Link to={'/'}>GOPHORA</Link>
-          </span>
+         
 
           {/* Close on mobile */}
           <button

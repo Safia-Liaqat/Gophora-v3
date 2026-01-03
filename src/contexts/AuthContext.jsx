@@ -1,7 +1,7 @@
+// contexts/AuthContext.jsx - COMPLETE FIXED VERSION
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { APIURL } from '../services/api'; // IMPORT APIURL
-import { onboardingUtils } from './onboarding'
+import { APIURL } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -18,16 +18,29 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Initialize auth state from localStorage
+  // Initialize auth state from localStorage - WITHOUT TOKEN VALIDATION
   useEffect(() => {
     const initAuth = () => {
+      console.log('🔐 AuthContext: Initializing auth state');
+      
       const token = localStorage.getItem('token');
       const userId = localStorage.getItem('user_id');
       const email = localStorage.getItem('email');
       const role = localStorage.getItem('role');
       const refreshToken = localStorage.getItem('refresh_token');
 
+      // Log what we found
+      console.log('📦 localStorage data:', {
+        token: token ? '✅ Present' : '❌ Missing',
+        userId: userId || '❌ Missing',
+        email: email || '❌ Missing',
+        role: role || '❌ Missing',
+        refreshToken: refreshToken ? '✅ Present' : '❌ Missing'
+      });
+
+      // Check if we have ALL required auth data
       if (token && userId && email && role) {
+        console.log('👤 Setting user from localStorage');
         setUser({
           userId,
           email,
@@ -35,127 +48,155 @@ export const AuthProvider = ({ children }) => {
           token,
           refreshToken,
         });
+      } else {
+        console.log('🚫 No complete auth data found');
+        // Only clear if we have partial data
+        if (token || userId || email || role) {
+          console.log('🧹 Cleaning up partial auth data');
+          // Don't clear everything - just remove what's incomplete
+          if (!token) localStorage.removeItem('token');
+          if (!userId) localStorage.removeItem('user_id');
+          if (!email) localStorage.removeItem('email');
+          if (!role) localStorage.removeItem('role');
+          if (!refreshToken) localStorage.removeItem('refresh_token');
+        }
+        setUser(null);
       }
+      
       setLoading(false);
+      console.log('✅ Auth initialization complete, loading:', false);
     };
 
     initAuth();
   }, []);
 
-  // In your login function in AuthContext.js
-const login = async (email, password, role) => {
-  try {
-    const formBody = new URLSearchParams();
-    formBody.append('username', email);
-    formBody.append('password', password);
-
-    const response = await fetch(`${APIURL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formBody.toString(),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'Login failed');
-    }
-
-    const data = await response.json();
-
-    // Store in localStorage - CRITICAL: Store user_id FIRST
-    localStorage.setItem('user_id', data.user_id); // THIS MUST COME FIRST
-    localStorage.setItem('token', data.access_token);
-    localStorage.setItem('refresh_token', data.refresh_token);
-    localStorage.setItem('email', data.email);
-    localStorage.setItem('role', role);
-
-    // Update context state
-    setUser({
-      userId: data.user_id,
-      email: data.email,
-      role,
-      token: data.access_token,
-      refreshToken: data.refresh_token,
-    });
-
-    // Fetch user profile
+  const login = async (email, password, role) => {
     try {
-      const profileResponse = await fetch(`${APIURL}/user/profile`, {
+      console.log('🔐 Attempting login for:', email, 'role:', role);
+      
+      const formBody = new URLSearchParams();
+      formBody.append('username', email);
+      formBody.append('password', password);
+
+      const response = await fetch(`${APIURL}/auth/login`, {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${data.access_token}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
+        body: formBody.toString(),
       });
 
-      if (profileResponse.ok) {
-        const profile = await profileResponse.json();
-        localStorage.setItem('user_profile', JSON.stringify(profile));
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ Login failed:', errorData);
+        throw new Error(errorData.detail || 'Login failed');
       }
-    } catch (err) {
-      console.error('Error fetching profile:', err);
-    }
 
-    return { 
-      success: true, 
-      role,
-      user: {
-        id: data.user_id,
-        email: data.email,
-        role: role
+      const data = await response.json();
+      console.log('✅ Login response:', data);
+
+      // Store in localStorage
+      localStorage.setItem('user_id', data.user_id || data.userId || data.id);
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('refresh_token', data.refresh_token);
+      localStorage.setItem('email', email);
+      localStorage.setItem('role', role);
+
+      // Update context state
+      const newUser = {
+        userId: data.user_id || data.userId || data.id,
+        email: email,
+        role,
+        token: data.access_token,
+        refreshToken: data.refresh_token,
+      };
+      
+      console.log('👤 Setting user context:', newUser);
+      setUser(newUser);
+
+      // Fetch user profile (optional, can be done later)
+      try {
+        const profileResponse = await fetch(`${APIURL}/user/profile`, {
+          headers: {
+            Authorization: `Bearer ${data.access_token}`,
+          },
+        });
+
+        if (profileResponse.ok) {
+          const profile = await profileResponse.json();
+          localStorage.setItem('user_profile', JSON.stringify(profile));
+          console.log('📋 User profile stored');
+        }
+      } catch (err) {
+        console.warn('⚠️ Profile fetch failed (optional):', err);
       }
-    };
-  } catch (error) {
-    console.error('Login error:', error);
-    throw error;
-  }
-};
+
+      return { 
+        success: true, 
+        role,
+        user: newUser
+      };
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      throw error;
+    }
+  };
+
   const logout = async () => {
     try {
-      // Optional: Call backend logout endpoint to invalidate refresh token
       const refreshToken = localStorage.getItem('refresh_token');
-      if (refreshToken && user?.token) {
-        // CHANGED: Use APIURL
+      const token = localStorage.getItem('token');
+      
+      if (refreshToken && token) {
         await fetch(`${APIURL}/auth/logout`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ refresh_token: refreshToken }),
-        }).catch(err => console.error('Logout backend error:', err));
+        }).catch(err => console.warn('⚠️ Logout API error:', err));
       }
     } catch (err) {
-      console.error('Logout error:', err);
+      console.error('❌ Logout error:', err);
     } finally {
-      // Clear all auth data
-      localStorage.removeItem('token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user_id');
-      localStorage.removeItem('email');
-      localStorage.removeItem('role');
-      localStorage.removeItem('user_profile');
-      localStorage.removeItem('pending_application_id');
-      localStorage.removeItem('applicationsSentDelta');
-
-      // NEW: Clear onboarding data for this user
+      console.log('👋 Performing logout cleanup');
+      
+      // Get userId before clearing
       const userId = localStorage.getItem('user_id');
+      
+      // Clear all auth-related localStorage items
+      const itemsToClear = [
+        'token',
+        'refresh_token',
+        'user_id',
+        'email',
+        'role',
+        'user_profile',
+        'pending_application_id',
+        'applicationsSentDelta',
+        'onboarding_completed',
+        'onboarding_timestamp',
+        'explorer_profile',
+        'last_onboarding_user'
+      ];
+      
+      itemsToClear.forEach(item => localStorage.removeItem(item));
+      
+      // Clear user-specific onboarding if we have userId
       if (userId) {
         localStorage.removeItem(`onboarding_completed_${userId}`);
-        sessionStorage.removeItem(`onboarding_completed_${userId}`);
         localStorage.removeItem(`explorer_profile_${userId}`);
       }
       
-      // Clear general onboarding data
-      localStorage.removeItem('onboarding_completed');
-      sessionStorage.removeItem('onboarding_completed');
-      localStorage.removeItem('onboarding_timestamp');
-      localStorage.removeItem('explorer_profile');
-      localStorage.removeItem('user_id'); // Also remove user_id
-
+      // Clear sessionStorage
+      sessionStorage.clear();
+      
       // Reset context state
       setUser(null);
-
+      
+      console.log('✅ Logout completed');
+      
       // Navigate to login
       navigate('/login');
     }
@@ -168,7 +209,7 @@ const login = async (email, password, role) => {
         throw new Error('No refresh token available');
       }
 
-      // CHANGED: Use APIURL
+      console.log('🔄 Refreshing access token');
       const response = await fetch(`${APIURL}/auth/refresh`, {
         method: 'POST',
         headers: {
@@ -183,52 +224,29 @@ const login = async (email, password, role) => {
 
       const data = await response.json();
 
-      // Update tokens
+      // Update tokens in localStorage
       localStorage.setItem('token', data.access_token);
       if (data.refresh_token) {
         localStorage.setItem('refresh_token', data.refresh_token);
       }
 
-      // Update context
-      setUser(prev => ({
-        ...prev,
-        token: data.access_token,
-        refreshToken: data.refresh_token || prev.refreshToken,
-      }));
+      // Update context state
+      setUser(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          token: data.access_token,
+          refreshToken: data.refresh_token || prev.refreshToken,
+        };
+      });
 
+      console.log('✅ Token refreshed');
       return data.access_token;
     } catch (error) {
-      console.error('Token refresh failed:', error);
-      // If refresh fails, logout user
+      console.error('❌ Token refresh failed:', error);
       await logout();
       throw error;
     }
-  };
-
-  // NEW: Function to check if onboarding is required for current user
-  const checkOnboardingStatus = () => {
-    if (!user) return { requiresOnboarding: false };
-    
-    // Only seekers need onboarding
-    if (user.role !== 'seeker') {
-      return { requiresOnboarding: false };
-    }
-    
-    const isCompleted = onboardingUtils.isOnboardingCompleted();
-    return {
-      requiresOnboarding: !isCompleted,
-      isCompleted: isCompleted
-    };
-  };
-
-  // NEW: Function to manually mark onboarding as completed
-  const markOnboardingCompleted = () => {
-    onboardingUtils.completeOnboarding();
-  };
-
-  // NEW: Function to get explorer profile
-  const getExplorerProfile = () => {
-    return onboardingUtils.getExplorerProfile();
   };
 
   const value = {
@@ -238,9 +256,6 @@ const login = async (email, password, role) => {
     logout,
     refreshAccessToken,
     isAuthenticated: !!user,
-    checkOnboardingStatus, // NEW
-    markOnboardingCompleted, // NEW
-    getExplorerProfile, // NEW
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

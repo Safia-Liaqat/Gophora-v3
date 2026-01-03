@@ -56,6 +56,8 @@ import PrivacyPolicy from './components/common/Footer/PrivacyPolicy';
 import CookiePolicy from './components/common/Footer/CookiePolicy';
 import LegalNotices from './components/common/Footer/LegalNotices';
 import HelpCenter from './components/common/Footer/HelpCenter';
+import ProvidersPage from './pages/admin/provider/ProvidersPage';
+import ReviewPage from './pages/admin/provider/ReviewPage';
 
 
 function App() {
@@ -76,6 +78,8 @@ function App() {
         <Route path="/cookie-policy" element={<CookiePolicy />} />
         <Route path="/legal-notices" element={<LegalNotices />} />
         <Route path="/help-center" element={<HelpCenter />} />
+        <Route path='/admin/provider' element={<ProvidersPage/>} />
+        <Route path="/admin/providers/review" element={<ReviewPage/>} />
         
 
         {/* Admin Routes */}
