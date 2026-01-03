@@ -10,6 +10,8 @@ import {
   PlayIcon,
   PauseIcon
 } from "@heroicons/react/24/solid";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 export default function HowWeWork() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -59,6 +61,7 @@ export default function HowWeWork() {
     }
   ];
 
+  // Slide autoplay
   useEffect(() => {
     let interval;
     if (isAutoPlaying) {
@@ -69,251 +72,213 @@ export default function HowWeWork() {
     return () => clearInterval(interval);
   }, [isAutoPlaying, slides.length]);
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
+  // Initialize AOS for scroll animations
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      easing: "ease-in-out",
+      once: false,
+      mirror: true,
+    });
+  }, []);
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  const goToSlide = (index) => setCurrentSlide(index);
 
   return (
-    <section className="relative bg-primary py-10 md:py-14 lg:py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-start">
-          
-          {/* Left Column - Static Content */}
-          <div className="space-y-6">
-            {/* Section Header */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-1 bg-gradient-accent"></div>
-                <span className="text-xs font-semibold text-tertiary uppercase tracking-wider">
-                  PROCESS
-                </span>
-              </div>
-              
-              <h2 className="text-2xl sm:text-3xl font-bold leading-tight text-primary">
-                How We Work
-                <span className="block text-gradient-accent">
-                  (Immediate Activation)
-                </span>
-              </h2>
-              
-              <p className="text-base text-secondary">
-                Problem: Not lack of talent, but lack of immediate activation.
-              </p>
+    <section className="relative bg-[#030008] py-16 px-4 overflow-hidden text-white font-sans">
+      {/* Background Neon Glows */}
+      <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-fuchsia-900/20 blur-[150px] rounded-full animate-pulse-slow" />
+      <div className="absolute bottom-[-15%] right-[-10%] w-[50%] h-[50%] bg-indigo-900/20 blur-[150px] rounded-full animate-pulse-slow" />
+
+      <div className="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 items-start z-10">
+        {/* LEFT */}
+        <div className="space-y-8">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-px bg-gradient-to-r from-purple-500 to-transparent" />
+              <span className="text-xs tracking-widest text-white/60 uppercase">
+                PROCESS
+              </span>
             </div>
 
-            {/* Compact 24-Hour Activation */}
-            <div className="card">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-accent flex items-center justify-center">
-                  <BoltIcon className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-primary mb-1">24-Hour Activation</h3>
-                  <p className="text-sm text-secondary">
-                    Infrastructure connecting people with real missions in <span className="font-semibold text-primary">less than 24 hours</span>. Eliminating waiting and bureaucracy.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <h2 className="text-3xl font-semibold text-white leading-tight">
+              How We Work
+              <span className="block bg-gradient-to-r from-purple-400 to-white bg-clip-text text-transparent">
+                (Immediate Activation)
+              </span>
+            </h2>
 
-            {/* Key Principles */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-bold text-primary">Our Principles</h3>
-              <div className="space-y-2">
-                {[
-                  "We activate, don't hire",
-                  "Read signals, not CVs",
-                  "Assign missions, not jobs",
-                  "Time is sacred - no delays"
-                ].map((principle, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-gradient-accent"></div>
-                    <span className="text-sm text-secondary">{principle}</span>
+            <p className="text-white/70 text-base">
+              Problem: Not lack of talent, but lack of immediate activation.
+            </p>
+          </div>
+
+          {/* Cards */}
+          <div className="space-y-5">
+            {[
+              {
+                icon: <BoltIcon className="h-5 w-5 text-white" />,
+                title: "24-Hour Activation",
+                desc: "Infrastructure connecting people with real missions in less than 24 hours. Eliminating waiting and bureaucracy.",
+              },
+              {
+                icon: <SignalIcon className="h-5 w-5 text-white" />,
+                title: "Signal-Based AI",
+                desc: "Analyze digital signals instead of traditional CVs for better matching.",
+              },
+              {
+                icon: <ClockIcon className="h-5 w-5 text-white" />,
+                title: "Time is Sacred",
+                desc: "Immediate deployment is key, no unnecessary delays.",
+              }
+            ].map((card, idx) => (
+              <div
+                key={idx}
+                className="p-5 rounded-xl border border-white/10 bg-white/5 backdrop-blur hover:translate-y-[-2px] transition"
+                data-aos="fade-up"
+                data-aos-delay={idx * 150}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-accent flex items-center justify-center">
+                    {card.icon}
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">{card.title}</h3>
+                    <p className="text-sm text-white/70">{card.desc}</p>
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Principles */}
+          <div className="space-y-3 mt-5" data-aos="fade-up">
+            <h3 className="text-lg font-bold text-white">Our Principles</h3>
+            <div className="space-y-2">
+              {[
+                "We activate, don't hire",
+                "Read signals, not CVs",
+                "Assign missions, not jobs",
+                "Time is sacred - no delays"
+              ].map((principle, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gradient-accent" />
+                  <span className="text-sm text-white/70">{principle}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                className="p-2 rounded-full bg-white/5 border border-white/10 hover:border-purple-500/40 transition"
+              >
+                {isAutoPlaying ? (
+                  <PauseIcon className="h-4 w-4 text-white" />
+                ) : (
+                  <PlayIcon className="h-4 w-4 text-white" />
+                )}
+              </button>
+              <span className="text-xs text-white/60">Auto {isAutoPlaying ? "ON" : "OFF"}</span>
             </div>
 
-            {/* Mobile View - Activation Flow */}
-            <div className="lg:hidden mt-6 space-y-3">
-              <h3 className="text-base font-bold text-primary">Activation Flow</h3>
-              <div className="grid grid-cols-1 gap-3">
-                {[
-                  { step: "01", title: "Signal Scan", desc: "AI analyzes signals" },
-                  { step: "02", title: "Mission Match", desc: "Purpose assignment" },
-                  { step: "03", title: "Execute", desc: "Complete mission" },
-                  { step: "04", title: "Earn PHORA", desc: "Get reputation tokens" },
-                  { step: "05", title: "Explorer", desc: "Advanced access" }
-                ].map((item, index) => (
-                  <div 
-                    key={index}
-                    className="card hover:border-accent transition-colors duration-300"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-accent/10 flex items-center justify-center">
-                        <span className="text-xs font-bold text-gradient-accent">
-                          {item.step}
-                        </span>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-primary">{item.title}</h4>
-                        <p className="text-xs text-tertiary">{item.desc}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="flex gap-2">
+              <button onClick={prevSlide} className="p-2 rounded-full bg-white/5 border border-white/10 hover:border-purple-500/40 transition">
+                <ChevronLeftIcon className="h-4 w-4 text-white" />
+              </button>
+              <button onClick={nextSlide} className="p-2 rounded-full bg-white/5 border border-white/10 hover:border-purple-500/40 transition">
+                <ChevronRightIcon className="h-4 w-4 text-white" />
+              </button>
             </div>
           </div>
 
-          {/* Right Column - Slider & PHORA */}
-          <div className="space-y-4">
-            {/* Slider Controls */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                  className="p-1.5 rounded-full bg-secondary border border-primary hover:border-accent transition-colors duration-300"
-                >
-                  {isAutoPlaying ? (
-                    <PauseIcon className="h-4 w-4 text-primary" />
-                  ) : (
-                    <PlayIcon className="h-4 w-4 text-primary" />
-                  )}
-                </button>
-                <span className="text-xs text-tertiary">
-                  Auto {isAutoPlaying ? "ON" : "OFF"}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={prevSlide}
-                  className="p-1.5 rounded-full bg-secondary border border-primary hover:border-accent transition-colors duration-300"
-                >
-                  <ChevronLeftIcon className="h-4 w-4 text-primary" />
-                </button>
-                <button
-                  onClick={nextSlide}
-                  className="p-1.5 rounded-full bg-secondary border border-primary hover:border-accent transition-colors duration-300"
-                >
-                  <ChevronRightIcon className="h-4 w-4 text-primary" />
-                </button>
-              </div>
-            </div>
+          {/* Slider */}
+          <div className="relative h-[340px] rounded-2xl border border-white/10 bg-white/5 overflow-hidden" data-aos="fade-up">
+            <div
+              ref={sliderRef}
+              className="absolute inset-0 transition-transform duration-500 ease-out"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              <div className="flex w-full h-full">
+                {slides.map((slide, index) => (
+                  <div key={slide.id} className="w-full h-full flex-shrink-0 flex items-center justify-center p-6">
+                    <div className="max-w-md space-y-4">
+                      <div className="flex justify-between text-xs text-white/60">
+                        <span>0{index + 1} / 0{slides.length}</span>
+                        <div className={`w-12 h-px ${slide.color}`} />
+                      </div>
 
-            {/* Slider Container */}
-            <div className="relative h-[320px] sm:h-[340px] rounded-xl overflow-hidden border border-primary futuristic-border">
-              {/* Background Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary to-tertiary"></div>
-              
-              {/* Slides */}
-              <div 
-                ref={sliderRef}
-                className="absolute inset-0 transition-transform duration-500 ease-out"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-              >
-                <div className="flex w-full h-full">
-                  {slides.map((slide, index) => (
-                    <div
-                      key={slide.id}
-                      className="w-full h-full flex-shrink-0 flex items-center justify-center p-4 sm:p-6"
-                    >
-                      <div className="max-w-md w-full space-y-3 sm:space-y-4">
-                        {/* Slide Number */}
-                        <div className="flex items-center justify-between">
-                          <div className="text-xs font-semibold text-tertiary">
-                            0{index + 1} / 0{slides.length}
-                          </div>
-                          <div className={`w-10 sm:w-12 h-1 ${slide.color}`}></div>
-                        </div>
-                        
-                        {/* Icon */}
-                        <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl ${slide.color} flex items-center justify-center`}>
-                          {slide.icon}
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="space-y-2 sm:space-y-3">
-                          <h3 className="text-lg sm:text-xl font-bold text-primary">{slide.title}</h3>
-                          <p className="text-sm text-secondary leading-relaxed">
-                            {slide.description}
-                          </p>
-                          <div className="pt-2 border-t border-primary">
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary">
-                              <div className="w-1.5 h-1.5 rounded-full bg-gradient-accent"></div>
-                              <span className="text-xs font-semibold text-primary">{slide.stats}</span>
-                            </div>
+                      <div className={`w-16 h-16 rounded-xl ${slide.color} flex items-center justify-center`}>
+                        {slide.icon}
+                      </div>
+
+                      <div>
+                        <h3 className="text-xl font-bold text-white">{slide.title}</h3>
+                        <p className="text-sm text-white/70 mt-2">{slide.description}</p>
+
+                        <div className="pt-3 border-t border-white/10 mt-3">
+                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10">
+                            <div className="w-1.5 h-1.5 rounded-full bg-gradient-accent" />
+                            <span className="text-xs font-semibold text-white">{slide.stats}</span>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Slide Indicators */}
-              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex items-center gap-1.5">
-                {slides.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => goToSlide(index)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                      index === currentSlide 
-                        ? 'bg-gradient-accent w-3 sm:w-4' 
-                        : 'bg-primary hover:bg-tertiary'
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* Ultra Compact PHORA Section */}
-            <div className="card">
-              <div className="flex items-start gap-2.5">
-                <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-accent flex items-center justify-center mt-0.5">
-                  <CurrencyDollarIcon className="h-3.5 w-3.5 text-white" />
-                </div>
-                <div className="space-y-1.5">
-                  <h3 className="text-sm font-bold flex items-center gap-1">
-                    <span className="text-gradient-accent">
-                      PHORA
-                    </span>
-                    <span className="text-primary">is not currency</span>
-                  </h3>
-                  <p className="text-xs text-secondary leading-tight">
-                    Evidence of mission accomplished - reputation tokens proving impact.
-                  </p>
-                  
-                  <div className="flex gap-2 pt-1">
-                    <div className="flex-1 bg-tertiary px-2 py-1.5 rounded">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-gradient-accent"></div>
-                        <span className="text-xs text-primary">Reputation</span>
-                      </div>
-                    </div>
-                    <div className="flex-1 bg-tertiary px-2 py-1.5 rounded">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-gradient-accent"></div>
-                        <span className="text-xs text-primary">Human impact</span>
-                      </div>
-                    </div>
-                  </div>
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${index === currentSlide ? "w-4 bg-gradient-accent" : "w-1.5 bg-white/30"}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* PHORA Info */}
+          <div className="p-4 rounded-xl border border-white/10 bg-white/5" data-aos="fade-up">
+            <div className="flex gap-3">
+              <div className="w-7 h-7 rounded-full bg-gradient-accent flex items-center justify-center">
+                <CurrencyDollarIcon className="h-3.5 w-3.5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold">
+                  <span className="bg-gradient-to-r from-purple-400 to-white bg-clip-text text-transparent">PHORA</span>{" "}
+                  <span className="text-white">is not currency</span>
+                </h3>
+                <p className="text-xs text-white/70 mt-1">
+                  Evidence of mission accomplished - reputation tokens proving impact.
+                </p>
+
+                <div className="flex gap-2 mt-3">
+                  <div className="flex-1 bg-white/10 px-2 py-1.5 rounded text-xs text-white">Reputation</div>
+                  <div className="flex-1 bg-white/10 px-2 py-1.5 rounded text-xs text-white">Human impact</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Tailwind Animations */}
+      <style>
+        {`
+          @keyframes pulse-slow { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.6; } }
+          .animate-pulse-slow { animation: pulse-slow 6s ease-in-out infinite; }
+        `}
+      </style>
     </section>
   );
 }
