@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, Links } from "react-router-dom";
+import { Menu, X } from 'lucide-react';
 import logo from "../../assets/gophora-plomo-logo.png";
 
 // Icons
@@ -19,7 +20,8 @@ export default function Navbar() {
   const [currentLang, setCurrentLang] = useState("en");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
 
   // ---------- Scroll & Theme ----------
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function Navbar() {
     applyTheme(newTheme);
   };
 
-  // ---------- Google Translate ----------
+  // ---------- Google Translate Logic (Keeping your exact logic) ----------
   const loadGoogleTranslate = () =>
     new Promise((resolve) => {
       if (window.google && window.google.translate) resolve();
@@ -73,14 +75,7 @@ export default function Navbar() {
     });
 
   const hideGoogleUI = () => {
-    const elements = [
-      ".goog-te-banner-frame",
-      ".skiptranslate",
-      ".goog-te-gadget",
-      ".VIpgJd-ZVi9od-ORHb",
-      ".goog-tooltip",
-      "#goog-gt-tt",
-    ];
+    const elements = [".goog-te-banner-frame", ".skiptranslate", ".goog-te-gadget", ".VIpgJd-ZVi9od-ORHb", ".goog-tooltip", "#goog-gt-tt"];
     elements.forEach((selector) => {
       const el = document.querySelector(selector);
       if (el) el.style.display = "none";
@@ -132,53 +127,42 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-3 transition-all duration-500 ease-out `}>
+    
+    <nav className={`fixed top-0 left-0 right-0 z-50 w-full px-6 md:px-12 py-4 transition-all duration-500 border-b ${
+      isScrolled ? "backdrop-blur-md bg-black/40 border-white/10 shadow-lg" : "bg-transparent border-transparent"
+    }`}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center">
-          <Link to="/" className="group">
+        
+        {/* LOGO & BRAND */}
+        <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 group">
             <img
               src={logo}
               alt="Gophora Logo"
-              className={`h-10 w-auto transition-all duration-500 group-hover:scale-105 ${
+              className={`h-8 w-auto transition-all duration-500 group-hover:scale-105 ${
                 isScrolled ? "" : "filter brightness-0 invert dark:brightness-100 dark:invert-0"
               }`}
             />
-          </Link>
+           </Link>
         </div>
 
-        {/* Theme + Language */}
-        <div className="flex items-center gap-4">
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="relative flex items-center justify-center p-2.5 rounded-full transition-all duration-300 group bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 hover:bg-white/30 dark:hover:bg-black/30"
-          >
-            <div className="relative w-6 h-6 overflow-hidden">
-              <div
-                className={`absolute inset-0 flex items-center justify-center transition-all duration-500 transform ${
-                  theme === "light" ? "opacity-100 rotate-0 scale-100" : "opacity-0 rotate-90 scale-0"
-                }`}
-              >
-                <SunIcon />
-              </div>
-              <div
-                className={`absolute inset-0 flex items-center justify-center transition-all duration-500 transform ${
-                  theme === "dark" ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-0"
-                }`}
-              >
-                <MoonIcon />
-              </div>
-            </div>
-          </button>
+        {/* DESKTOP NAV LINKS (Requested section) */}
+        <div className="hidden md:flex gap-8 text-[10px] uppercase tracking-[0.3em] font-bold text-white/80">
+          <Link to="/about" className="hover:text-fuchsia-400 transition-colors">About</Link>
+          <Link to="/faq" className="hover:text-fuchsia-400 transition-colors">FAQ</Link>
+          <Link to="/organizations" className="hover:text-fuchsia-400 transition-colors">Organizations</Link>
+        </div>
 
+        {/* UTILITIES (Theme, Language, Mobile Menu) */}
+        <div className="flex items-center gap-4">
+          
           {/* Language switch */}
-          <div className="flex rounded-xl p-1 bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20">
+          <div className="hidden sm:flex rounded-xl p-1 bg-white/5 border border-white/10">
             <button
               onClick={() => changeLanguage("en")}
               disabled={isTranslating}
-              className={`px-4 py-1.5 rounded-lg text-sm font-semibold min-w-[60px] transition-all duration-300 ${
-                currentLang === "en" ? "bg-fuchsia-500/80 text-white shadow-lg scale-105" : "text-white/90 hover:bg-white/20 dark:hover:bg-black/20"
+              className={`px-3 py-1 rounded-lg text-[10px] font-bold tracking-widest transition-all ${
+                currentLang === "en" ? "bg-fuchsia-500 text-white" : "text-white/40 hover:text-white"
               }`}
             >
               EN
@@ -186,21 +170,53 @@ export default function Navbar() {
             <button
               onClick={() => changeLanguage("es")}
               disabled={isTranslating}
-              className={`px-4 py-1.5 rounded-lg text-sm font-semibold min-w-[60px] transition-all duration-300 ${
-                currentLang === "es" ? "bg-fuchsia-500/80 text-white shadow-lg scale-105" : "text-white/90 hover:bg-white/20 dark:hover:bg-black/20"
+              className={`px-3 py-1 rounded-lg text-[10px] font-bold tracking-widest transition-all ${
+                currentLang === "es" ? "bg-fuchsia-500 text-white" : "text-white/40 hover:text-white"
               }`}
             >
               ES
             </button>
           </div>
+
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-all"
+          >
+            {theme === "light" ? <MoonIcon /> : <SunIcon />}
+          </button>
+
+          {/* Accept Mission Button (From Landing version) */}
+          <Link to='/register' className="hidden lg:block px-5 py-2 border border-fuchsia-500/50 rounded-full text-[10px] uppercase tracking-widest text-white hover:bg-fuchsia-500 transition-all">
+            Launch Your Mission
+          </Link>
+
+          {/* Mobile Menu Toggle */}
+          <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
       </div>
 
+      {/* MOBILE MENU OVERLAY */}
+      {isMenuOpen && (
+        <div className="absolute top-full left-0 w-full bg-[#0a0514]/fb backdrop-blur-xl border-b border-white/10 p-8 flex flex-col gap-6 md:hidden animate-in slide-in-from-top duration-300">
+          <a href="#vision" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold uppercase tracking-widest text-white">Vision</a>
+          <a href="#process" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold uppercase tracking-widest text-white">Activation</a>
+          <a href="#phora" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold uppercase tracking-widest text-white">PHORA</a>
+          <hr className="border-white/5" />
+          <div className="flex justify-between items-center">
+             <span className="text-[10px] uppercase tracking-widest text-white/40">Language</span>
+             <div className="flex gap-2">
+                <button onClick={() => changeLanguage("en")} className={`px-4 py-2 rounded-lg text-xs font-bold ${currentLang === 'en' ? 'bg-fuchsia-500 text-white' : 'text-white/40'}`}>EN</button>
+                <button onClick={() => changeLanguage("es")} className={`px-4 py-2 rounded-lg text-xs font-bold ${currentLang === 'es' ? 'bg-fuchsia-500 text-white' : 'text-white/40'}`}>ES</button>
+             </div>
+          </div>
+        </div>
+      )}
+
       {/* Hidden Google Translate element */}
-      <div
-        id="google_translate_element"
-        style={{ position: "absolute", top: "-100px", left: "0", width: "1px", height: "1px", opacity: 0, pointerEvents: "none", overflow: "hidden" }}
-      ></div>
+      <div id="google_translate_element" style={{ display: "none" }}></div>
     </nav>
   );
 }

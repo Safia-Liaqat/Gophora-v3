@@ -44,8 +44,8 @@ const Footer = () => {
               </ScrollLink>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed max-w-md">
-              Activating human talent through real missions. GOPHORA connects people with purpose-driven opportunities that matter — from innovation to global impact.
-            </p>
+             Before an interplanetary civilization, we need a functional humanity. The future belongs to those who dare to accept a mission.
+             </p>
             
             {/* Social Links */}
             <div className="flex space-x-3 pt-2">

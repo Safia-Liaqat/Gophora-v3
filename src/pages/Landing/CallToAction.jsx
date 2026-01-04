@@ -1,11 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  ArrowRightIcon,
-  SparklesIcon,
-  BoltIcon,
-  ShieldCheckIcon
-} from "@heroicons/react/20/solid";
+import { ArrowRight, Sparkles, Zap, ShieldCheck } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -13,149 +8,106 @@ export default function CallToAction() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    AOS.init({
-      duration: 800,      // Animation duration
-      easing: "ease-in-out",
-      once: true,         // Animate only once
-      mirror: false,      // Animate out on scroll up
-    });
+    AOS.init({ duration: 800, once: true });
   }, []);
 
   return (
-    <section className="relative bg-[#05020d] pt-24 md:pt-28 lg:pt-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
-
-      {/* Ambient Background */}
+    <section className="relative bg-[#0a0514] py-16 md:py-24 px-4 md:px-8 overflow-hidden border-t border-white/5">
+      {/* Background Neon Glows */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-purple-700/15 rounded-full blur-[160px] animate-pulse-slow"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] animate-pulse-slow"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[800px] h-[300px] md:h-[800px] bg-fuchsia-900/10 rounded-full blur-[80px] md:blur-[120px] animate-pulse-slow"></div>
       </div>
 
-      {/* Wrapper */}
-      <div className="relative w-full max-w-7xl mx-auto pb-16 md:pb-20 lg:pb-24 xl:pb-28 z-10">
-
-        <div className="flex flex-col lg:flex-row items-stretch gap-6 lg:gap-8">
-
-          {/* Left Card */}
+      <div className="relative w-full max-w-7xl mx-auto z-10">
+        <div className="flex flex-col lg:flex-row items-stretch gap-6 md:gap-8">
+          
+          {/* Left Card: Explorers */}
           <div
             data-aos="fade-up"
-            data-aos-delay="100"
-            className="flex-1 relative overflow-hidden rounded-2xl xl:rounded-3xl bg-purple-800/25 backdrop-blur-md border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] transform transition-all duration-700"
+            className="flex-1 relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-white/[0.02] border border-white/10 backdrop-blur-md p-6 md:p-10 lg:p-12 group hover:border-fuchsia-500/30 transition-all duration-500"
           >
-            {/* Glow */}
-            <div className="absolute top-2 right-2 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 lg:w-56 lg:h-56 xl:w-64 xl:h-64 bg-gradient-to-br from-purple-600/15 to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
-
-            <div className="relative p-6 xs:p-7 sm:p-8 md:p-10 lg:p-9 xl:p-12 flex flex-col justify-between h-full">
-              <div className="flex flex-col space-y-4">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/15 backdrop-blur-sm">
-                  <SparklesIcon className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
-                  <span className="text-xs sm:text-sm font-medium text-purple-400 whitespace-nowrap">
-                    For Explorers
-                  </span>
+            <div className="relative z-10 flex flex-col justify-between h-full">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 mb-4 md:mb-6">
+                  <Sparkles className="h-3 w-3 text-fuchsia-400" />
+                  <span className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] font-bold text-fuchsia-400">For Explorers</span>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold mb-4 leading-tight text-white/90">
-                  <span className="block">Activate Your</span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-500">
-                    Hidden Potential
-                  </span>
+                {/* UPDATED: SOLID WHITE HEADING */}
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter mb-4 md:mb-6 leading-tight text-white">
+                  Activate Your <br />
+                  <span className="italic font-serif">Hidden Potential</span>
                 </h2>
 
-                <p className="text-sm sm:text-base md:text-lg text-white/60 mb-5">
-                  Stop waiting for opportunities. Create them through meaningful missions that match your skills and passion.
+                <p className="text-gray-400 text-sm md:text-base mb-6 md:mb-8 leading-relaxed max-w-md font-light">
+                  Stop waiting for opportunities. Create them through meaningful missions that match your signals.
                 </p>
 
-                <div className="space-y-3 mb-6">
-                  {[
-                    "24-hour mission activation",
-                    "No CV or interviews required",
-                    "Build reputation with PHORA",
-                    "Work on projects that matter"
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-purple-400 mt-1 transform transition-all duration-300 hover:scale-125"></div>
-                      <span className="text-xs sm:text-sm text-white/70 flex-1">{item}</span>
-                    </div>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 md:gap-4 mb-8 md:mb-10">
+                  {["24-hour activation", "No CV or interviews", "Build PHORA reputation", "Global mission access"].map((item, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <div className="shrink-0 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-fuchsia-500 shadow-[0_0_8px_rgba(217,70,239,0.8)]"></div>
+                      <span className="text-[10px] md:text-xs text-gray-300 font-light uppercase tracking-widest">{item}</span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
 
-              <div className="mt-4">
-                <button
-                  onClick={() => navigate("/register")}
-                  className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-purple-400 text-white px-5 py-3 sm:px-7 sm:py-4 rounded-full font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all duration-300 active:scale-[0.98]"
-                >
-                  <span>Start Exploring Free</span>
-                  <ArrowRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                </button>
-              </div>
+              <button
+                onClick={() => navigate("/register")}
+                className="group w-full sm:w-max bg-fuchsia-600 hover:bg-fuchsia-500 text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-[9px] md:text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-[0_0_20px_rgba(217,70,239,0.2)]"
+              >
+                Start Exploring Free
+                <ArrowRight className="h-3.5 w-3.5 md:h-4 md:w-4 transition-transform group-hover:translate-x-1" />
+              </button>
             </div>
           </div>
 
-          {/* Right Card */}
+          {/* Right Card: Organizations */}
           <div
             data-aos="fade-up"
-            data-aos-delay="300"
-            className="flex-1 relative overflow-hidden rounded-2xl xl:rounded-3xl bg-purple-800/25 backdrop-blur-md border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] transform transition-all duration-700"
+            data-aos-delay="150"
+            className="flex-1 relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-white/[0.02] border border-white/10 backdrop-blur-md p-6 md:p-10 lg:p-12 group hover:border-indigo-500/30 transition-all duration-500"
           >
-            <div className="absolute bottom-2 left-2 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 lg:w-56 lg:h-56 xl:w-64 xl:h-64 bg-gradient-to-tr from-purple-600/15 to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
-
-            <div className="relative p-6 xs:p-7 sm:p-8 md:p-10 lg:p-9 xl:p-12 flex flex-col justify-between h-full">
-              <div className="flex flex-col space-y-4">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/15 backdrop-blur-sm">
-                  <ShieldCheckIcon className="h-3 w-3 sm:h-4 sm:w-4 text-white/80" />
-                  <span className="text-xs sm:text-sm font-medium text-white/80 whitespace-nowrap">
-                    For Organizations
-                  </span>
+            <div className="relative z-10 flex flex-col justify-between h-full">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-4 md:mb-6">
+                  <ShieldCheck className="h-3 w-3 text-indigo-400" />
+                  <span className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] font-bold text-indigo-400">For Organizations</span>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold text-white mb-4 leading-tight">
-                  <span className="block">Access</span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-500">
-                    Activated Talent
-                  </span>
+                {/* UPDATED: SOLID WHITE HEADING */}
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter mb-4 md:mb-6 leading-tight text-white">
+                  Access <br />
+                  <span className="italic font-serif">Activated Talent</span>
                 </h2>
 
-                <p className="text-sm sm:text-base md:text-lg text-white/60 mb-5">
+                <p className="text-gray-400 text-sm md:text-base mb-6 md:mb-8 leading-relaxed max-w-md font-light">
                   Find mission-ready talent in 24 hours. Skip the lengthy hiring process and get results faster.
                 </p>
 
-                <div className="space-y-3 mb-6">
-                  {[
-                    "Post missions, get matches in 24h",
-                    "Access pre-verified talent pool",
-                    "Mission-focused assignments",
-                    "Pay for results, not time"
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-purple-400 mt-1 transform transition-all duration-300 hover:scale-125"></div>
-                      <span className="text-xs sm:text-sm text-white/70 flex-1">{item}</span>
-                    </div>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 md:gap-4 mb-8 md:mb-10">
+                  {["Matches in <24h", "Pre-verified talent", "Outcome-based assignments", "Reputation-backed results"].map((item, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <div className="shrink-0 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
+                      <span className="text-[10px] md:text-xs text-gray-300 font-light uppercase tracking-widest">{item}</span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
 
-              <div className="mt-4">
-                <button
-                  onClick={() => navigate("/organization/register")}
-                  className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-purple-400 text-white px-5 py-3 sm:px-7 sm:py-4 rounded-full font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all duration-300 active:scale-[0.98]"
-                >
-                  <span>Post Your First Mission</span>
-                  <BoltIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                </button>
-              </div>
+              <button
+                onClick={() => navigate("/organization/register")}
+                className="group w-full sm:w-max border border-white/20 hover:border-fuchsia-500/50 hover:bg-white/5 text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-[9px] md:text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-95"
+              >
+                Post Your First Mission
+                <Zap className="h-3.5 w-3.5 md:h-4 md:w-4 text-fuchsia-500" />
+              </button>
             </div>
           </div>
 
         </div>
       </div>
-
-      {/* Tailwind Animations */}
-      <style>
-        {`
-          @keyframes pulse-slow { 0%,100%{opacity:0.3;}50%{opacity:0.6;} }
-          .animate-pulse-slow { animation: pulse-slow 6s ease-in-out infinite; }
-        `}
-      </style>
     </section>
   );
 }
