@@ -4,47 +4,63 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="google" content="notranslate">
+    <meta name="google" content="notranslate">
     <meta http-equiv="Content-Language" content="en">
     <meta name="robots" content="noindex, nofollow">
 
     <title>GOPHORA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
+
+    <!--  DARK MODE PRELOAD SCRIPT -->
+    <script>
+      (function() {
+        try {
+          const theme = localStorage.getItem("theme") || "light";
+          if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        } catch (e) {
+          console.error("Failed to apply theme:", e);
+        }
+      })();
+    </script>
+
     <!-- COMPREHENSIVE GOOGLE TRANSLATE HIDING - LOADS IMMEDIATELY -->
     <style>
       /* PREVENT ALL GOOGLE TRANSLATE ELEMENTS FROM APPEARING */
-      .VIpgJd-ZVi9od-ORHb,               /* Floating "Show original" icon */
-      .VIpgJd-ZVi9od-xl07Ob-l4eHXb,      /* Icon container */
-      .VIpgJd-ZVi9od-l4eHXb-haAclf,      /* Another icon variant */
-      .VIpgJd-ZVi9od-SmfZ-OEVmcd,        /* Show original button */
-      .VIpgJd-ZVi9od-ORHb-OEVmcd,        /* Another show original variant */
-      .goog-te-spinner-pos,              /* Loading spinner */
-      .goog-te-banner-frame,             /* Top banner */
-      .goog-te-banner,                   /* Banner alternative */
-      .skiptranslate,                    /* Skip translate link */
-      .goog-te-gadget,                   /* Gadget container */
-      .goog-te-gadget-simple,            /* Simple gadget */
-      .goog-te-menu-value,               /* Language menu value */
-      .goog-te-menu-value span,          /* Language text */
-      .goog-te-balloon-frame,            /* Tooltip balloon */
-      #goog-gt-tt,                       /* Tooltip container */
-      .goog-tooltip,                     /* Tooltip */
-      .goog-tooltip-text,                /* Tooltip text */
-      .VIpgJd-yAWNEb-L7lbkb,             /* Another translate element */
-      .VIpgJd-yAWNEb-L7lbkb-haAclf,      /* And another */
-      iframe[src*="translate.google"],   /* Translate iframes */
-      iframe[title="Website Translator"], /* Translator iframe */
-      div[id*="google_translate_element"], /* Translate element */
-      body > div[style*="position: absolute; top: -20px"], /* Floating divs */
-      select.goog-te-combo,              /* Language selector */
-      .goog-te-combo,                    /* Combo box */
-      .goog-te-ftab-link,                /* Footer tab link */
-      .goog-te-ftab-button,              /* Footer button */
-      .VIpgJd-ZVi9od-aZ2wEe-wOHMyf,      /* More Google classes */
-      .VIpgJd-ZVi9od-aZ2wEe-OiiCO,       /* More Google classes */
-      .VIpgJd-ZVi9od-TvD9Pc-OEVmcd,      /* More Google classes */
-      .VIpgJd-ZVi9od-TvD9Pc-OiiCO        /* More Google classes */
+      .VIpgJd-ZVi9od-ORHb,
+      .VIpgJd-ZVi9od-xl07Ob-l4eHXb,
+      .VIpgJd-ZVi9od-l4eHXb-haAclf,
+      .VIpgJd-ZVi9od-SmfZ-OEVmcd,
+      .VIpgJd-ZVi9od-ORHb-OEVmcd,
+      .goog-te-spinner-pos,
+      .goog-te-banner-frame,
+      .goog-te-banner,
+      .skiptranslate,
+      .goog-te-gadget,
+      .goog-te-gadget-simple,
+      .goog-te-menu-value,
+      .goog-te-menu-value span,
+      .goog-te-balloon-frame,
+      #goog-gt-tt,
+      .goog-tooltip,
+      .goog-tooltip-text,
+      .VIpgJd-yAWNEb-L7lbkb,
+      .VIpgJd-yAWNEb-L7lbkb-haAclf,
+      iframe[src*="translate.google"],
+      iframe[title="Website Translator"],
+      div[id*="google_translate_element"],
+      body > div[style*="position: absolute; top: -20px"],
+      select.goog-te-combo,
+      .goog-te-combo,
+      .goog-te-ftab-link,
+      .goog-te-ftab-button,
+      .VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+      .VIpgJd-ZVi9od-aZ2wEe-OiiCO,
+      .VIpgJd-ZVi9od-TvD9Pc-OEVmcd,
+      .VIpgJd-ZVi9od-TvD9Pc-OiiCO
       {
         display: none !important;
         visibility: hidden !important;
@@ -66,22 +82,19 @@
         -webkit-clip-path: inset(100%) !important;
         clip-path: inset(100%) !important;
       }
-      
-      /* PREVENT BODY SHIFT - Google Translate moves body down */
+
       body {
         top: 0 !important;
         position: static !important;
         margin-top: 0 !important;
         padding-top: 0 !important;
       }
-      
-      /* Remove any inline styles Google adds */
+
       body[style*="top"] {
         top: 0 !important;
         position: static !important;
       }
-      
-      /* Hide the #google_translate_element wrapper */
+
       #google_translate_element {
         display: none !important;
         width: 0 !important;
@@ -91,16 +104,14 @@
         position: absolute !important;
         top: -9999px !important;
       }
-      
-      /* Specific targeting for the blue icon that flashes */
+
       .VIpgJd-ZVi9od-ORHb[style*="display: block"] {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
       }
-      
-      /* Prevent any animation/transition from Google */
-      .goog-te-*, 
+
+      .goog-te-*,
       .VIpgJd-*,
       [class*="goog-"],
       [class*="VIpgJd-"] {

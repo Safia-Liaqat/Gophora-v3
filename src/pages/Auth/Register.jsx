@@ -53,7 +53,7 @@ export default function Register() {
                 className={`w-full group text-left p-6 rounded-3xl border transition-all duration-300 ${theme.roleBtn}`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="p-3 rounded-xl bg-fuchsia-500/10 text-fuchsia-500">
+                  <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-500">
                     <User size={24} />
                   </div>
                   <ArrowRight size={18} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
