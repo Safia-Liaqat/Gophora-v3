@@ -1,5 +1,4 @@
-// src/pages/ForOrganizations.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   BoltIcon,
@@ -17,367 +16,242 @@ import {
   PuzzlePieceIcon,
   ChartPieIcon,
   SparklesIcon,
-  ArrowUpRightIcon
+  ArrowUpRightIcon,
+  LightBulbIcon,
+  CogIcon,
+  AcademicCapIcon,
+  BeakerIcon,
+  ArrowTrendingUpIcon
 } from "@heroicons/react/24/outline";
 
 export default function ForOrganizations() {
   const navigate = useNavigate();
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+
+  // Listen for theme changes
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  // Professional theme: strictly solid text colors for headings as requested
+  const theme = {
+    bg: isDarkMode ? "bg-[#0a0514]" : "bg-white",
+    bgSecondary: isDarkMode ? "bg-[#110a1f]" : "bg-gray-50",
+    text: isDarkMode ? "text-white" : "text-[#2d124d]", // Your brand black
+    textSecondary: isDarkMode ? "text-gray-400" : "text-gray-600",
+    textTertiary: isDarkMode ? "text-gray-500" : "text-gray-400",
+    card: isDarkMode ? "bg-white/[0.02] border border-white/5" : "bg-white border border-gray-200 shadow-sm",
+    btnPrimary: isDarkMode ? "bg-fuchsia-600 hover:bg-fuchsia-700" : "bg-[#2d124d] hover:bg-fuchsia-600",
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0A0A2A] via-[#0A0F2C] to-[#1A1F3C] text-white">
-      {/* Hero Section - Compact */}
-      <section className="pt-16 pb-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          {/* Subtle Badge */}
-          <div className="flex justify-center mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#1E1B4B]/50 border border-[#2D1B69] rounded-full">
-              <BuildingLibraryIcon className="h-4 w-4 text-[#A78BFA]" />
-              <span className="text-sm text-[#A78BFA]">For Organizations</span>
-            </div>
-          </div>
+    <div className={`min-h-screen w-full transition-colors duration-700 ${theme.bg} ${theme.text} font-sans selection:bg-fuchsia-500`}>
+      
+      {/* Background Mesh */}
+      <div className="fixed inset-0 overflow-hidden -z-10">
+        <div className={`absolute top-[-10%] left-[-10%] w-[70%] h-[40%] blur-[120px] rounded-full ${isDarkMode ? 'bg-fuchsia-900/10' : 'bg-fuchsia-500/5'}`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[70%] h-[40%] blur-[120px] rounded-full ${isDarkMode ? 'bg-indigo-900/10' : 'bg-indigo-500/5'}`} />
+      </div>
 
-          {/* Hero Content */}
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
-              Beyond Hiring
-              <span className="block text-[#A78BFA] mt-2">Activating a Mission-Driven Workforce</span>
-            </h1>
-            <p className="text-gray-400 text-base leading-relaxed">
-              Transform how you access talent. Move from slow hiring to instant mission activation with GOPHORA's infrastructure.
-            </p>
+      <div className="w-full px-6 py-12 md:py-20">
+        
+        {/* Hero Section - Refined Proportions */}
+        <section className="max-w-5xl mx-auto mb-24 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-fuchsia-500/20 mb-8">
+            <BuildingLibraryIcon className="h-4 w-4 text-fuchsia-500" />
+            <span className={`text-[10px] uppercase tracking-[0.3em] font-bold ${isDarkMode ? 'text-white/60' : 'text-[#2d124d]'}`}>
+              Enterprise Solutions
+            </span>
           </div>
-
-          {/* Stats - Horizontal */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mb-12">
+          
+          <h1 className="text-4xl md:text-6xl font-serif leading-tight mb-8">
+            Talent Activation. <br/>
+            <span className="italic font-light opacity-80">Beyond Hiring.</span>
+          </h1>
+          
+          <p className={`${theme.textSecondary} text-lg max-w-2xl mx-auto font-light leading-relaxed mb-12`}>
+            Transform passive talent pools into active mission executors with GOPHORA's next-generation infrastructure.
+          </p>
+          
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto mb-12">
             {[
-              { value: "24h", label: "Activation", icon: <ClockIcon className="h-4 w-4" /> },
-              { value: "0%", label: "Hiring Delay", icon: <XMarkIcon className="h-4 w-4" /> },
-              { value: "10K+", label: "Talent Pool", icon: <UserGroupIcon className="h-4 w-4" /> },
-              { value: "500+", label: "Orgs Trust Us", icon: <ShieldCheckIcon className="h-4 w-4" /> }
+              { value: "24h", label: "Activation Time", icon: BoltIcon },
+              { value: "10K+", label: "Verified Talent", icon: UserGroupIcon },
+              { value: "500+", label: "Organizations", icon: ShieldCheckIcon },
+              { value: "$0", label: "Upfront Costs", icon: CurrencyDollarIcon }
             ].map((stat, idx) => (
-              <div key={idx} className="text-center p-4 bg-[#1E1B4B]/30 border border-[#2D1B69] rounded-lg">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <div className="text-[#A78BFA]">{stat.icon}</div>
-                  <div className="text-xl font-semibold">{stat.value}</div>
-                </div>
-                <div className="text-xs text-gray-400">{stat.label}</div>
+              <div key={idx} className={`p-6 rounded-2xl border ${theme.card}`}>
+                <stat.icon className="h-5 w-5 mx-auto mb-3 text-fuchsia-500" />
+                <div className="text-2xl font-bold mb-1">{stat.value}</div>
+                <div className={`text-[10px] uppercase tracking-widest ${theme.textTertiary}`}>{stat.label}</div>
               </div>
             ))}
           </div>
 
-          {/* Primary CTA - Compact */}
-          <div className="text-center">
-            <button
-              onClick={() => navigate("/register")}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-            >
-              Start Activating Talent
-              <ArrowRightIcon className="h-4 w-4" />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button onClick={() => navigate("/register")} className={`px-8 py-4 text-white rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 ${theme.btnPrimary}`}>
+              Start Free Trial <ArrowRightIcon className="h-4 w-4" />
             </button>
-            <p className="text-sm text-gray-500 mt-3">Register in 2 minutes • First mission free</p>
+            <button onClick={() => navigate("/demo")} className={`px-8 py-4 rounded-xl font-bold border ${isDarkMode ? 'border-white/10 text-white' : 'border-gray-200 text-[#2d124d]'}`}>
+              Request Demo
+            </button>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Pain Points Section - Like Xtract's "Services" */}
-      <section className="py-12 px-6 bg-[#0A0F2C]/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-3">Why Traditional Hiring is Failing</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-sm">
-              Legacy systems waste human potential and create strategic liabilities
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Inactive Talent Pools",
-                description: "Capable individuals wait months while their skills remain locked away by slow recruitment cycles.",
-                icon: <UserGroupIcon className="h-6 w-6" />
-              },
-              {
-                title: "Exclusionary Systems",
-                description: "Over-reliance on static CVs overlooks exceptional talent that doesn't fit conventional molds.",
-                icon: <XMarkIcon className="h-6 w-6" />
-              },
-              {
-                title: "Economic Inefficiency",
-                description: "Protracted hiring procedures drain resources before any work begins.",
-                icon: <CurrencyDollarIcon className="h-6 w-6" />
-              }
-            ].map((point, idx) => (
-              <div 
-                key={idx}
-                onMouseEnter={() => setHoveredCard(idx)}
-                onMouseLeave={() => setHoveredCard(null)}
-                className={`p-6 border rounded-xl transition-all duration-300 ${
-                  hoveredCard === idx 
-                    ? 'border-[#A78BFA] bg-[#1E1B4B]/30' 
-                    : 'border-[#2D1B69] bg-[#1E1B4B]/20'
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-[#8B5CF6]/10 rounded-lg">
-                    <div className="text-[#A78BFA]">{point.icon}</div>
-                  </div>
-                  <h3 className="font-semibold">{point.title}</h3>
-                </div>
-                <p className="text-sm text-gray-400 leading-relaxed">{point.description}</p>
+        {/* Problem & Solution */}
+        <section className="max-w-6xl mx-auto mb-24">
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div className={`p-10 rounded-3xl border ${theme.card}`}>
+              <div className="flex items-center gap-3 mb-8">
+                <XMarkIcon className="h-6 w-6 text-red-500" />
+                <h2 className="text-2xl font-bold">The Problem</h2>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Paradigm Shift - Clean Comparison */}
-      <section className="py-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-3">The GOPHORA Paradigm Shift</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-sm">
-              From static jobs to dynamic, outcome-oriented missions
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Old Model */}
-            <div className="p-6 border border-red-900/30 rounded-xl bg-gradient-to-br from-red-900/10 to-transparent">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-red-500/10 rounded-lg">
-                  <XMarkIcon className="h-5 w-5 text-red-400" />
-                </div>
-                <h3 className="text-lg font-semibold">The Obsolete Model</h3>
-              </div>
-              
-              <div className="space-y-4">
+              <div className="space-y-8">
                 {[
-                  { label: "Hiring", desc: "Slow, bureaucratic processes" },
-                  { label: "Evaluating CVs", desc: "Static, exclusionary criteria" },
-                  { label: "Offering Jobs", desc: "Fixed roles, limited flexibility" }
+                  { title: "Static Talent Pools", desc: "Skilled individuals remain inactive for months.", icon: ClockIcon },
+                  { title: "CV-Based Biases", desc: "Exceptional talent overlooked by traditional screening.", icon: AcademicCapIcon },
+                  { title: "Economic Drain", desc: "Long hiring processes consume critical resources.", icon: CurrencyDollarIcon }
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-red-400/20 flex items-center justify-center mt-0.5">
-                      <XMarkIcon className="h-2.5 w-2.5 text-red-400" />
-                    </div>
+                  <div key={idx} className="flex gap-4">
+                    <item.icon className="h-6 w-6 text-red-500/50 flex-shrink-0" />
                     <div>
-                      <div className="font-medium text-sm">{item.label}</div>
-                      <div className="text-xs text-gray-400">{item.desc}</div>
+                      <h3 className="font-bold mb-1">{item.title}</h3>
+                      <p className={`text-sm ${theme.textSecondary}`}>{item.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* New Model */}
-            <div className="p-6 border border-emerald-900/30 rounded-xl bg-gradient-to-br from-emerald-900/10 to-transparent">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-emerald-500/10 rounded-lg">
-                  <CheckCircleIcon className="h-5 w-5 text-emerald-400" />
-                </div>
-                <h3 className="text-lg font-semibold">GOPHORA Activation Model</h3>
+            <div className={`p-10 rounded-3xl border ${theme.card}`}>
+              <div className="flex items-center gap-3 mb-8">
+                <LightBulbIcon className="h-6 w-6 text-fuchsia-500" />
+                <h2 className="text-2xl font-bold">The Solution</h2>
               </div>
-              
-              <div className="space-y-4">
+              <div className="space-y-8">
                 {[
-                  { label: "Activating", desc: "Instant talent deployment" },
-                  { label: "Reading Signals", desc: "AI-powered capability matching" },
-                  { label: "Assigning Missions", desc: "Purpose-driven, flexible execution" }
+                  { title: "Dynamic Activation", desc: "Deploy talent based on real-time capability signals.", icon: BoltIcon },
+                  { title: "AI-Powered Matching", desc: "Visnity AI matches patterns to mission requirements.", icon: PuzzlePieceIcon },
+                  { title: "Mission-Based Economy", desc: "Pay for outcomes, not time. Tokenized reputation.", icon: ArrowTrendingUpIcon }
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-emerald-400/20 flex items-center justify-center mt-0.5">
-                      <CheckCircleIcon className="h-2.5 w-2.5 text-emerald-400" />
-                    </div>
+                  <div key={idx} className="flex gap-4">
+                    <item.icon className="h-6 w-6 text-fuchsia-500/50 flex-shrink-0" />
                     <div>
-                      <div className="font-medium text-sm">{item.label}</div>
-                      <div className="text-xs text-gray-400">{item.desc}</div>
+                      <h3 className="font-bold mb-1">{item.title}</h3>
+                      <p className={`text-sm ${theme.textSecondary}`}>{item.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* How It Works - Like Xtract's "Process" */}
-      <section className="py-12 px-6 bg-[#0A0F2C]/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-3">How It Works: Instant Talent Activation</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-sm">
-              A streamlined process that eliminates friction and connects need with capability
-            </p>
+        {/* Activation Protocol (Timeline) */}
+        <section className="max-w-4xl mx-auto mb-24">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">The Activation Protocol</h2>
+            <div className="h-1 w-12 bg-fuchsia-500 mx-auto rounded-full" />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="space-y-12 relative">
+            <div className="absolute left-[23px] top-0 bottom-0 w-px bg-fuchsia-500/20" />
             {[
-              {
-                step: "1",
-                title: "Define Mission",
-                desc: "Create clear, executable mission with specific objective",
-                icon: <SparklesIcon className="h-5 w-5" />
-              },
-              {
-                step: "2",
-                title: "AI Matching",
-                desc: "Visnity AI scans behavior & signals for perfect match",
-                icon: <PuzzlePieceIcon className="h-5 w-5" />
-              },
-              {
-                step: "3",
-                title: "24h Activation",
-                desc: "Talent connected to mission in under 24 hours",
-                icon: <BoltIcon className="h-5 w-5" />
-              },
-              {
-                step: "4",
-                title: "Execution",
-                desc: "Explorer executes mission with autonomy and focus",
-                icon: <RocketLaunchIcon className="h-5 w-5" />
-              }
-            ].map((step, idx) => (
-              <div key={idx} className="text-center p-6 border border-[#2D1B69] rounded-xl bg-[#1E1B4B]/20">
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] mb-4">
-                  <span className="text-white text-sm font-semibold">{step.step}</span>
+              { step: "01", title: "Define Mission", desc: "Create executable missions with clear objectives.", icon: SparklesIcon },
+              { step: "02", title: "AI Matching", desc: "Visnity AI scans behavior signals for optimal matches.", icon: BeakerIcon },
+              { step: "03", title: "24h Activation", desc: "Talent is deployed and onboarded in record time.", icon: BoltIcon },
+              { step: "04", title: "Execution", desc: "Mission completion recorded as proof of utility.", icon: RocketLaunchIcon }
+            ].map((s, i) => (
+              <div key={i} className="flex gap-6 items-start relative z-10">
+                <div className="w-12 h-12 rounded-full bg-[#2d124d] text-white flex items-center justify-center font-bold flex-shrink-0 shadow-lg border border-white/20">
+                  {s.step}
                 </div>
-                <h3 className="font-semibold mb-2">{step.title}</h3>
-                <p className="text-sm text-gray-400">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Economy Section */}
-      <section className="py-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-3">The Mission-Based Economy</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-sm">
-              A transparent framework for value, payment, and reputation
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {[
-              {
-                title: "Mission Payment",
-                desc: "Pay in USDT for successful execution",
-                icon: <CurrencyDollarIcon className="h-5 w-5" />,
-                tag: "Direct Results"
-              },
-              {
-                title: "Platform Commission",
-                desc: "10% transparent fee on completion",
-                icon: <ChartBarIcon className="h-5 w-5" />,
-                tag: "Sustainable"
-              },
-              {
-                title: "PHORA Rewards",
-                desc: "Explorers earn reputation tokens",
-                icon: <ShieldCheckIcon className="h-5 w-5" />,
-                tag: "Verifiable Impact"
-              }
-            ].map((item, idx) => (
-              <div key={idx} className="p-6 border border-[#2D1B69] rounded-xl bg-[#1E1B4B]/20">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-[#8B5CF6]/10 rounded-lg">
-                    <div className="text-[#A78BFA]">{item.icon}</div>
-                  </div>
-                  <h3 className="font-semibold">{item.title}</h3>
-                </div>
-                <p className="text-sm text-gray-400 mb-4">{item.desc}</p>
-                <div className="inline-block px-3 py-1 bg-[#2D1B69] text-xs rounded-full text-gray-300">
-                  {item.tag}
+                <div>
+                  <h3 className="text-lg font-bold mb-1">{s.title}</h3>
+                  <p className={`${theme.textSecondary} text-sm font-light`}>{s.desc}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Strategic Advantages - Like Xtract's "Benefits" */}
-      <section className="py-12 px-6 bg-[#0A0F2C]/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-3">Your Strategic Advantage</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-sm">
-              Fundamental benefits impossible through traditional models
-            </p>
+        {/* Strategic Advantages Grid */}
+        <section className="max-w-6xl mx-auto mb-24">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Strategic Advantages</h2>
+            <p className={`${theme.textSecondary} text-sm max-w-lg mx-auto`}>Fundamental benefits impossible through traditional models.</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              {
-                title: "24h Speed",
-                desc: "Eliminate recruitment delays, activate talent instantly",
-                icon: <BoltIcon className="h-5 w-5" />
-              },
-              {
-                title: "Radical Agility",
-                desc: "Scale execution capacity up or down seamlessly",
-                icon: <ArrowPathIcon className="h-5 w-5" />
-              },
-              {
-                title: "Proven Talent",
-                desc: "Leverage PHORA reputation system for verified talent",
-                icon: <ShieldCheckIcon className="h-5 w-5" />
-              },
-              {
-                title: "Future Branding",
-                desc: "Align with the defining shift in the future of work",
-                icon: <RocketLaunchIcon className="h-5 w-5" />
-              }
-            ].map((advantage, idx) => (
-              <div key={idx} className="p-6 border border-[#2D1B69] rounded-xl bg-[#1E1B4B]/20">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-gradient-to-r from-[#8B5CF6]/20 to-[#A78BFA]/20 rounded-lg">
-                    <div className="text-[#A78BFA]">{advantage.icon}</div>
-                  </div>
-                  <h3 className="font-semibold text-sm">{advantage.title}</h3>
-                </div>
-                <p className="text-sm text-gray-400">{advantage.desc}</p>
+              { title: "Instant Scalability", desc: "Scale capacity within hours.", icon: ArrowPathIcon },
+              { title: "Verified Excellence", desc: "Pre-verified through PHORA reputation.", icon: ShieldCheckIcon },
+              { title: "Cost Efficiency", desc: "No recruitment overhead. Pay for success.", icon: CurrencyDollarIcon },
+              { title: "Future Branding", desc: "Position at the forefront of the work future.", icon: RocketLaunchIcon },
+              { title: "Diverse Perspectives", desc: "Access unconventional global talent.", icon: UserGroupIcon },
+              { title: "Driven Insights", desc: "Leverage AI-driven execution insights.", icon: ChartBarIcon }
+            ].map((adv, idx) => (
+              <div key={idx} className={`p-8 rounded-3xl border ${theme.card} hover:scale-[1.02] transition-all`}>
+                <adv.icon className="h-6 w-6 mb-4 text-fuchsia-500" />
+                <h3 className="text-lg font-bold mb-2">{adv.title}</h3>
+                <p className={`${theme.textSecondary} text-sm font-light`}>{adv.desc}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Final CTA - Compact */}
-      <section className="py-12 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="p-8 border border-[#2D1B69] rounded-2xl bg-gradient-to-br from-[#1E1B4B]/30 to-transparent">
-            <RocketLaunchIcon className="h-12 w-12 text-[#A78BFA] mx-auto mb-6" />
-            
-            <h2 className="text-2xl font-bold mb-4">
-              Don't just look for talent.
-              <span className="text-[#A78BFA] block mt-1">Activate a mission.</span>
-            </h2>
-            
-            <p className="text-gray-400 mb-8 max-w-xl mx-auto text-sm">
-              We're building the infrastructure for a more functional humanity. Join the crew.
-            </p>
+        {/* Economy Model */}
+        <section className="max-w-6xl mx-auto mb-24">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">The Mission-Based Economy</h2>
+            <p className={`${theme.textSecondary} text-sm`}>A professional framework for value, payment, and reputation.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { title: "Mission Payment", desc: "Pay in USDT for successful execution.", tag: "Direct Results", icon: CurrencyDollarIcon },
+              { title: "Platform Commission", desc: "10% transparent fee on completion.", tag: "Sustainable", icon: ChartPieIcon },
+              { title: "PHORA Rewards", desc: "Explorers earn reputation tokens.", tag: "Verifiable Impact", icon: ShieldCheckIcon }
+            ].map((item, i) => (
+              <div key={i} className={`p-8 rounded-3xl border ${theme.card} relative overflow-hidden group`}>
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <item.icon className="h-16 w-16" />
+                </div>
+                <div className="text-[10px] uppercase tracking-widest font-bold mb-4 text-fuchsia-500">{item.tag}</div>
+                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                <p className={`${theme.textSecondary} text-sm mb-6 leading-relaxed`}>{item.desc}</p>
+                <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest opacity-40">
+                  <CheckCircleIcon className="h-3 w-3 text-green-500" /> Network Verified
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => navigate("/register")}
-                className="px-6 py-3 bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-              >
-                Post Your First Mission
-              </button>
-              
-              <button
-                onClick={() => navigate("/contact")}
-                className="px-6 py-3 border border-[#A78BFA] text-[#A78BFA] rounded-lg hover:bg-[#A78BFA]/10 transition-colors"
-              >
-                Schedule Demo
-              </button>
+        {/* Final CTA */}
+        <section className="max-w-4xl mx-auto">
+          <div className={`rounded-[2.5rem] p-12 text-center border ${theme.card} relative overflow-hidden`}>
+            <div className="relative z-10">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                Ready to <span className="italic font-serif font-light">Activate</span>?
+              </h2>
+              <p className={`${theme.textSecondary} text-base mb-10 max-w-md mx-auto font-light`}>
+                Join the infrastructure for human utility. No commitment required to browse.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onClick={() => navigate("/register")} className={`px-10 py-4 text-white rounded-xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95 ${theme.btnPrimary}`}>
+                  Launch Your First Mission <ArrowUpRightIcon className="h-5 w-5" />
+                </button>
+                <button onClick={() => navigate("/contact")} className={`px-10 py-4 rounded-xl font-bold border ${isDarkMode ? 'border-white/10 text-white' : 'border-gray-200 text-[#2d124d]'}`}>
+                  Book Demo
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

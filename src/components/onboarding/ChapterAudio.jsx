@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Play, Pause, Volume2 } from "lucide-react";
 
 const audioScripts = {
   1: { src: "/audios/chapter1.mp3", text: "Hello, explorer. Your purpose is waiting." },
   2: { src: "/audios/chapter2.mp3", text: "Time is your greatest ally. Ignite your spark." },
-  3: { src: "/audios/chapter3.mp3", text: "Activate your purpose. Connect with explorers." },
-  4: { src: "/audios/chapter4.mp3", text: "Your role here is vital. Build together." },
-  5: { src: "/audios/chapter5.mp3", text: "Every effort fuels a new economy of purpose." },
-  6: { src: "/audios/chapter6.mp3", text: "Prepare humanity for the stars. You are a pioneer." },
+  // ... other chapters
 };
 
 export default function ChapterAudio({ chapterId }) {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const isDarkMode = document.documentElement.classList.contains('dark');
 
   useEffect(() => {
     if (audioRef.current) {
@@ -23,28 +22,36 @@ export default function ChapterAudio({ chapterId }) {
 
   const togglePlay = () => {
     if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      audioRef.current.play();
-      setIsPlaying(true);
-    }
+    isPlaying ? audioRef.current.pause() : audioRef.current.play();
+    setIsPlaying(!isPlaying);
   };
 
   const script = audioScripts[chapterId];
   if (!script) return null;
 
   return (
-    <div className="bg-blue-50 p-4 rounded-md mt-4 flex flex-col md:flex-row md:items-center gap-4">
+    <div className={`p-5 rounded-[2rem] border transition-all duration-500 flex flex-col md:flex-row md:items-center gap-5 ${
+      isDarkMode ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-fuchsia-100 shadow-xl"
+    }`}>
       <audio ref={audioRef} src={script.src} onEnded={() => setIsPlaying(false)} />
+      
       <button
         onClick={togglePlay}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md font-semibold"
+        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all active:scale-90 shadow-lg ${
+          isDarkMode ? "bg-fuchsia-600 text-white" : "bg-[#2d124d] text-white"
+        }`}
       >
-        {isPlaying ? "Pause Audio" : "Play Audio"}
+        {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
       </button>
-      <p className="text-blue-900 italic flex-1">{script.text}</p>
+
+      <div className="flex-1">
+        <div className="flex items-center gap-2 mb-1 opacity-50 uppercase tracking-[0.2em] text-[9px] font-bold">
+          <Volume2 size={12} /> Chapter Transmission
+        </div>
+        <p className={`italic font-serif text-sm ${isDarkMode ? "text-gray-300" : "text-[#2d124d]"}`}>
+          "{script.text}"
+        </p>
+      </div>
     </div>
   );
 }

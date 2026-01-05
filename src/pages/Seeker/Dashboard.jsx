@@ -54,7 +54,7 @@ export default function SeekerDashboard() {
   return (
     <div className="text-white p-4">
       <h2 className="text-3xl font-semibold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-[#C5A3FF] to-[#9E7BFF] drop-shadow-[0_0_10px_rgba(158,123,255,0.6)]">
-        Welcome, Opportunity Seeker 🌱
+        Welcome, Explorer
       </h2>
       <p className="text-gray-300 mb-8">
         Explore new opportunities tailored to your skills and location.

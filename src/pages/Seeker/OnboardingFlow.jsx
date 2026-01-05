@@ -1,20 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ProgressBar from "../../components/onboarding/ProgressBar";
 import { onboardingUtils } from "../../contexts/onboarding";
 import { FiPlus, FiTrash2, FiUpload } from "react-icons/fi";
+import { Bolt, Signal, Clock, Trophy, UserCheck, ArrowRight } from "lucide-react";
 import { APIURL } from '../../services/api.js';
 
-// Updated helper component with "Audio Inactive" state
-const FounderMessage = ({ messageText }) => (
-  <div className="my-6 p-4 bg-jewel/5 border border-jewel/20 rounded-xl flex flex-col sm:flex-row items-center gap-4 group">
-    <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg cursor-not-allowed opacity-60">
-      <div className="w-3 h-3 bg-gray-500 rounded-full" />
-      <span className="text-[10px] uppercase tracking-tighter text-stark/50 font-bold">Audio Coming Soon</span>
-    </div>
-    <p className="text-jewel italic text-sm text-center sm:text-left flex-1">
+// Compact FounderMessage component
+const FounderMessage = ({ messageText, isDarkMode }) => (
+  <div className={`my-4 p-3 rounded-lg flex items-center gap-3 text-sm ${
+    isDarkMode 
+      ? "bg-white/[0.02] border border-white/5" 
+      : "bg-fuchsia-50/50 border border-fuchsia-100"
+  }`}>
+    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+      isDarkMode ? "bg-fuchsia-500" : "bg-fuchsia-500"
+    }`} />
+    <p className={`italic ${isDarkMode ? "text-white" : "text-black"}`}>
       "{messageText}"
     </p>
+  </div>
+);
+
+// Compact Progress Display
+const ProgressDisplay = ({ current, total, isDarkMode }) => (
+  <div className="flex items-center justify-between mb-6">
+    <div className="flex items-center gap-3">
+      <div className={`w-8 h-[2px] ${isDarkMode ? 'bg-gradient-to-r from-fuchsia-500 to-transparent' : 'bg-fuchsia-500'}`} />
+      <span className={`text-xs uppercase tracking-[0.3em] font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>
+        Step {current}/{total}
+      </span>
+    </div>
+    <div className="flex items-center gap-2">
+      <div className={`text-xs ${isDarkMode ? 'text-white' : 'text-black'}`}>
+        {Math.round((current / total) * 100)}%
+      </div>
+    </div>
   </div>
 );
 
@@ -27,7 +48,8 @@ const chapters = [
     question: "What emotion do you want to transform into creative energy?",
     type: "choice",
     options: ["Fear", "Doubt", "Sadness", "Stress", "All of the above"],
-    message: "Your purpose is your superpower. – Andrea Covarrubias"
+    message: "Your purpose is your superpower. – Andrea Covarrubias",
+    icon: <Bolt className="h-4 w-4" />
   },
   {
     id: 2,
@@ -37,7 +59,8 @@ const chapters = [
     question: "List your Skills, Hobbies, and Experiences:",
     type: "profile_input",
     fields: ["Skills", "Hobbies", "Experience"],
-    message: "In just 24 hours, your life can begin to change."
+    message: "In just 24 hours, your life can begin to change.",
+    icon: <Clock className="h-4 w-4" />
   },
   {
     id: 3,
@@ -54,7 +77,8 @@ const chapters = [
       { key: "location", label: "Location", type: "text" },
       { key: "languages", label: "Languages (comma separated)", type: "text" }
     ],
-    message: "Your identity is the first chapter of your journey."
+    message: "Your identity is the first chapter of your journey.",
+    icon: <UserCheck className="h-4 w-4" />
   },
   {
     id: 4,
@@ -64,7 +88,8 @@ const chapters = [
     question: "Education & Growth:",
     type: "education",
     fields: ["Formal Education", "Self-Taught Education"],
-    message: "Purpose isn't something you find. It's something you activate."
+    message: "Purpose isn't something you find. It's something you activate.",
+    icon: <Signal className="h-4 w-4" />
   },
   {
     id: 5,
@@ -73,7 +98,8 @@ const chapters = [
     text: "Share your professional journey and achievements.",
     question: "Tell us about your work experience:",
     type: "experience",
-    message: "Every role you've played adds to your unique story."
+    message: "Every role you've played adds to your unique story.",
+    icon: <Trophy className="h-4 w-4" />
   },
   {
     id: 6,
@@ -83,7 +109,8 @@ const chapters = [
     question: "Projects & Contributions:",
     type: "profile_input",
     fields: ["Projects Completed", "Projects you want to contribute to"],
-    message: "Your role here is vital. Together, we shape a new civilization."
+    message: "Your role here is vital. Together, we shape a new civilization.",
+    icon: <Signal className="h-4 w-4" />
   },
   {
     id: 7,
@@ -92,7 +119,8 @@ const chapters = [
     text: "Share your certifications and professional achievements.",
     question: "List your certifications:",
     type: "certifications",
-    message: "Every certificate is a milestone in your growth journey."
+    message: "Every certificate is a milestone in your growth journey.",
+    icon: <Trophy className="h-4 w-4" />
   },
   {
     id: 8,
@@ -102,7 +130,8 @@ const chapters = [
     question: "What would you like to receive in exchange for your energy?",
     type: "choice",
     options: ["Learning & Growth", "Recognition & Badges", "Direct Income", "Global Opportunities", "All of the above"],
-    message: "Every effort you make fuels a new economy."
+    message: "Every effort you make fuels a new economy.",
+    icon: <Bolt className="h-4 w-4" />
   },
   {
     id: 9,
@@ -112,7 +141,8 @@ const chapters = [
     question: "What would you carry with you beyond Earth?",
     type: "choice",
     options: ["My Purpose", "My Energy", "My Humanity", "My Desire to Connect", "Everything I Am"],
-    message: "You are a pioneer of the future."
+    message: "You are a pioneer of the future.",
+    icon: <Bolt className="h-4 w-4" />
   },
   {
     id: 10,
@@ -121,7 +151,8 @@ const chapters = [
     text: "Add a professional photo and bio to complete your profile.",
     question: "Complete your professional profile:",
     type: "profile_completion",
-    message: "A complete profile attracts meaningful missions."
+    message: "A complete profile attracts meaningful missions.",
+    icon: <UserCheck className="h-4 w-4" />
   }
 ];
 
@@ -134,9 +165,36 @@ export default function OnboardingFlow() {
   const [experience, setExperience] = useState([{ role: "", organization: "", description: "", startDate: "", endDate: "" }]);
   const [education, setEducation] = useState([{ degree: "", school: "", field: "", year: "" }]);
   const [certifications, setCertifications] = useState([{ title: "", issuer: "", date: "" }]);
+  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
   const navigate = useNavigate();
 
   const chapter = chapters[currentStep];
+
+  // Listen for theme changes
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Theme variables
+  const theme = {
+    bg: isDarkMode ? "bg-[#0a0514]" : "bg-slate-50",
+    card: isDarkMode ? "bg-white/[0.02] border-white/5" : "bg-white border-fuchsia-100 shadow-sm",
+    buttonPrimary: isDarkMode ? "bg-fuchsia-600 hover:bg-fuchsia-700 text-white" : "bg-[#2d124d] hover:bg-fuchsia-600 text-white",
+    buttonSecondary: isDarkMode ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-fuchsia-100 text-black hover:bg-fuchsia-50",
+    inputBg: isDarkMode ? "bg-white/5 border-white/10" : "bg-white border-fuchsia-100",
+    textColor: isDarkMode ? "text-white" : "text-black",
+    textMuted: isDarkMode ? "text-gray-300" : "text-gray-600",
+    accentBorder: isDarkMode ? "border-fuchsia-500/30" : "border-fuchsia-300",
+  };
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
@@ -417,15 +475,17 @@ export default function OnboardingFlow() {
     switch (chapter.type) {
       case "choice":
         return (
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-2">
             {chapter.options.map(opt => (
               <button
                 key={opt}
                 onClick={() => setAnswers({...answers, [chapter.id]: opt})}
-                className={`p-5 rounded-2xl text-left border transition-all duration-300 ${
+                className={`p-3 rounded-xl text-left border transition-all duration-200 text-sm ${theme.textColor} ${
                   answers[chapter.id] === opt 
-                    ? "bg-jewel border-jewel text-void font-bold shadow-[0_0_20px_rgba(0,255,198,0.3)]" 
-                    : "bg-white/5 border-white/10 hover:bg-white/10 text-stark/70"
+                    ? isDarkMode
+                      ? "bg-fuchsia-500/20 border-fuchsia-500/60"
+                      : "bg-fuchsia-50 border-fuchsia-300"
+                    : `${theme.inputBg} hover:bg-white/5`
                 }`}
               >
                 {opt}
@@ -436,15 +496,15 @@ export default function OnboardingFlow() {
 
       case "profile_input":
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {chapter.fields.map(field => (
               <div key={field} className="flex flex-col">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-stark/40 mb-2 ml-1">
+                <label className={`text-xs uppercase tracking-[0.1em] mb-1.5 ml-1 ${theme.textMuted}`}>
                   {field}
                 </label>
                 <textarea 
-                  className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-stark placeholder:text-stark/20 focus:border-jewel/50 focus:ring-1 focus:ring-jewel/20 outline-none transition-all resize-none"
-                  rows="3"
+                  className={`w-full border rounded-xl p-3 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 focus:ring-1 focus:ring-fuchsia-500/20 outline-none transition-all resize-none ${theme.inputBg}`}
+                  rows="2"
                   placeholder={`Share your ${field.toLowerCase()}...`}
                   onChange={(e) => updateProfileAnswer(field, e.target.value)}
                   value={answers[chapter.id]?.[field] || ""}
@@ -456,16 +516,16 @@ export default function OnboardingFlow() {
 
       case "basic_info":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {chapter.fields.map(field => (
               <div key={field.key} className={field.key === "fullName" || field.key === "headline" || field.key === "languages" ? "md:col-span-2" : ""}>
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-stark/40 mb-2 ml-1">
-                  {field.label} {field.required && <span className="text-jewel">*</span>}
+                <label className={`block text-xs uppercase tracking-[0.1em] mb-1.5 ml-1 ${theme.textMuted}`}>
+                  {field.label} {field.required && <span className="text-fuchsia-500">*</span>}
                 </label>
                 <input
                   type={field.type}
-                  className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-stark placeholder:text-stark/20 focus:border-jewel/50 focus:ring-1 focus:ring-jewel/20 outline-none transition-all"
-                  placeholder={`Enter your ${field.label.toLowerCase()}...`}
+                  className={`w-full border rounded-xl p-3 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 focus:ring-1 focus:ring-fuchsia-500/20 outline-none transition-all ${theme.inputBg}`}
+                  placeholder={`Enter ${field.label.toLowerCase()}`}
                   onChange={(e) => updateBasicInfo(field.key, e.target.value)}
                   value={answers[chapter.id]?.[field.key] || ""}
                 />
@@ -476,64 +536,69 @@ export default function OnboardingFlow() {
 
       case "experience":
         return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center mb-4">
-              <p className="text-stark/70">Add your work experience</p>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center mb-3">
+              <p className={`text-sm ${theme.textMuted}`}>Work experience</p>
               <button
                 onClick={addExperience}
-                className="flex items-center gap-2 bg-jewel/20 hover:bg-jewel/40 text-jewel px-4 py-2 rounded-xl transition-all"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
+                  isDarkMode 
+                    ? "bg-fuchsia-500/20 hover:bg-fuchsia-500/40 text-white" 
+                    : "bg-fuchsia-100 hover:bg-fuchsia-200 text-black"
+                }`}
               >
-                <FiPlus size={18} /> Add Experience
+                <FiPlus size={14} /> Add
               </button>
             </div>
             {experience.map((exp, idx) => (
-              <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              <div key={idx} className={`border rounded-xl p-3 ${theme.card}`}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                   <input
                     type="text"
-                    placeholder="Job Title / Role"
+                    placeholder="Job Title"
                     value={exp.role}
                     onChange={(e) => handleExperienceChange(idx, 'role', e.target.value)}
-                    className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark placeholder:text-stark/20 focus:border-jewel/50 outline-none"
+                    className={`border rounded-lg px-3 py-2 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
                   />
                   <input
                     type="text"
-                    placeholder="Company / Organization"
+                    placeholder="Company"
                     value={exp.organization}
                     onChange={(e) => handleExperienceChange(idx, 'organization', e.target.value)}
-                    className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark placeholder:text-stark/20 focus:border-jewel/50 outline-none"
+                    className={`border rounded-lg px-3 py-2 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
                   />
                 </div>
                 <textarea
-                  placeholder="Job description and key achievements..."
+                  placeholder="Description and achievements..."
                   value={exp.description}
                   onChange={(e) => handleExperienceChange(idx, 'description', e.target.value)}
-                  rows="2"
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark placeholder:text-stark/20 focus:border-jewel/50 mb-3 outline-none resize-none"
+                  rows="1"
+                  className={`w-full border rounded-lg px-3 py-2 text-sm mb-2 ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 outline-none resize-none ${theme.inputBg}`}
                 />
-                <div className="flex gap-3 items-center">
+                <div className="flex gap-2 items-center text-sm">
                   <input
                     type="month"
-                    placeholder="Start Date"
                     value={exp.startDate}
                     onChange={(e) => handleExperienceChange(idx, 'startDate', e.target.value)}
-                    className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark focus:border-jewel/50 outline-none"
+                    className={`flex-1 border rounded-lg px-3 py-2 ${theme.textColor} focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
                   />
-                  <span className="text-white/50">—</span>
+                  <span className={theme.textMuted}>—</span>
                   <input
                     type="month"
-                    placeholder="End Date"
                     value={exp.endDate}
                     onChange={(e) => handleExperienceChange(idx, 'endDate', e.target.value)}
-                    className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark focus:border-jewel/50 outline-none"
+                    className={`flex-1 border rounded-lg px-3 py-2 ${theme.textColor} focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
                   />
                   {experience.length > 1 && (
                     <button
                       onClick={() => removeExperience(idx)}
-                      className="bg-red-500/20 hover:bg-red-500/40 text-red-300 p-3 rounded-xl"
-                      title="Remove"
+                      className={`p-2 rounded-lg ${
+                        isDarkMode 
+                          ? "bg-red-500/20 hover:bg-red-500/40 text-white" 
+                          : "bg-red-100 hover:bg-red-200 text-black"
+                      }`}
                     >
-                      <FiTrash2 size={16} />
+                      <FiTrash2 size={14} />
                     </button>
                   )}
                 </div>
@@ -544,15 +609,15 @@ export default function OnboardingFlow() {
 
       case "education":
         return (
-          <div className="space-y-4">
-            <div className="space-y-4 mb-4">
+          <div className="space-y-3">
+            <div className="space-y-3 mb-3">
               {chapter.fields.map(field => (
                 <div key={field} className="flex flex-col">
-                  <label className="text-[10px] uppercase tracking-[0.2em] text-stark/40 mb-2 ml-1">
+                  <label className={`text-xs uppercase tracking-[0.1em] mb-1.5 ml-1 ${theme.textMuted}`}>
                     {field}
                   </label>
                   <textarea 
-                    className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-stark placeholder:text-stark/20 focus:border-jewel/50 focus:ring-1 focus:ring-jewel/20 outline-none transition-all resize-none"
+                    className={`w-full border rounded-xl p-3 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 focus:ring-1 focus:ring-fuchsia-500/20 outline-none transition-all resize-none ${theme.inputBg}`}
                     rows="2"
                     placeholder={`Describe your ${field.toLowerCase()}...`}
                     onChange={(e) => updateProfileAnswer(field, e.target.value)}
@@ -562,56 +627,63 @@ export default function OnboardingFlow() {
               ))}
             </div>
             
-            <div className="border-t border-white/10 pt-4">
-              <div className="flex justify-between items-center mb-4">
-                <p className="text-stark/70">Add formal education details</p>
+            <div className={`border-t pt-3 ${isDarkMode ? 'border-white/10' : 'border-fuchsia-100'}`}>
+              <div className="flex justify-between items-center mb-3">
+                <p className={`text-sm ${theme.textMuted}`}>Formal education</p>
                 <button
                   onClick={addEducation}
-                  className="flex items-center gap-2 bg-jewel/20 hover:bg-jewel/40 text-jewel px-4 py-2 rounded-xl transition-all"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
+                    isDarkMode 
+                      ? "bg-fuchsia-500/20 hover:bg-fuchsia-500/40 text-white" 
+                      : "bg-fuchsia-100 hover:bg-fuchsia-200 text-black"
+                  }`}
                 >
-                  <FiPlus size={18} /> Add Education
+                  <FiPlus size={14} /> Add
                 </button>
               </div>
               {education.map((edu, idx) => (
-                <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <div key={idx} className={`border rounded-xl p-3 mb-2 ${theme.card}`}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                     <input
                       type="text"
-                      placeholder="Degree (e.g. Bachelor of Science)"
+                      placeholder="Degree"
                       value={edu.degree}
                       onChange={(e) => handleEducationChange(idx, 'degree', e.target.value)}
-                      className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark placeholder:text-stark/20 focus:border-jewel/50 outline-none"
+                      className={`border rounded-lg px-3 py-2 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
                     />
                     <input
                       type="text"
-                      placeholder="School / University"
+                      placeholder="School"
                       value={edu.school}
                       onChange={(e) => handleEducationChange(idx, 'school', e.target.value)}
-                      className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark placeholder:text-stark/20 focus:border-jewel/50 outline-none"
+                      className={`border rounded-lg px-3 py-2 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
                     />
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2">
                     <input
                       type="text"
                       placeholder="Field of Study"
                       value={edu.field}
                       onChange={(e) => handleEducationChange(idx, 'field', e.target.value)}
-                      className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark placeholder:text-stark/20 focus:border-jewel/50 outline-none"
+                      className={`flex-1 border rounded-lg px-3 py-2 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
                     />
                     <input
                       type="text"
-                      placeholder="Year (e.g. 2023)"
+                      placeholder="Year"
                       value={edu.year}
                       onChange={(e) => handleEducationChange(idx, 'year', e.target.value)}
-                      className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark placeholder:text-stark/20 focus:border-jewel/50 outline-none"
+                      className={`flex-1 border rounded-lg px-3 py-2 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
                     />
                     {education.length > 1 && (
                       <button
                         onClick={() => removeEducation(idx)}
-                        className="bg-red-500/20 hover:bg-red-500/40 text-red-300 p-3 rounded-xl"
-                        title="Remove"
+                        className={`p-2 rounded-lg ${
+                          isDarkMode 
+                            ? "bg-red-500/20 hover:bg-red-500/40 text-white" 
+                            : "bg-red-100 hover:bg-red-200 text-black"
+                        }`}
                       >
-                        <FiTrash2 size={16} />
+                        <FiTrash2 size={14} />
                       </button>
                     )}
                   </div>
@@ -623,48 +695,58 @@ export default function OnboardingFlow() {
 
       case "certifications":
         return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center mb-4">
-              <p className="text-stark/70">Add your certifications and achievements</p>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center mb-3">
+              <p className={`text-sm ${theme.textMuted}`}>Certifications</p>
               <button
                 onClick={addCertification}
-                className="flex items-center gap-2 bg-jewel/20 hover:bg-jewel/40 text-jewel px-4 py-2 rounded-xl transition-all"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
+                  isDarkMode 
+                    ? "bg-fuchsia-500/20 hover:bg-fuchsia-500/40 text-white" 
+                    : "bg-fuchsia-100 hover:bg-fuchsia-200 text-black"
+                }`}
               >
-                <FiPlus size={18} /> Add Certificate
+                <FiPlus size={14} /> Add
               </button>
             </div>
             {certifications.map((cert, idx) => (
-              <div key={idx} className="flex gap-3 items-center bg-white/5 border border-white/10 rounded-2xl p-4">
-                <input
-                  type="text"
-                  placeholder="Certification Title"
-                  value={cert.title}
-                  onChange={(e) => handleCertificationChange(idx, 'title', e.target.value)}
-                  className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark placeholder:text-stark/20 focus:border-jewel/50 outline-none"
-                />
-                <input
-                  type="text"
-                  placeholder="Issuing Organization"
-                  value={cert.issuer}
-                  onChange={(e) => handleCertificationChange(idx, 'issuer', e.target.value)}
-                  className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark placeholder:text-stark/20 focus:border-jewel/50 outline-none"
-                />
-                <input
-                  type="month"
-                  placeholder="Date"
-                  value={cert.date}
-                  onChange={(e) => handleCertificationChange(idx, 'date', e.target.value)}
-                  className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stark focus:border-jewel/50 outline-none"
-                />
-                {certifications.length > 1 && (
-                  <button
-                    onClick={() => removeCertification(idx)}
-                    className="bg-red-500/20 hover:bg-red-500/40 text-red-300 p-3 rounded-xl"
-                    title="Remove"
-                  >
-                    <FiTrash2 size={16} />
-                  </button>
-                )}
+              <div key={idx} className="space-y-2">
+                <div className={`flex flex-col sm:flex-row gap-2 items-center border rounded-xl p-3 ${theme.card}`}>
+                  <input
+                    type="text"
+                    placeholder="Title"
+                    value={cert.title}
+                    onChange={(e) => handleCertificationChange(idx, 'title', e.target.value)}
+                    className={`w-full sm:flex-1 border rounded-lg px-3 py-2 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Issuer"
+                    value={cert.issuer}
+                    onChange={(e) => handleCertificationChange(idx, 'issuer', e.target.value)}
+                    className={`w-full sm:flex-1 border rounded-lg px-3 py-2 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
+                  />
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <input
+                      type="month"
+                      value={cert.date}
+                      onChange={(e) => handleCertificationChange(idx, 'date', e.target.value)}
+                      className={`flex-1 border rounded-lg px-3 py-2 text-sm ${theme.textColor} focus:border-fuchsia-500/50 outline-none ${theme.inputBg}`}
+                    />
+                    {certifications.length > 1 && (
+                      <button
+                        onClick={() => removeCertification(idx)}
+                        className={`p-2 rounded-lg ${
+                          isDarkMode 
+                            ? "bg-red-500/20 hover:bg-red-500/40 text-white" 
+                            : "bg-red-100 hover:bg-red-200 text-black"
+                        }`}
+                      >
+                        <FiTrash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -672,33 +754,48 @@ export default function OnboardingFlow() {
 
       case "profile_completion":
         return (
-          <div className="space-y-6">
-            {/* Profile Photo Upload */}
-            <div className="p-6 bg-gradient-to-br from-jewel/10 to-fuschia/10 border border-jewel/20 rounded-2xl">
-              <label className="block text-stark font-semibold mb-4 text-lg">Profile Photo</label>
-              <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="space-y-4">
+            {/* Profile Photo Upload - Compact */}
+            <div className={`p-4 rounded-xl border ${
+              isDarkMode 
+                ? "bg-gradient-to-br from-fuchsia-500/10 to-indigo-500/10 border-fuchsia-500/20" 
+                : "bg-gradient-to-br from-fuchsia-50 to-indigo-50 border-fuchsia-200"
+            }`}>
+              <label className={`block font-medium mb-3 text-sm ${theme.textColor}`}>
+                Profile Photo
+              </label>
+              <div className="flex items-center gap-4">
                 {profilePhoto ? (
                   <img
                     src={profilePhoto}
                     alt="Profile Preview"
-                    className="w-32 h-32 rounded-full object-cover border-4 border-jewel shadow-lg"
+                    className="w-20 h-20 rounded-full object-cover border-2 border-fuchsia-500"
                   />
                 ) : (
-                  <div className="w-32 h-32 rounded-full bg-jewel/20 border-4 border-dashed border-jewel flex items-center justify-center">
-                    <FiUpload className="text-jewel" size={40} />
+                  <div className={`w-20 h-20 rounded-full border-2 border-dashed flex items-center justify-center ${
+                    isDarkMode 
+                      ? "bg-fuchsia-500/20 border-fuchsia-500" 
+                      : "bg-fuchsia-100 border-fuchsia-300"
+                  }`}>
+                    <FiUpload className={isDarkMode ? "text-white" : "text-black"} size={24} />
                   </div>
                 )}
-                <label className="cursor-pointer flex-1 w-full">
+                <label className="cursor-pointer flex-1">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoUpload}
                     className="hidden"
                   />
-                  <div className="bg-jewel/20 hover:bg-jewel/40 border-2 border-dashed border-jewel rounded-2xl p-6 text-center transition-all hover:scale-105">
-                    <FiUpload className="text-jewel mx-auto mb-3" size={28} />
-                    <p className="text-jewel font-semibold text-lg">Upload Photo</p>
-                    <p className="text-jewel/70 text-sm mt-1">PNG, JPG up to 5MB</p>
+                  <div className={`border border-dashed rounded-lg p-3 text-center transition-all hover:scale-[1.02] ${
+                    isDarkMode 
+                      ? "bg-fuchsia-500/10 hover:bg-fuchsia-500/20 border-fuchsia-500/30" 
+                      : "bg-white hover:bg-fuchsia-50 border-fuchsia-200"
+                  }`}>
+                    <FiUpload className={`mx-auto mb-1 ${isDarkMode ? "text-white" : "text-black"}`} size={18} />
+                    <p className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-black"}`}>
+                      Upload Photo
+                    </p>
                   </div>
                 </label>
               </div>
@@ -706,12 +803,12 @@ export default function OnboardingFlow() {
 
             {/* Professional Bio */}
             <div className="flex flex-col">
-              <label className="text-[10px] uppercase tracking-[0.2em] text-stark/40 mb-2 ml-1">
+              <label className={`text-xs uppercase tracking-[0.1em] mb-1.5 ml-1 ${theme.textMuted}`}>
                 Professional Bio
               </label>
               <textarea 
-                className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-stark placeholder:text-stark/20 focus:border-jewel/50 focus:ring-1 focus:ring-jewel/20 outline-none transition-all resize-none"
-                rows="4"
+                className={`w-full border rounded-xl p-3 text-sm ${theme.textColor} placeholder:text-gray-400 focus:border-fuchsia-500/50 focus:ring-1 focus:ring-fuchsia-500/20 outline-none transition-all resize-none ${theme.inputBg}`}
+                rows="3"
                 placeholder="Write a compelling professional summary about yourself..."
                 onChange={(e) => updateProfileAnswer("bio", e.target.value)}
                 value={answers[chapter.id]?.bio || ""}
@@ -726,31 +823,62 @@ export default function OnboardingFlow() {
   };
 
   return (
-    <div className="min-h-screen bg-void flex items-center justify-center p-6 text-stark font-sans">
-      <div className="w-full max-w-2xl bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 shadow-2xl transition-all">
-        <ProgressBar currentStep={currentStep + 1} totalSteps={chapters.length} theme="gophora" />
+    <div className={`min-h-screen flex items-center justify-center p-4 font-sans transition-colors duration-700 ${theme.bg}`}>
+      {/* Background Elements - Subtle */}
+      <div className="fixed inset-0 overflow-hidden -z-10">
+        <div className={`absolute top-[-10%] left-[-10%] w-[60%] h-[30%] blur-[80px] rounded-full ${
+          isDarkMode ? 'bg-fuchsia-900/10' : 'bg-fuchsia-500/5'
+        }`} />
+      </div>
 
-        <div className="mt-8">
-          <span className="text-jewel font-mono text-xs tracking-widest uppercase opacity-70">
-            Chapter 0{chapter.id}
-          </span>
-          <h2 className="text-4xl font-bold text-fuschia mb-2 mt-1 leading-tight">{chapter.title}</h2>
-          <p className="text-jewel italic mb-6 border-l-2 border-jewel/30 pl-4 py-1">"{chapter.quote}"</p>
-          <p className="text-stark/80 text-lg leading-relaxed mb-8">{chapter.text}</p>
+      <div className={`w-full max-w-lg backdrop-blur-sm rounded-2xl p-6 border transition-all duration-500 ${theme.card}`}>
+        <ProgressDisplay current={currentStep + 1} total={chapters.length} isDarkMode={isDarkMode} />
 
-          <FounderMessage messageText={chapter.message} />
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            {React.cloneElement(chapter.icon, { 
+              className: `h-4 w-4 ${isDarkMode ? 'text-white' : 'text-black'}`
+            })}
+            <span className={`text-xs font-medium uppercase tracking-wider ${theme.textColor}`}>
+              Chapter {String(chapter.id).padStart(2, '0')}
+            </span>
+          </div>
+          
+          <h2 className={`text-2xl font-bold mb-2 leading-tight ${theme.textColor}`}>
+            {chapter.title}
+          </h2>
+          
+          <p className={`italic mb-3 text-sm border-l pl-3 py-0.5 ${theme.textColor} ${
+            isDarkMode ? 'border-fuchsia-500/30' : 'border-fuchsia-300'
+          }`}>
+            "{chapter.quote}"
+          </p>
+          
+          <p className={`text-sm leading-relaxed mb-4 ${theme.textColor}`}>
+            {chapter.text}
+          </p>
 
-          <div className="space-y-6 pt-4 border-t border-white/5">
-            <h3 className="text-xl font-medium text-stark">{chapter.question}</h3>
+          <FounderMessage messageText={chapter.message} isDarkMode={isDarkMode} />
+
+          <div className={`space-y-4 pt-3 border-t ${
+            isDarkMode ? 'border-white/5' : 'border-fuchsia-100'
+          }`}>
+            <h3 className={`text-base font-medium ${theme.textColor}`}>
+              {chapter.question}
+            </h3>
             {renderChapterContent()}
           </div>
         </div>
 
-        <div className="mt-12 flex justify-between items-center">
+        <div className="flex justify-between items-center">
           <button 
             onClick={() => setCurrentStep(prev => prev - 1)} 
             disabled={currentStep === 0 || loading} 
-            className="px-8 py-3 rounded-full bg-white/5 text-stark/50 hover:bg-white/10 disabled:opacity-0 transition-all font-medium"
+            className={`px-6 py-2.5 rounded-lg transition-all text-sm font-medium ${
+              isDarkMode 
+                ? 'bg-white/5 text-white hover:bg-white/10 disabled:opacity-0' 
+                : 'bg-fuchsia-50 text-black hover:bg-fuchsia-100 disabled:opacity-0'
+            }`}
           >
             Back
           </button>
@@ -758,9 +886,14 @@ export default function OnboardingFlow() {
           <button 
             onClick={handleNext} 
             disabled={loading}
-            className="px-10 py-4 rounded-full bg-gradient-to-r from-jewel to-fuschia text-white font-bold shadow-[0_10px_30px_rgba(255,0,128,0.2)] hover:scale-105 active:scale-95 transition-all"
+            className={`group px-8 py-3 rounded-xl font-medium flex items-center gap-2 transition-all active:scale-95 shadow-md text-sm ${
+              isDarkMode 
+                ? 'bg-fuchsia-600 text-white hover:bg-fuchsia-700' 
+                : 'bg-[#2d124d] text-white hover:bg-fuchsia-600'
+            }`}
           >
-            {loading ? "Saving Profile..." : currentStep === chapters.length - 1 ? "Complete Journey" : "Next Chapter"}
+            {loading ? "Saving..." : currentStep === chapters.length - 1 ? "Complete" : "Continue"}
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
       </div>

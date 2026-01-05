@@ -75,6 +75,35 @@ export default function OpportunitiesMap() {
   const [hoveredCountry, setHoveredCountry] = useState(null);
   const [isRotating, setIsRotating] = useState(true);
   const [globeReady, setGlobeReady] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+
+  // Listen for theme changes
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Theme based on landing page
+  const theme = {
+    bg: isDarkMode ? "bg-[#0a0514]" : "bg-slate-50",
+    text: isDarkMode ? "text-white" : "text-gray-900",
+    textSecondary: isDarkMode ? "text-gray-300" : "text-gray-600",
+    textTertiary: isDarkMode ? "text-gray-400" : "text-gray-500",
+    card: isDarkMode 
+      ? "bg-white/[0.02] border border-white/10 backdrop-blur-sm" 
+      : "bg-white border border-gray-200 shadow-sm",
+    accent: isDarkMode ? "text-fuchsia-400" : "text-fuchsia-600",
+    accentBg: isDarkMode ? "bg-fuchsia-500/10" : "bg-fuchsia-50",
+    accentBorder: isDarkMode ? "border-fuchsia-500/30" : "border-fuchsia-200",
+  };
 
   useLayoutEffect(() => {
     const handleResize = () => {
@@ -161,60 +190,80 @@ export default function OpportunitiesMap() {
   const filteredJobs = filter === "All" ? allJobs : allJobs.filter((j) => j.category === filter);
 
   return (
-    <div className="p-4 md:p-6 space-y-6 bg-[#0B0E1C] min-h-screen text-white flex flex-col overflow-hidden">
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl md:text-4xl font-extrabold text-[#FFFFFF] tracking-tight uppercase">Global Talent Radar</h1>
-        <p className="text-gray-400 text-[10px] md:text-sm max-w-md mx-auto">
+    <div className={`p-4 md:p-6 space-y-6 ${theme.bg} min-h-screen ${theme.text} flex flex-col overflow-hidden transition-colors duration-700`}>
+      
+      {/* Background elements matching landing page */}
+      <div className="fixed inset-0 overflow-hidden -z-10">
+        <div className={`absolute top-[-10%] left-[-10%] w-[70%] h-[40%] blur-[120px] rounded-full ${isDarkMode ? 'bg-fuchsia-900/20' : 'bg-fuchsia-500/10'}`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[70%] h-[40%] blur-[120px] rounded-full ${isDarkMode ? 'bg-indigo-900/20' : 'bg-indigo-500/10'}`} />
+        {!isDarkMode && <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(217,70,239,0.03)_50%,transparent_100%)] h-[20%] w-full animate-scan" />}
+      </div>
+
+      {/* Header matching landing page style */}
+      <div className="text-center space-y-3">
+        <div className="inline-block px-3 py-1 mb-2 border rounded-full text-[10px] uppercase tracking-[0.4em] border-fuchsia-500/30 text-fuchsia-500">
+          Global Activation
+        </div>
+        <h1 className={`text-3xl md:text-4xl font-serif font-bold ${theme.text}`}>
+          Mission <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-indigo-400">Horizons</span>
+        </h1>
+        <p className={`text-sm max-w-md mx-auto ${theme.textTertiary}`}>
           Real-time career opportunities across the globe. Select a region or hover over coordinates to explore active missions.
         </p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 flex-1 overflow-hidden">
         
+        {/* Map Container */}
         <div 
           ref={containerRef} 
-          className="relative flex-1 w-full min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] rounded-2xl border border-white/10 bg-black/40 overflow-hidden shadow-2xl"
+          className={`relative flex-1 w-full min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] rounded-2xl border overflow-hidden shadow-xl ${
+            isDarkMode 
+              ? "border-white/10 bg-black/40" 
+              : "border-gray-200 bg-white/80"
+          }`}
         >
           {/* Loading overlay */}
           {(!dimensions.width || !globeReady) && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-black/90 to-[#0B0E1C]/90 z-10">
+            <div className={`absolute inset-0 flex flex-col items-center justify-center z-10 ${
+              isDarkMode 
+                ? "bg-gradient-to-br from-[#0a0514]/90 to-[#0a0514]/90" 
+                : "bg-gradient-to-br from-white/90 to-slate-50/90"
+            }`}>
               <div className="relative">
                 {/* Animated globe preview */}
-                <div className="w-40 h-40 rounded-full border-2 border-dashed border-[#A28EFF]/30 animate-spin">
+                <div className={`w-40 h-40 rounded-full border-2 border-dashed ${
+                  isDarkMode ? "border-fuchsia-500/30" : "border-fuchsia-400/30"
+                } animate-spin`}>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#4717F6]/20 to-[#A239CA]/20 animate-pulse"></div>
+                    <div className={`w-32 h-32 rounded-full animate-pulse ${
+                      isDarkMode 
+                        ? "bg-gradient-to-br from-fuchsia-500/20 to-indigo-500/20" 
+                        : "bg-gradient-to-br from-fuchsia-500/10 to-indigo-500/10"
+                    }`}></div>
                   </div>
                 </div>
                 
-                {/* Animated dots */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  {[...Array(8)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-2 h-2 rounded-full"
-                      style={{
-                        backgroundColor: i % 2 === 0 ? COLOR_PERSONALIZED : COLOR_GENERAL,
-                        transform: `rotate(${i * 45}deg) translateX(80px)`,
-                        animation: `pulse 1.5s ease-in-out ${i * 0.2}s infinite`
-                      }}
-                    />
-                  ))}
+                {/* Loading text */}
+                <div className="mt-8 text-center space-y-2">
+                  <h3 className={`text-lg font-bold ${theme.text}`}>INITIALIZING GLOBAL RADAR</h3>
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full animate-pulse ${
+                      isDarkMode ? "bg-fuchsia-500" : "bg-fuchsia-600"
+                    }`} style={{ animationDelay: '0s' }}></div>
+                    <div className={`w-2 h-2 rounded-full animate-pulse ${
+                      isDarkMode ? "bg-indigo-500" : "bg-indigo-600"
+                    }`} style={{ animationDelay: '0.2s' }}></div>
+                    <div className={`w-2 h-2 rounded-full animate-pulse ${
+                      isDarkMode ? "bg-fuchsia-400" : "bg-fuchsia-500"
+                    }`} style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                  <p className={`text-xs ${theme.textTertiary} mt-4 max-w-sm`}>
+                    Scanning global opportunities...
+                    <br />
+                    <span className="text-[10px] opacity-50">Loading: {loading ? 'Fetching data...' : 'Rendering globe...'}</span>
+                  </p>
                 </div>
-              </div>
-              
-              {/* Loading text */}
-              <div className="mt-8 text-center space-y-2">
-                <h3 className="text-lg font-bold text-white">INITIALIZING GLOBAL RADAR</h3>
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-2 h-2 bg-[#4717F6] rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
-                  <div className="w-2 h-2 bg-[#A239CA] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-2 h-2 bg-[#A28EFF] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-                </div>
-                <p className="text-xs text-gray-400 mt-4 max-w-sm">
-                  Scanning global opportunities...
-                  <br />
-                  <span className="text-[10px] opacity-50">Loading: {loading ? 'Fetching data...' : 'Rendering globe...'}</span>
-                </p>
               </div>
             </div>
           )}
@@ -239,7 +288,13 @@ export default function OpportunitiesMap() {
               polygonCapColor={d => d === hoveredCountry ? 'rgba(162, 57, 202, 0.4)' : 'rgba(71, 23, 246, 0.1)'}
               polygonSideColor={() => 'rgba(255, 255, 255, 0.05)'}
               polygonStrokeColor={() => '#444'}
-              polygonLabel={({ properties: d }) => `<div class="bg-black/80 p-2 rounded border border-white/20 text-xs">${d.ADMIN}</div>`}
+              polygonLabel={({ properties: d }) => `
+                <div class="${isDarkMode ? 'bg-black/90' : 'bg-white/95'} p-2 rounded border ${
+                isDarkMode ? 'border-white/20' : 'border-gray-300'
+              } text-xs ${isDarkMode ? 'text-white' : 'text-gray-900'}">
+                  ${d.ADMIN}
+                </div>
+              `}
               
               onPolygonHover={(polygon) => {
                 setHoveredCountry(polygon);
@@ -277,9 +332,11 @@ export default function OpportunitiesMap() {
               pointAltitude={0.06}
               pointRadius={0.6}
               pointLabel={d => `
-                <div class="bg-black/90 p-3 rounded-lg border border-[#A28EFF] shadow-lg">
-                  <b class="text-[#A28EFF]">${d.title || 'Mission Opportunity'}</b><br/>
-                  <span class="text-gray-300 text-[10px]">${d.company || 'Classified'}</span>
+                <div class="${isDarkMode ? 'bg-black/90' : 'bg-white/95'} p-3 rounded-lg border ${
+                isDarkMode ? 'border-fuchsia-500/50' : 'border-fuchsia-400/50'
+              } shadow-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}">
+                  <b class="${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}">${d.title || 'Mission Opportunity'}</b><br/>
+                  <span class="${isDarkMode ? 'text-gray-300' : 'text-gray-600'} text-[10px]">${d.company || 'Classified'}</span>
                 </div>
               `}
               
@@ -292,53 +349,66 @@ export default function OpportunitiesMap() {
           )}
         </div>
 
+        {/* Side Panel */}
         <div className="w-full lg:w-80 xl:w-96 flex flex-col shrink-0">
-          <div className="bg-[#0E0B16] border border-white/10 rounded-2xl p-5 h-full flex flex-col">
-            <h2 className="text-lg font-bold text-[#FFFFFF] mb-4 flex items-center gap-2">
-              <span className="animate-pulse text-red-500">●</span> MISSION INTEL
-            </h2>
+          <div className={`rounded-2xl p-5 h-full flex flex-col ${theme.card}`}>
+            <div className="flex items-center gap-2 mb-4">
+              <div className={`w-2 h-2 rounded-full ${isDarkMode ? 'bg-fuchsia-400' : 'bg-fuchsia-600'} animate-pulse`}></div>
+              <h2 className={`text-lg font-bold ${theme.text}`}>MISSION INTEL</h2>
+            </div>
             
             {selectedLocation && locationDetails ? (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="p-3 bg-[#161B30] rounded-lg border border-white/5">
-                  <p className="text-[10px] text-gray-400 uppercase tracking-widest">Coordinates</p>
-                  <p className="font-mono text-xs">{selectedLocation.lat.toFixed(4)}N, {selectedLocation.lng.toFixed(4)}E</p>
+                <div className={`p-3 rounded-lg border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
+                  <p className={`text-[10px] uppercase tracking-widest ${theme.textTertiary}`}>Coordinates</p>
+                  <p className={`font-mono text-xs ${theme.text}`}>
+                    {selectedLocation.lat.toFixed(4)}N, {selectedLocation.lng.toFixed(4)}E
+                  </p>
                 </div>
                 
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                    <span className="text-xs text-gray-400">Continent</span>
-                    <span className="text-sm font-semibold">{locationDetails.continent}</span>
-                  </div>
-                  <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                    <span className="text-xs text-gray-400">Country</span>
-                    <span className="text-sm font-semibold">{locationDetails.country}</span>
-                  </div>
-                  <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                    <span className="text-xs text-gray-400">Sector</span>
-                    <span className="text-sm font-semibold">{locationDetails.city}</span>
-                  </div>
+                  {[
+                    { label: "Continent", value: locationDetails.continent },
+                    { label: "Country", value: locationDetails.country },
+                    { label: "Sector", value: locationDetails.city }
+                  ].map((item, idx) => (
+                    <div key={idx} className={`flex justify-between items-center border-b pb-2 ${
+                      isDarkMode ? 'border-white/5' : 'border-gray-200'
+                    }`}>
+                      <span className={`text-xs ${theme.textTertiary}`}>{item.label}</span>
+                      <span className={`text-sm font-medium ${theme.text}`}>{item.value}</span>
+                    </div>
+                  ))}
                 </div>
 
                 <button 
                   onClick={() => { setSelectedLocation(null); setLocationDetails(null); }}
-                  className="w-full mt-4 py-2 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all"
+                  className={`w-full mt-4 py-2 text-xs rounded-lg transition-all border ${
+                    isDarkMode 
+                      ? 'bg-white/5 hover:bg-white/10 border-white/10' 
+                      : 'bg-gray-50 hover:bg-gray-100 border-gray-200'
+                  } ${theme.text}`}
                 >
                   Reset Scanner
                 </button>
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
-                <div className="w-12 h-12 border-2 border-dashed border-[#A28EFF] rounded-full flex items-center justify-center mb-4">
-                  <span className="text-xl">🛰️</span>
+                <div className={`w-12 h-12 border-2 border-dashed rounded-full flex items-center justify-center mb-4 ${
+                  isDarkMode ? 'border-fuchsia-500/30' : 'border-fuchsia-400/30'
+                }`}>
+                  <span className={`text-xl ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>🛰️</span>
                 </div>
-                <p className="text-xs text-gray-400">Standby for input...<br/>Select a target on the globe</p>
+                <p className={`text-xs ${theme.textTertiary}`}>
+                  Standby for input...<br/>Select a target on the globe
+                </p>
               </div>
             )}
           </div>
         </div>
       </div>
 
+      {/* Filter Buttons */}
       <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar justify-start md:justify-center px-2">
         {categories.map((cat) => (
           <button
@@ -346,14 +416,39 @@ export default function OpportunitiesMap() {
             onClick={() => setFilter(cat)}
             className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all border whitespace-nowrap ${
               filter === cat 
-              ? "bg-[#4717F6] border-[#4717F6] text-white shadow-[0_0_15px_rgba(71,23,246,0.5)]" 
-              : "bg-black/40 border-white/10 text-gray-400 hover:border-white/30"
+                ? `${
+                    isDarkMode 
+                      ? "bg-gradient-to-r from-fuchsia-600 to-indigo-600 border-fuchsia-500 text-white shadow-lg" 
+                      : "bg-gradient-to-r from-fuchsia-600 to-indigo-600 border-fuchsia-600 text-white shadow-lg"
+                  }` 
+                : `${
+                    isDarkMode 
+                      ? "bg-white/5 border-white/10 text-gray-400 hover:border-white/30" 
+                      : "bg-white/90 border-gray-300 text-gray-600 hover:border-gray-400"
+                  }`
             }`}
           >
             {cat}
           </button>
         ))}
       </div>
+
+      <style jsx>{`
+        @keyframes scan { 
+          from { transform: translateY(-100%); } 
+          to { transform: translateY(500%); } 
+        }
+        .animate-scan { 
+          animation: scan 6s linear infinite; 
+        }
+        .animate-pulse {
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   );
 }

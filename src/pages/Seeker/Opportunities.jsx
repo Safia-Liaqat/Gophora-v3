@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, MapPin, Filter, X, Globe, Briefcase } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // List of all countries (you can expand or reduce this list as needed)
@@ -62,6 +62,34 @@ export default function Opportunities() {
   const [itemsPerPage] = useState(10);
   const [userLocation, setUserLocation] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+
+  // Listen for theme changes
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Theme variables
+  const theme = {
+    bg: isDarkMode ? "bg-[#0a0514]" : "bg-slate-50",
+    card: isDarkMode ? "bg-white/[0.02] border border-white/5" : "bg-white border border-fuchsia-100 shadow-sm",
+    buttonPrimary: isDarkMode ? "bg-fuchsia-600 hover:bg-fuchsia-700 text-white" : "bg-[#2d124d] hover:bg-fuchsia-600 text-white",
+    buttonSecondary: isDarkMode ? "bg-white/5 border border-white/10 text-white hover:bg-white/10" : "bg-white border border-fuchsia-100 text-black hover:bg-fuchsia-50",
+    inputBg: isDarkMode ? "bg-white/5 border border-white/10" : "bg-white border border-fuchsia-200",
+    textColor: isDarkMode ? "text-white" : "text-black",
+    textMuted: isDarkMode ? "text-gray-300" : "text-gray-600",
+    accentBorder: isDarkMode ? "border-fuchsia-500/30" : "border-fuchsia-300",
+    focusRing: isDarkMode ? "focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50" : "focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500",
+  };
 
   useEffect(() => {
     const fetchUserLocation = async () => {
@@ -268,166 +296,172 @@ export default function Opportunities() {
   };
 
   return (
-    <div className="text-white">
-      <h2 className="text-2xl font-semibold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#C5A3FF] to-[#9E7BFF] drop-shadow-[0_0_10px_rgba(158,123,255,0.6)]">
-        Recommended Opportunities
-      </h2>
+    <div className={`${theme.bg} ${theme.textColor} transition-colors duration-700`}>
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+            isDarkMode 
+              ? "bg-gradient-to-br from-fuchsia-600 to-purple-700" 
+              : "bg-fuchsia-100 border border-fuchsia-200"
+          }`}>
+            <Briefcase className={`h-5 w-5 ${isDarkMode ? 'text-white' : 'text-fuchsia-600'}`} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold">Opportunities</h2>
+            <p className={`text-sm ${theme.textMuted}`}>Find missions that match your skills</p>
+          </div>
+        </div>
+      </div>
 
       {userLocation && (
-        <div className="mb-4 p-4 bg-gradient-to-r from-[#1E1B4B]/30 to-[#2D1B69]/30 rounded-xl border border-[#2D1B69]">
+        <div className={`mb-6 p-4 rounded-2xl border ${theme.card}`}>
           <div className="flex items-center gap-3">
-            <MapPin className="text-[#C5A3FF]" size={18} />
+            <MapPin className={isDarkMode ? "text-fuchsia-400" : "text-fuchsia-600"} size={18} />
             <div>
-              <p className="text-sm text-gray-300">
-                <span className="text-[#C5A3FF] font-medium">Your location:</span> {userLocation}
+              <p className={`text-sm ${theme.textColor}`}>
+                <span className={`font-medium ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>Your location:</span> {userLocation}
                 {selectedLocation === userLocation && " (currently viewing)"}
               </p>
-              <p className="text-xs text-gray-400 mt-1">
-                Showing opportunities in your location by default. Use filters to explore worldwide opportunities.
+              <p className={`text-xs ${theme.textMuted} mt-1`}>
+                Showing opportunities in your location by default. Use filters to explore worldwide missions.
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {error && <p className="text-red-400 bg-red-500/10 p-3 rounded-lg mb-4 text-sm">{error}</p>}
+      {error && (
+        <div className={`mb-6 p-4 rounded-2xl border ${isDarkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'}`}>
+          <p className="text-sm">{error}</p>
+        </div>
+      )}
 
-      <div className="flex flex-col md:flex-row gap-4 mb-8 max-w-4xl">
-        <div className="flex-1">
-          <label className="block mb-2 font-medium text-gray-300 text-sm">Category</label>
-          <div className="relative">
-            <select
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="border border-white/20 p-3 pr-10 rounded-xl w-full bg-[#161B30] text-white appearance-none focus:ring-2 focus:ring-[#C5A3FF]"
-            >
-              <option value="">All Categories</option>
-              <option value="job">Job</option>
-              <option value="internship">Internship</option>
-              <option value="hackathon">Hackathon</option>
-              <option value="project">Project</option>
-              <option value="collaboration">Collaboration</option>
-            </select>
-            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C5A3FF] pointer-events-none" />
+      {/* Filters Section */}
+      <div className={`mb-8 p-4 rounded-2xl border ${theme.card}`}>
+        <div className="flex items-center gap-2 mb-4">
+          <Filter size={18} className={isDarkMode ? "text-fuchsia-400" : "text-fuchsia-600"} />
+          <h3 className="font-medium">Filter Opportunities</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Category Filter */}
+          <div>
+            <label className={`block mb-2 text-sm font-medium ${theme.textColor}`}>Category</label>
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className={`w-full p-3 rounded-xl appearance-none ${theme.inputBg} ${theme.textColor} ${theme.focusRing}`}
+              >
+                <option value="">All Categories</option>
+                <option value="job">Job</option>
+                <option value="internship">Internship</option>
+                <option value="hackathon">Hackathon</option>
+                <option value="project">Project</option>
+                <option value="collaboration">Collaboration</option>
+              </select>
+              <ChevronDown size={18} className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'} pointer-events-none`} />
+            </div>
+          </div>
+
+          {/* Location Filter */}
+          <div>
+            <label className={`block mb-2 text-sm font-medium ${theme.textColor}`}>Location</label>
+            <div className="relative">
+              <select
+                value={selectedLocation}
+                onChange={(e) => {
+                  setSelectedLocation(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className={`w-full p-3 rounded-xl appearance-none ${theme.inputBg} ${theme.textColor} ${theme.focusRing}`}
+              >
+                <option value={userLocation || ""}>
+                  {userLocation ? `My Location (${userLocation})` : "Select Location"}
+                </option>
+                <option value="Remote/Worldwide">🌐 Remote / Worldwide</option>
+                <option value="All Locations">🌍 All Locations (Global)</option>
+                
+                <option disabled>────────── Countries ──────────</option>
+                
+                {SORTED_COUNTRIES.map((country) => {
+                  const hasOpportunities = actualOpportunityLocations.some(loc => 
+                    loc.toLowerCase().includes(country.toLowerCase()) || 
+                    country.toLowerCase().includes(loc.toLowerCase())
+                  );
+                  return (
+                    <option key={country} value={country} className={hasOpportunities ? theme.textColor : "text-gray-500"}>
+                      {country} {hasOpportunities ? "" : " (No current opportunities)"}
+                    </option>
+                  );
+                })}
+              </select>
+              <ChevronDown size={18} className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'} pointer-events-none`} />
+            </div>
           </div>
         </div>
 
-        <div className="flex-1">
-          <label className="block mb-2 font-medium text-gray-300 text-sm">Location</label>
-          <div className="relative">
-            <select
-              value={selectedLocation}
-              onChange={(e) => {
-                setSelectedLocation(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="border border-white/20 p-3 pr-10 rounded-xl w-full bg-[#161B30] text-white appearance-none focus:ring-2 focus:ring-[#C5A3FF]"
-            >
-              {/* Default and special options */}
-              <option value={userLocation || ""}>
-                {userLocation ? `My Location (${userLocation})` : "Select Location"}
-              </option>
-              <option value="Remote/Worldwide">🌐 Remote / Worldwide</option>
-              <option value="All Locations">🌍 All Locations (Global)</option>
-              
-              {/* Divider */}
-              <option disabled>────────── Countries ──────────</option>
-              
-              {/* All countries */}
-              {SORTED_COUNTRIES.map((country) => {
-                const hasOpportunities = actualOpportunityLocations.some(loc => 
-                  loc.toLowerCase().includes(country.toLowerCase()) || 
-                  country.toLowerCase().includes(loc.toLowerCase())
-                );
-                return (
-                  <option key={country} value={country} className={hasOpportunities ? "text-white" : "text-gray-500"}>
-                    {country} {hasOpportunities ? "" : " (No current opportunities)"}
-                  </option>
-                );
-              })}
-            </select>
-            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C5A3FF] pointer-events-none" />
-          </div>
-        </div>
-
-        <div className="flex items-end gap-2">
+        {/* Quick Action Buttons */}
+        <div className="flex flex-wrap gap-2 mt-4">
           {selectedLocation !== userLocation && userLocation && (
             <button 
               onClick={resetToUserLocation}
-              className="py-3 px-4 bg-gradient-to-r from-[#1E1B4B]/50 to-[#2D1B69]/50 border border-[#2D1B69] text-[#C5A3FF] rounded-xl hover:bg-[#2D1B69]/70 transition-all text-sm whitespace-nowrap"
+              className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+                isDarkMode 
+                  ? "bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-400 hover:bg-fuchsia-500/30" 
+                  : "bg-fuchsia-100 border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-200"
+              }`}
               title="Show opportunities in my location"
             >
-              My Location
+              <MapPin size={14} className="inline mr-1" /> My Location
             </button>
           )}
           <button 
             onClick={showRemoteOnly}
-            className="py-3 px-4 bg-gradient-to-r from-[#1E3A8A]/50 to-[#1E40AF]/50 border border-[#1E40AF] text-blue-300 rounded-xl hover:bg-[#1E40AF]/70 transition-all text-sm whitespace-nowrap"
+            className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+              isDarkMode 
+                ? "bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30" 
+                : "bg-blue-100 border-blue-200 text-blue-600 hover:bg-blue-200"
+            }`}
             title="Show remote/worldwide opportunities"
           >
-            Remote Only
+            <Globe size={14} className="inline mr-1" /> Remote Only
           </button>
           <button 
             onClick={showAllLocations}
-            className="py-3 px-4 bg-gradient-to-r from-[#065F46]/50 to-[#047857]/50 border border-[#047857] text-emerald-300 rounded-xl hover:bg-[#047857]/70 transition-all text-sm whitespace-nowrap"
+            className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+              isDarkMode 
+                ? "bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30" 
+                : "bg-green-100 border-green-200 text-green-600 hover:bg-green-200"
+            }`}
             title="Show all opportunities worldwide"
           >
-            Worldwide
+            <Globe size={14} className="inline mr-1" /> Worldwide
           </button>
           <button 
             onClick={clearFilters} 
-            className="py-3 px-4 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all text-sm whitespace-nowrap"
+            className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+              isDarkMode 
+                ? "bg-white/10 border-white/10 text-white hover:bg-white/20" 
+                : "bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200"
+            }`}
           >
-            Clear Filters
+            <X size={14} className="inline mr-1" /> Clear Filters
           </button>
         </div>
       </div>
 
-      {/* Quick filter buttons */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        <span className="text-sm text-gray-400 mr-2">Quick filters:</span>
-        <button
-          onClick={() => {
-            setSelectedCategory("job");
-            setSelectedLocation(userLocation || "");
-            setCurrentPage(1);
-          }}
-          className="px-3 py-1.5 text-xs bg-gradient-to-r from-[#1E1B4B]/30 to-[#2D1B69]/30 border border-[#2D1B69] text-gray-300 rounded-lg hover:bg-[#2D1B69]/50 transition-all"
-        >
-          Jobs in {userLocation || "My Location"}
-        </button>
-        <button
-          onClick={() => {
-            setSelectedCategory("internship");
-            setSelectedLocation("");
-            setCurrentPage(1);
-          }}
-          className="px-3 py-1.5 text-xs bg-gradient-to-r from-[#1E1B4B]/30 to-[#2D1B69]/30 border border-[#2D1B69] text-gray-300 rounded-lg hover:bg-[#2D1B69]/50 transition-all"
-        >
-          Internships
-        </button>
-        <button
-          onClick={() => {
-            setSelectedLocation("Remote/Worldwide");
-            setSelectedCategory("");
-            setCurrentPage(1);
-          }}
-          className="px-3 py-1.5 text-xs bg-gradient-to-r from-[#1E3A8A]/30 to-[#1E40AF]/30 border border-[#1E40AF] text-blue-300 rounded-lg hover:bg-[#1E40AF]/50 transition-all"
-        >
-          Remote Positions
-        </button>
-      </div>
-
-      {/* Results counter */}
+      {/* Results Summary */}
       <div className="mb-4 flex justify-between items-center">
-        <p className="text-gray-400 text-sm">
+        <p className={`text-sm ${theme.textMuted}`}>
           {loading ? "Loading opportunities..." : 
            `Showing ${indexOfFirstItem + 1}-${Math.min(indexOfLastItem, filteredOpportunities.length)} of ${filteredOpportunities.length} opportunities`}
           {selectedLocation && selectedLocation !== "" && (
-            <span className="text-[#C5A3FF] ml-1">
+            <span className={isDarkMode ? "text-fuchsia-400" : "text-fuchsia-600"}>
               {selectedLocation === userLocation ? " in your location" : 
                selectedLocation === "All Locations" ? " worldwide" : 
                selectedLocation === "Remote/Worldwide" ? " (remote/worldwide)" : 
@@ -437,72 +471,114 @@ export default function Opportunities() {
         </p>
       </div>
 
-      <div className="overflow-x-auto mb-6">
+      {/* Opportunities Table */}
+      <div className="overflow-x-auto mb-8">
         {loading ? (
-          <div className="text-center py-10">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#C5A3FF]"></div>
-            <p className="mt-4 text-gray-400">Loading opportunities...</p>
+          <div className={`text-center py-10 ${theme.textColor}`}>
+            <div className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${isDarkMode ? 'border-fuchsia-500' : 'border-fuchsia-600'}`}></div>
+            <p className={`mt-4 text-sm ${theme.textMuted}`}>Loading opportunities...</p>
           </div>
         ) : (
           <>
-            <table className="min-w-full border border-white/10 rounded-2xl bg-white/5 backdrop-blur-lg">
-              <thead className="bg-white/10 text-[#C5A3FF] uppercase text-xs tracking-wider">
-                <tr>
-                  <th className="py-4 px-4 text-left">Title</th>
-                  <th className="py-4 px-4 text-left">Type</th>
-                  <th className="py-4 px-4 text-left">Location</th>
-                  <th className="py-4 px-4 text-left">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentOpportunities.map((op) => (
-                  <tr key={op.id} className="border-t border-white/10 hover:bg-white/5">
-                    <td className="py-4 px-4 font-medium">{op.title}</td>
-                    <td className="py-4 px-4 capitalize text-gray-400">{op.type}</td>
-                    <td className="py-4 px-4 text-gray-400">
-                      <div className="flex items-center gap-2">
-                        <MapPin size={14} className="text-[#C5A3FF]" />
-                        {op.location}
-                        {userLocation && op.location && op.location.toLowerCase().includes(userLocation.toLowerCase()) && (
-                          <span className="ml-2 text-xs bg-gradient-to-r from-[#1E1B4B]/50 to-[#2D1B69]/50 text-[#C5A3FF] px-2 py-1 rounded-full">
-                            Your Location
-                          </span>
-                        )}
-                        {op.location && (op.location.toLowerCase().includes("remote") || op.location.toLowerCase().includes("worldwide")) && (
-                          <span className="ml-2 text-xs bg-gradient-to-r from-[#1E3A8A]/50 to-[#1E40AF]/50 text-blue-300 px-2 py-1 rounded-full">
-                            Remote
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={() => handleApply(op)}
-                        disabled={appliedIds.includes(op.id)}
-                        className={`py-2 px-5 rounded-lg font-bold transition-all ${
-                          appliedIds.includes(op.id) 
-                            ? "bg-gray-600 cursor-not-allowed" 
-                            : "bg-gradient-to-r from-[#C5A3FF] to-[#9E7BFF] hover:scale-105 hover:shadow-[0_0_15px_rgba(158,123,255,0.4)]"
-                        }`}
+            <div className={`rounded-2xl border overflow-hidden ${theme.card}`}>
+              <div className={`overflow-x-auto ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
+                <table className="min-w-full">
+                  <thead>
+                    <tr className={`border-b ${isDarkMode ? 'border-white/10' : 'border-gray-200'}`}>
+                      <th className={`py-4 px-4 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>
+                        Title
+                      </th>
+                      <th className={`py-4 px-4 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>
+                        Type
+                      </th>
+                      <th className={`py-4 px-4 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>
+                        Location
+                      </th>
+                      <th className={`py-4 px-4 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentOpportunities.map((op) => (
+                      <tr 
+                        key={op.id} 
+                        className={`border-b ${isDarkMode ? 'border-white/10 hover:bg-white/5' : 'border-gray-100 hover:bg-gray-50'} transition-colors`}
                       >
-                        {appliedIds.includes(op.id) ? "Applied" : "Apply"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                        <td className="py-4 px-4 font-medium text-sm">
+                          {op.title}
+                        </td>
+                        <td className="py-4 px-4 text-sm capitalize">
+                          <span className={`inline-block px-2 py-1 rounded-full text-xs ${
+                            isDarkMode 
+                              ? "bg-fuchsia-500/20 text-fuchsia-400" 
+                              : "bg-fuchsia-100 text-fuchsia-600"
+                          }`}>
+                            {op.type}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-sm">
+                          <div className="flex items-center gap-2">
+                            <MapPin size={14} className={isDarkMode ? "text-fuchsia-400" : "text-fuchsia-600"} />
+                            <span className={theme.textMuted}>{op.location}</span>
+                            {userLocation && op.location && op.location.toLowerCase().includes(userLocation.toLowerCase()) && (
+                              <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
+                                isDarkMode 
+                                  ? "bg-fuchsia-500/20 text-fuchsia-400" 
+                                  : "bg-fuchsia-100 text-fuchsia-600"
+                              }`}>
+                                Your Location
+                              </span>
+                            )}
+                            {op.location && (op.location.toLowerCase().includes("remote") || op.location.toLowerCase().includes("worldwide")) && (
+                              <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
+                                isDarkMode 
+                                  ? "bg-blue-500/20 text-blue-400" 
+                                  : "bg-blue-100 text-blue-600"
+                              }`}>
+                                Remote
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <button
+                            onClick={() => handleApply(op)}
+                            disabled={appliedIds.includes(op.id)}
+                            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95 ${
+                              appliedIds.includes(op.id) 
+                                ? isDarkMode
+                                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                : isDarkMode
+                                  ? "bg-fuchsia-600 text-white hover:bg-fuchsia-700"
+                                  : "bg-[#2d124d] text-white hover:bg-fuchsia-600"
+                            }`}
+                          >
+                            {appliedIds.includes(op.id) ? "Applied" : "Apply"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
             
             {filteredOpportunities.length === 0 && !loading && (
-              <div className="text-center py-12 bg-gradient-to-br from-[#0A0A2A]/50 to-[#0A0F2C]/50 rounded-2xl border border-white/10">
-                <MapPin size={48} className="mx-auto text-gray-500 mb-4" />
-                <p className="text-gray-400 mb-2">No opportunities found matching your filters.</p>
-                <p className="text-sm text-gray-500 mb-4">
-                  Try selecting a different location or category.
+              <div className={`text-center py-12 rounded-2xl border ${theme.card}`}>
+                <MapPin size={48} className={`mx-auto mb-4 ${theme.textMuted}`} />
+                <p className={`text-lg font-medium mb-2 ${theme.textColor}`}>No opportunities found</p>
+                <p className={`text-sm ${theme.textMuted} mb-4`}>
+                  Try adjusting your filters or check back later for new missions.
                 </p>
                 <button
                   onClick={clearFilters}
-                  className="px-4 py-2 bg-gradient-to-r from-[#1E1B4B] to-[#2D1B69] text-[#C5A3FF] rounded-lg hover:opacity-90 transition-all"
+                  className={`px-4 py-2 rounded-xl text-sm font-medium ${
+                    isDarkMode 
+                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-700" 
+                      : "bg-[#2d124d] text-white hover:bg-fuchsia-600"
+                  }`}
                 >
                   Clear Filters
                 </button>
@@ -512,10 +588,10 @@ export default function Opportunities() {
         )}
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       {filteredOpportunities.length > itemsPerPage && !loading && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-gray-400">
+          <div className={`text-sm ${theme.textMuted}`}>
             Page {currentPage} of {totalPages}
           </div>
           
@@ -523,10 +599,14 @@ export default function Opportunities() {
             <button
               onClick={prevPage}
               disabled={currentPage === 1}
-              className={`p-2 rounded-lg ${
+              className={`p-2 rounded-xl transition-all ${
                 currentPage === 1 
-                  ? "text-gray-600 cursor-not-allowed bg-white/5" 
-                  : "text-white hover:bg-white/10"
+                  ? isDarkMode
+                    ? "text-gray-500 cursor-not-allowed bg-white/5"
+                    : "text-gray-400 cursor-not-allowed bg-gray-100"
+                  : isDarkMode
+                    ? "text-white hover:bg-white/10"
+                    : "text-black hover:bg-gray-100"
               }`}
             >
               <ChevronLeft size={20} />
@@ -535,17 +615,21 @@ export default function Opportunities() {
             <div className="flex gap-1">
               {getPageNumbers().map((pageNum, index) => (
                 pageNum === '...' ? (
-                  <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-500">
+                  <span key={`ellipsis-${index}`} className={`px-3 py-2 ${theme.textMuted}`}>
                     ...
                   </span>
                 ) : (
                   <button
                     key={pageNum}
                     onClick={() => goToPage(pageNum)}
-                    className={`px-4 py-2 rounded-lg transition-all ${
+                    className={`px-4 py-2 rounded-xl text-sm transition-all ${
                       currentPage === pageNum
-                        ? "bg-gradient-to-r from-[#C5A3FF] to-[#9E7BFF] text-white font-bold"
-                        : "text-gray-300 hover:bg-white/10"
+                        ? isDarkMode
+                          ? "bg-fuchsia-600 text-white font-medium"
+                          : "bg-[#2d124d] text-white font-medium"
+                        : isDarkMode
+                          ? "text-gray-300 hover:bg-white/10"
+                          : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     {pageNum}
@@ -557,17 +641,21 @@ export default function Opportunities() {
             <button
               onClick={nextPage}
               disabled={currentPage === totalPages}
-              className={`p-2 rounded-lg ${
+              className={`p-2 rounded-xl transition-all ${
                 currentPage === totalPages
-                  ? "text-gray-600 cursor-not-allowed bg-white/5"
-                  : "text-white hover:bg-white/10"
+                  ? isDarkMode
+                    ? "text-gray-500 cursor-not-allowed bg-white/5"
+                    : "text-gray-400 cursor-not-allowed bg-gray-100"
+                  : isDarkMode
+                    ? "text-white hover:bg-white/10"
+                    : "text-black hover:bg-gray-100"
               }`}
             >
               <ChevronRight size={20} />
             </button>
           </div>
 
-          <div className="text-sm text-gray-400 hidden sm:block">
+          <div className={`text-sm ${theme.textMuted} hidden sm:block`}>
             {itemsPerPage} per page
           </div>
         </div>
