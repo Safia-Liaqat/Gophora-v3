@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Star } from "lucide-react"; // Added Star icon
 import OpportunityForm from "../../components/forms/OpportunityForm";
-import { APIURL } from '../../services/api.js'
+import { APIURL } from "../../services/api.js";
 
 export default function Opportunities() {
   const [opportunities, setOpportunities] = useState([]);
@@ -9,6 +9,17 @@ export default function Opportunities() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [error, setError] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   const fetchOpportunities = async () => {
     try {
@@ -49,12 +60,10 @@ export default function Opportunities() {
   const handleUpdate = async (updatedOp) => {
     try {
       const token = localStorage.getItem("token");
-      
       const processedData = {
         ...updatedOp,
-        tags: updatedOp.tags ? updatedOp.tags.split(",").map(tag => tag.trim()) : [],
+        tags: updatedOp.tags ? updatedOp.tags.split(",").map((tag) => tag.trim()) : [],
       };
-
       const response = await fetch(`${APIURL}/opportunities/${updatedOp.id}`, {
         method: "PUT",
         headers: {
@@ -80,102 +89,128 @@ export default function Opportunities() {
     return matchesSearch && matchesFilter;
   });
 
+  const theme = {
+    bgCard: isDarkMode ? "bg-white/[0.02] border-white/10" : "bg-white border-fuchsia-100 shadow-lg",
+    text: isDarkMode ? "text-white" : "text-black",
+    accent: "text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-indigo-400",
+    input: isDarkMode
+      ? "bg-white/5 text-white border-white/10 placeholder-gray-400 focus:ring-fuchsia-400"
+      : "bg-white text-black border-fuchsia-100 placeholder-gray-500 focus:ring-fuchsia-500",
+    buttonPrimary: isDarkMode
+      ? "bg-gradient-to-br from-fuchsia-600 to-purple-700 text-white hover:scale-105 transition-all"
+      : "bg-gradient-to-br from-fuchsia-500 to-indigo-600 text-white hover:scale-105 transition-all",
+    buttonSecondary: isDarkMode
+      ? "bg-fuchsia-500/20 text-white hover:bg-fuchsia-500/30 transition-all"
+      : "bg-fuchsia-100 text-black hover:bg-fuchsia-200 transition-all",
+    tableHeader: isDarkMode ? "bg-white/5 text-white" : "bg-fuchsia-100 text-black",
+    tableRowHover: isDarkMode ? "hover:bg-white/5" : "hover:bg-fuchsia-50",
+    tableText: isDarkMode ? "text-white" : "text-black",
+    error: isDarkMode ? "text-red-500 bg-red-500/10" : "text-red-600 bg-red-100",
+    optionBg: isDarkMode ? "bg-[#161B30] text-white" : "bg-white text-black",
+  };
+
   return (
-    <div className="text-white">
-      <h2 className="text-3xl font-semibold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#C5A3FF] to-[#9E7BFF] drop-shadow-[0_0_10px_rgba(158,123,255,0.6)]">
-        My Opportunities
-      </h2>
+    <div className="flex flex-col gap-8">
+      {/* Header with new logo */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-3">
+          <Star className="w-6 h-6 text-[#C5A3FF]" /> {/* New logo */}
+          <h2 className={`text-3xl font-bold ${theme.text}`}>My Opportunities</h2>
+        </div>
+        <div className="border-b border-fuchsia-300 w-36"></div>
+        <p className={`text-sm ${theme.text}`}>Manage and track all your posted opportunities.</p>
+      </div>
 
-      {error && <p className="text-red-500 bg-red-500/10 p-3 rounded-lg mb-4">{error}</p>}
+      {error && <p className={`p-3 rounded-2xl ${theme.error}`}>{error}</p>}
 
-      {/* 🔍 Search + Filter Section */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8 relative">
+      {/* Search & Filter */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8">
         <input
           type="text"
           placeholder="Search by title or tags..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="border border-[#2A2F55] bg-[#161B30] text-white p-3 rounded-xl flex-1 focus:outline-none focus:ring-2 focus:ring-[#9E7BFF]"
+          className={`flex-1 p-3 rounded-xl border focus:outline-none focus:ring-2 ${theme.input} shadow-sm`}
         />
 
-        {/* Filter Dropdown with Icon */}
         <div className="relative w-full md:w-60">
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="border border-[#2A2F55] bg-[#161B30] text-white p-3 pr-10 rounded-xl w-full appearance-none focus:outline-none focus:ring-2 focus:ring-[#9E7BFF]"
+            className={`w-full p-3 pr-10 rounded-xl border appearance-none focus:outline-none focus:ring-2 ${theme.input} shadow-sm`}
           >
-            <option className="bg-[#161B30]" value="all">All Types</option>
-            <option className="bg-[#161B30]" value="job">Job</option>
-            <option className="bg-[#161B30]" value="internship">Internship</option>
-            <option className="bg-[#161B30]" value="hackathon">Hackathon</option>
-            <option className="bg-[#161B30]" value="project">Project</option>
-            <option className="bg-[#161B30]" value="collaboration">Collaboration</option>
-            <option className="bg-[#161B30]" value="other">Other</option>
+            {[ 
+              { value: "all", label: "All Types" },
+              { value: "job", label: "Job" },
+              { value: "internship", label: "Internship" },
+              { value: "hackathon", label: "Hackathon" },
+              { value: "project", label: "Project" },
+              { value: "collaboration", label: "Collaboration" },
+              { value: "other", label: "Other" },
+            ].map((opt) => (
+              <option key={opt.value} value={opt.value} className={theme.optionBg}>
+                {opt.label}
+              </option>
+            ))}
           </select>
 
-          {/* Dropdown Icon */}
           <ChevronDown
             size={18}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C5A3FF] pointer-events-none"
+            className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${theme.text}`}
           />
         </div>
       </div>
 
-      {/* ✏️ Edit Mode */}
+      {/* Edit Form */}
       {editingOp && (
-        <div className="mb-6 bg-[#161B30] p-6 rounded-2xl border border-[#2A2F55] shadow-[0_0_25px_rgba(158,123,255,0.2)]">
-          <h3 className="text-lg font-semibold mb-4 text-[#C5A3FF]">
-            Edit Opportunity
-          </h3>
+        <div className={`${theme.bgCard} border p-6 rounded-2xl shadow-lg`}>
+          <h3 className={`text-lg font-semibold mb-4 ${theme.accent}`}>Edit Opportunity</h3>
           <OpportunityForm
             onSubmit={(data) => handleUpdate({ ...editingOp, ...data })}
             initialData={editingOp}
           />
           <button
             onClick={() => setEditingOp(null)}
-            className="mt-4 py-2 px-4 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition"
+            className={`mt-4 px-4 py-2 rounded-lg ${theme.buttonSecondary}`}
           >
             Cancel
           </button>
         </div>
       )}
 
-      {/* 📋 Opportunities Table */}
+      {/* Opportunities Table */}
       {filteredOpportunities.length === 0 ? (
-        <p className="text-gray-400 italic">No opportunities found.</p>
+        <p className={`italic ${theme.tableText}`}>No opportunities found.</p>
       ) : (
-        <div className="overflow-x-auto bg-[#161B30]/60 backdrop-blur-lg border border-[#2A2F55] rounded-2xl shadow-[0_0_25px_rgba(158,123,255,0.15)]">
+        <div className={`${theme.bgCard} border rounded-2xl overflow-x-auto shadow-lg`}>
           <table className="min-w-full text-left text-sm">
-            <thead className="bg-[#1E2344]/70 text-[#C5A3FF]">
+            <thead className={`${theme.tableHeader} rounded-t-xl`}>
               <tr>
-                <th className="p-4 font-semibold">Title</th>
-                <th className="p-4 font-semibold">Type</th>
-                <th className="p-4 font-semibold">Status</th>
-                <th className="p-4 font-semibold">Tags</th>
-                <th className="p-4 font-semibold text-center">Actions</th>
+                {["Title", "Type", "Status", "Tags", "Actions"].map((header) => (
+                  <th key={header} className="p-4 font-semibold">{header}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {filteredOpportunities.map((op) => (
                 <tr
                   key={op.id}
-                  className="border-t border-[#2A2F55] hover:bg-[#1E2344]/50 transition"
+                  className={`border-t border-white/10 ${theme.tableRowHover} transition`}
                 >
-                  <td className="p-4">{op.title}</td>
-                  <td className="p-4 capitalize text-gray-300">{op.type}</td>
-                  <td className="p-4 capitalize text-gray-300">{op.status}</td>
-                  <td className="p-4 text-gray-300">{(op.tags || []).join(", ")}</td>
+                  <td className={`p-4 ${theme.tableText}`}>{op.title}</td>
+                  <td className={`p-4 capitalize ${theme.tableText}`}>{op.type}</td>
+                  <td className={`p-4 capitalize ${theme.tableText}`}>{op.status}</td>
+                  <td className={`p-4 ${theme.tableText}`}>{(op.tags || []).join(", ")}</td>
                   <td className="p-4 flex justify-center gap-3">
                     <button
                       onClick={() => handleEdit(op)}
-                      className="px-4 py-1 bg-[#9E7BFF] rounded-lg hover:bg-[#8B67E6] transition text-white"
+                      className={`px-4 py-1 rounded-lg ${theme.buttonPrimary}`}
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(op.id)}
-                      className="px-4 py-1 bg-red-600 rounded-lg hover:bg-red-700 transition text-white"
+                      className="px-4 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
                     >
                       Delete
                     </button>

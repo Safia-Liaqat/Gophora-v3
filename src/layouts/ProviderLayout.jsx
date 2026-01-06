@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   Briefcase,
   LayoutDashboard,
@@ -7,15 +7,33 @@ import {
   User,
   LogOut,
   ShieldCheck,
+  Rocket,
 } from "lucide-react";
-import { APIURL } from '../services/api.js'
-
-
+import { APIURL } from "../services/api.js";
 
 export default function ProviderLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(
+    document.documentElement.classList.contains("dark")
+  );
 
+  // Listen for theme changes
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Sidebar links
   const navLinks = [
     { path: "/provider/dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
     { path: "/provider/opportunities", label: "My Invitations", icon: <Briefcase size={18} /> },
@@ -23,6 +41,23 @@ export default function ProviderLayout() {
     { path: "/provider/profile", label: "My Explorer ID", icon: <User size={18} /> },
   ];
 
+  // Theme
+  const theme = {
+    bg: isDarkMode ? "bg-[#0a0514]" : "bg-slate-50",
+    text: isDarkMode ? "text-white" : "text-black",
+    card: isDarkMode ? "bg-white/[0.02] border-white/5" : "bg-white border-fuchsia-100 shadow-sm",
+    sidebarBg: isDarkMode ? "bg-[#0a0514]" : "bg-white",
+    sidebarBorder: isDarkMode ? "border-white/10" : "border-fuchsia-100",
+    activeBg: isDarkMode
+      ? "bg-gradient-to-r from-fuchsia-500/20 to-fuchsia-600/10"
+      : "bg-gradient-to-r from-fuchsia-100 to-indigo-100",
+    activeBorder: isDarkMode ? "border-fuchsia-500/40" : "border-fuchsia-300",
+    hoverBg: isDarkMode
+      ? "hover:bg-fuchsia-500/10 hover:border-fuchsia-500/30"
+      : "hover:bg-fuchsia-50 hover:border-fuchsia-200",
+  };
+
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
@@ -31,7 +66,7 @@ export default function ProviderLayout() {
     navigate("/login");
   };
 
-  // ---  Live-updating verification data ---
+  // Trust score
   const [trustScore, setTrustScore] = useState(null);
   const [providerLevel, setProviderLevel] = useState(null);
 
@@ -50,123 +85,140 @@ export default function ProviderLayout() {
           if (data.trust_score !== null) {
             setTrustScore(data.trust_score);
             setProviderLevel(data.verification_status);
-            // Also update localStorage so other components can see it
             localStorage.setItem("trust_score", data.trust_score);
             localStorage.setItem("provider_level", data.verification_status);
           }
         }
       } catch (error) {
-        console.error("Failed to fetch verification status:", error);
+        console.error("Verification fetch failed:", error);
       }
     };
 
     fetchVerificationStatus();
-
-    // Update values whenever verification is completed elsewhere
-    const updateStatus = () => {
-      setTrustScore(localStorage.getItem("trust_score"));
-      setProviderLevel(localStorage.getItem("provider_level"));
-    };
-    window.addEventListener("verification-updated", updateStatus);
-    return () => window.removeEventListener("verification-updated", updateStatus);
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-[#0a0118] via-[#120826] to-[#1a093f] text-white">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white/5 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col justify-between shadow-[0_0_25px_rgba(158,123,255,0.25)]">
-        {/* Top Section */}
-        <div>
-          {/* Logo */}
-          <h1 className="text-2xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#9E7BFF] to-[#C5A3FF] drop-shadow-[0_0_10px_rgba(158,123,255,0.5)]">
-            Gophora
-          </h1>
+    <div className={`flex min-h-screen ${theme.bg} ${theme.text} transition-colors duration-700 font-sans`}>
+      
+      {/* Background gradients */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div
+          className={`absolute top-[-10%] left-[-10%] w-[70%] h-[40%] blur-[120px] rounded-full ${
+            isDarkMode ? "bg-fuchsia-900/20" : "bg-fuchsia-500/10"
+          }`}
+        />
+        <div
+          className={`absolute bottom-[-10%] right-[-10%] w-[70%] h-[40%] blur-[120px] rounded-full ${
+            isDarkMode ? "bg-indigo-900/20" : "bg-indigo-500/10"
+          }`}
+        />
+      </div>
 
-          {/* Navigation */}
-          <nav className="flex flex-col gap-2 mb-6">
-            {navLinks.map(({ path, label, icon }) => {
-              const active = location.pathname === path;
-              return (
-                <Link
-                  key={path}
-                  to={path}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                    ${
-                      active
-                        ? "bg-white/20 text-[#C5A3FF] shadow-[0_0_15px_rgba(197,163,255,0.5)]"
-                        : "text-gray-300 hover:bg-white/10 hover:text-[#C5A3FF]"
-                    }`}
-                >
-                  {icon}
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Verification Status */}
-          <div className="bg-white/10 border border-white/10 rounded-xl p-4 text-sm shadow-[0_0_15px_rgba(158,123,255,0.2)]">
-            <div className="flex items-center gap-2 mb-2">
-              <ShieldCheck size={16} className="text-[#C5A3FF]" />
-              <h3 className="font-semibold text-[#C5A3FF]">Verification Status</h3>
+      {/* SIDEBAR */}
+      <aside
+        className={`fixed md:relative top-16 left-0 w-64 h-[calc(100vh-64px)]
+        ${theme.sidebarBg} border-r ${theme.sidebarBorder} z-40
+        transition-transform duration-300 ease-out
+        ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        overflow-y-auto flex flex-col`}
+      >
+        {/* Header */}
+        <div className={`p-6 border-b ${theme.sidebarBorder}`}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-fuchsia-600 to-purple-700">
+              <Rocket size={20} className="text-white" />
             </div>
-
-            {trustScore ? (
-              <>
-                <p className="text-white mb-1">
-                  🟣 AI Verified – {providerLevel || "Professional Level"}
-                </p>
-                <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-2">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      trustScore >= 85
-                        ? "bg-green-400"
-                        : trustScore >= 50
-                        ? "bg-yellow-400"
-                        : "bg-red-500"
-                    }`}
-                    style={{ width: `${trustScore}%` }}
-                  />
-                </div>
-                <p className="text-gray-300 text-xs mb-1">
-                  Trust Score: {trustScore} / 100
-                </p>
-                <p className="text-xs text-[#9E7BFF] italic">
-                  Verified by Gemini AI
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-gray-400 mb-1">Not Verified</p>
-                <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-2">
-                  <div className="h-full bg-gray-500 w-[20%]" />
-                </div>
-                <p className="text-xs text-gray-500">
-                  Complete verification to unlock your badge
-                </p>
-              </>
-            )}
+            <div>
+              <h1 className="font-bold text-lg bg-gradient-to-r from-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">
+                GOPHORA
+              </h1>
+              <p className="text-[10px] uppercase tracking-widest text-gray-400">
+                Explorer Portal
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-6 flex flex-col gap-2">
+        {/* Links */}
+        <nav className="flex flex-col px-3 py-4 space-y-1">
+          {navLinks.map((item) => {
+            const active = location.pathname === item.path;
+            return (
+              <button
+                key={item.label}
+                onClick={() => {
+                  navigate(item.path);
+                  setOpen(false);
+                }}
+                className={`flex items-center gap-3 px-3 py-3 text-sm rounded-xl border transition-all duration-300 ${
+                  active
+                    ? `${theme.activeBg} ${theme.activeBorder} font-semibold`
+                    : `border-transparent ${theme.hoverBg}`
+                }`}
+              >
+                <div className="p-2 rounded-lg bg-white/5">{item.icon}</div>
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* SIDEBAR FOOTER */}
+        <div className={`p-4 border-t ${theme.sidebarBorder} mt-auto`}>
+          <div className="border border-white/10 rounded-md p-3 mb-3">
+            <div className="flex items-center gap-2 mb-2">
+              <ShieldCheck size={16} />
+              <span className="text-[13px] font-medium">Verification Status</span>
+            </div>
+            {trustScore ? (
+              <>
+                <p className="text-[12px] text-gray-300 mb-2">
+                  AI Verified – {providerLevel || "Professional"}
+                </p>
+                <div className="h-[4px] bg-white/10 rounded-full overflow-hidden mb-2">
+                  <div className="h-full bg-purple-400" style={{ width: `${trustScore}%` }} />
+                </div>
+                <p className="text-[11px] text-gray-400">Trust Score: {trustScore}/100</p>
+              </>
+            ) : (
+              <p className="text-[12px] text-gray-400">Not Verified</p>
+            )}
+          </div>
+
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center gap-2 w-full py-2 rounded-xl text-white bg-orange-500 hover:bg-orange-600 transition-all duration-200"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-300 hover:bg-red-500/10 transition"
           >
-            <LogOut size={16} /> Logout
+            <LogOut size={18} />
+            Logout
           </button>
-          <div className="mt-2 text-xs text-gray-500 text-center">
-            © {new Date().getFullYear()} Gophora
-          </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-10 text-white">
+      {/* MOBILE BUTTON */}
+      <button
+        onClick={() => setOpen(true)}
+        className="md:hidden fixed top-20 right-6 z-50 p-3 rounded-2xl bg-gradient-to-br from-fuchsia-600 to-purple-700 text-white"
+      >
+        <Rocket size={22} />
+      </button>
+
+      {/* MAIN CONTENT */}
+      <main className="flex-1 p-6 overflow-auto">
         <Outlet />
+
+        <div className="text-center mt-6 text-xs text-gray-500">
+          GOPHORA Provider Portal • Time is Sacred • Mission-Driven Activation
+        </div>
       </main>
+
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
     </div>
   );
 }
