@@ -21,6 +21,5 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
-    // Remove the define section - it's not needed
   }
 })

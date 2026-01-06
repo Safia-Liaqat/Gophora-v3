@@ -1,28 +1,21 @@
-import { useState } from 'react';
-import { Outlet } from 'react-router-dom'; // ADD THIS IMPORT
-import Sidebar from './Sidebar';
-import Header from './Header';
+import { Outlet } from 'react-router-dom'
+import Sidebar from './Sidebar'
+import Topbar from './Topbar'
 
-const AdminLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
+export default function AdminLayout() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-      
-      <div className={`lg:pl-64 flex flex-col flex-1 ${sidebarOpen ? 'overflow-hidden' : ''}`}>
-        <Header setSidebarOpen={setSidebarOpen} />
-        
-        <main className="flex-1 p-4 md:p-6">
-          <div className="mx-auto max-w-7xl">
-         
-  <Outlet />
+    <div className="flex h-screen bg-white text-black">
+      {/* Sidebar */}
+      <Sidebar />
 
-          </div>
+      {/* Main content */}
+      <div className="flex flex-col flex-1">
+        <Topbar />
+
+        <main className="flex-1 overflow-y-auto p-6 bg-white">
+          <Outlet />
         </main>
       </div>
     </div>
-  );
-};
-
-export default AdminLayout;
+  )
+}

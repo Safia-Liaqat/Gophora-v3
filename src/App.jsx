@@ -38,7 +38,7 @@ import ShowResume from './pages/Seeker/dashboard/ShowReume';
 import ForOrganizations from './components/ForOrganization';
 import FAQ from './components/common/Footer/FAQ';
 
-/* admin panel imports */
+/* admin panel imports 
 
 import AdminLayout from './components/admin/layout/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -49,6 +49,16 @@ import AdminPayments from './pages/admin/Payments';
 import AdminDisputes from './pages/admin/Disputes';
 import AdminSettings from './pages/admin/Settings';
 import ImmediateMissions from './pages/admin/ImmediateMissions';
+*/
+
+import AdminDashboard from './components/admin/pages/Dashboard'
+import AdminLayout from './components/admin/layout/AdminLayout'
+import OpportunitiesList from './components/admin/pages/opportunities/OpportunitiesList'
+import ExplorersList from './components/admin/pages/explorers/ExplorersList'
+import MissionsList from './components/admin/pages/missions/MissionsList'
+import PlatformSettings from './components/admin/pages/settings/PlatformSettings'
+import ApplicationsList from './components/admin/pages/applications/ApplicationsList';
+
 
 /* Footer Imports */
 import TermsOfService from './components/common/Footer/TermsOfService';
@@ -78,20 +88,18 @@ function App() {
         <Route path="/cookie-policy" element={<CookiePolicy />} />
         <Route path="/legal-notices" element={<LegalNotices />} />
         <Route path="/help-center" element={<HelpCenter />} />
-        <Route path='/admin/provider' element={<ProvidersPage/>} />
-        <Route path="/admin/providers/review" element={<ReviewPage/>} />
         
 
         {/* Admin Routes */}
-         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="opportunities" element={<AdminOpportunities />} />
-          <Route path="missions" element={<AdminMissions />} />
-           <Route path="immediate-missions" element={<ImmediateMissions />} />
-          <Route path="payments" element={<AdminPayments />} />
-          <Route path="disputes" element={<AdminDisputes />} />
-          <Route path="settings" element={<AdminSettings />} />
+         <Route element={<AdminLayout />}>
+          <Route path='/admin' element={<AdminDashboard />} />
+          <Route path="/admin/opportunities" element={<OpportunitiesList />} />
+          <Route path="/admin/opportunities/:opportunityId/applications" element={<ApplicationsRouteWrapper />} />
+          <Route path="/admin/explorers" element={<ExplorersList />} />
+          <Route path="admin/missions" element={<MissionsList />} />
+        <Route path='/admin/provider' element={<ProvidersPage/>} />
+        <Route path="/admin/providers/review" element={<ReviewPage/>} />
+          <Route path="/admin/settings" element={<PlatformSettings />} />
         </Route>
 
         {/* Provider Routes */}
@@ -149,5 +157,11 @@ function App() {
     </Routes>
   );
 }
+import { useParams } from 'react-router-dom'
+function ApplicationsRouteWrapper() {
+  const { opportunityId } = useParams()
+  return <ApplicationsList opportunityId={Number(opportunityId)} />
+}
 
 export default App;
+

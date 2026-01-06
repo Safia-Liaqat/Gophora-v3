@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { onboardingUtils } from '../../contexts/onboarding.js';
 import { APIURL } from '../../services/api.js';
-// Added Building2 to the imports below to fix the "Organization" crash
 import { User, Mail, Lock, Briefcase, Globe, ArrowRight, Loader2, ChevronDown, Building2 } from "lucide-react";
 
 export default function RegisterForm({ role, setRole }) {
@@ -65,21 +64,38 @@ export default function RegisterForm({ role, setRole }) {
         role: role
       };
 
+      console.log('Registration payload:', payload); // Debug log
+
       const response = await fetch(`${APIURL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
-      if (!response.ok) throw new Error("Registration failed.");
+      console.log('Response status:', response.status); // Debug log
+
+      if (!response.ok) {
+        let errorMessage = "Registration failed.";
+        try {
+          const errorData = await response.json();
+          console.log('Error response:', errorData); // Debug log
+          errorMessage = errorData.message || errorData.detail || JSON.stringify(errorData);
+        } catch (parseError) {
+          console.log('Could not parse error response');
+        }
+        throw new Error(errorMessage);
+      }
 
       const result = await response.json();
+      console.log('Registration success:', result); // Debug log
+      
       localStorage.setItem('user_id', result.user?.id || result.user_id);
       onboardingUtils.resetOnboarding();
       
       role === "seeker" ? navigate('/seeker/onboarding') : navigate('/provider/dashboard');
     } catch (err) {
-      setError(err.message);
+      console.error('Registration error:', err); // Debug log
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -92,6 +108,11 @@ export default function RegisterForm({ role, setRole }) {
 
   const optionClass = isDarkMode ? "bg-[#1a1625] text-white" : "bg-white text-[#2d124d]";
 
+  // Get unique countries (remove duplicates)
+  const uniqueCountries = [...new Set(countries.map(c => c.name))];
+  const uniqueStates = [...new Set(states.map(s => s.name))];
+  const uniqueCities = [...new Set(cities)];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <div className="text-[10px] text-red-500 font-bold uppercase tracking-widest text-center bg-red-50/50 py-2 rounded-lg">{error}</div>}
@@ -99,30 +120,77 @@ export default function RegisterForm({ role, setRole }) {
       <div className="grid grid-cols-1 gap-4">
         <div className="relative group">
           <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 opacity-30 group-focus-within:text-fuchsia-500 transition-colors" />
-          <input name="name" onChange={handleChange} placeholder="FULL NAME" required className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 border uppercase ${inputClass}`} />
+          <input 
+            name="name" 
+            value={formData.name}
+            onChange={handleChange} 
+            placeholder="FULL NAME" 
+            required 
+            className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 border uppercase ${inputClass}`} 
+          />
         </div>
 
         <div className="relative group">
           <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 opacity-30 group-focus-within:text-fuchsia-500 transition-colors" />
-          <input type="email" name="email" onChange={handleChange} placeholder="EMAIL ADDRESS" required className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 border uppercase ${inputClass}`} />
+          <input 
+            type="email" 
+            name="email" 
+            value={formData.email}
+            onChange={handleChange} 
+            placeholder="EMAIL ADDRESS" 
+            required 
+            className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 border uppercase ${inputClass}`} 
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="relative group">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 opacity-30 group-focus-within:text-fuchsia-500 transition-colors" />
-            <input type="password" name="password" onChange={handleChange} placeholder="PASSWORD" required className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 border uppercase ${inputClass}`} />
+            <input 
+              type="password" 
+              name="password" 
+              value={formData.password}
+              onChange={handleChange} 
+              placeholder="PASSWORD" 
+              required 
+              className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 border uppercase ${inputClass}`} 
+            />
           </div>
           <div className="relative group">
-            <input type="password" name="confirmPassword" onChange={handleChange} placeholder="CONFIRM" required className={`w-full px-5 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 border uppercase ${inputClass}`} />
+            <input 
+              type="password" 
+              name="confirmPassword" 
+              value={formData.confirmPassword}
+              onChange={handleChange} 
+              placeholder="CONFIRM" 
+              required 
+              className={`w-full px-5 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 border uppercase ${inputClass}`} 
+            />
           </div>
         </div>
 
-        {/* Location Selects with Dropdown Visibility Fix */}
+        {/* Location Selects with FIX for duplicate keys */}
         <div className="grid grid-cols-3 gap-2">
           {[
-            { name: 'country', label: 'COUNTRY', options: countries.map(c => c.name), disabled: false },
-            { name: 'state', label: 'STATE', options: states.map(s => s.name), disabled: !states.length },
-            { name: 'city', label: 'CITY', options: cities, disabled: !cities.length, isLoading: geoLoading.cities }
+            { 
+              name: 'country', 
+              label: 'COUNTRY', 
+              options: uniqueCountries, 
+              disabled: false 
+            },
+            { 
+              name: 'state', 
+              label: 'STATE', 
+              options: uniqueStates, 
+              disabled: !states.length 
+            },
+            { 
+              name: 'city', 
+              label: 'CITY', 
+              options: uniqueCities, 
+              disabled: !cities.length, 
+              isLoading: geoLoading.cities 
+            }
           ].map((field) => (
             <div key={field.name} className="relative">
               <select 
@@ -133,9 +201,15 @@ export default function RegisterForm({ role, setRole }) {
                 required 
                 className={`w-full px-2 py-3 rounded-xl text-[9px] font-bold border focus:outline-none appearance-none cursor-pointer transition-all ${inputClass} ${field.disabled ? 'opacity-50' : ''}`}
               >
-                <option value="" className={optionClass}>{field.isLoading ? '...' : field.label}</option>
-                {field.options.map(opt => (
-                  <option key={opt} value={opt} className={optionClass}>
+                <option value="" className={optionClass}>
+                  {field.isLoading ? '...' : field.label}
+                </option>
+                {field.options.map((opt, index) => (
+                  <option 
+                    key={`${field.name}-${opt}-${index}`} 
+                    value={opt} 
+                    className={optionClass}
+                  >
                     {opt.toUpperCase()}
                   </option>
                 ))}
@@ -148,17 +222,38 @@ export default function RegisterForm({ role, setRole }) {
         {role === "seeker" ? (
           <div className="relative group">
             <Briefcase className="absolute left-4 top-4 h-4 w-4 opacity-30 group-focus-within:text-fuchsia-500 transition-colors" />
-            <textarea name="skills" onChange={handleChange} placeholder="SKILLS (COMMAS: REACT, PYTHON...)" rows="2" className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 border uppercase ${inputClass}`} />
+            <textarea 
+              name="skills" 
+              value={formData.skills}
+              onChange={handleChange} 
+              placeholder="SKILLS (COMMAS: REACT, PYTHON...)" 
+              rows="2" 
+              className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 border uppercase ${inputClass}`} 
+            />
           </div>
         ) : (
           <div className="space-y-4 animate-in slide-in-from-bottom-2">
             <div className="relative group">
               <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 opacity-30 group-focus-within:text-indigo-500 transition-colors" />
-              <input name="organizationName" onChange={handleChange} placeholder="ORGANIZATION NAME" required className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border uppercase ${inputClass}`} />
+              <input 
+                name="organizationName" 
+                value={formData.organizationName}
+                onChange={handleChange} 
+                placeholder="ORGANIZATION NAME" 
+                required 
+                className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border uppercase ${inputClass}`} 
+              />
             </div>
             <div className="relative group">
               <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 opacity-30 group-focus-within:text-indigo-500 transition-colors" />
-              <input type="url" name="website" onChange={handleChange} placeholder="WEBSITE URL (OPTIONAL)" className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border uppercase ${inputClass}`} />
+              <input 
+                type="url" 
+                name="website" 
+                value={formData.website}
+                onChange={handleChange} 
+                placeholder="WEBSITE URL (OPTIONAL)" 
+                className={`w-full pl-12 pr-4 py-3 rounded-2xl text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border uppercase ${inputClass}`} 
+              />
             </div>
           </div>
         )}

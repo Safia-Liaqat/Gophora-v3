@@ -1,9 +1,9 @@
 // src/pages/admin/ProvidersPage.jsx
 import { useState } from 'react';
 import { mockProviders, verificationStats } from '../../../services/providersData'
-import FilterBar from '../../../components/admin/provider/FilterBar';
-import ProviderTable from '../../../components/admin/provider/ProviderTable';
-import ReviewQueue from '../../../components/admin/provider/ReviewQueue';
+import FilterBar from '../../../components/admin/pages/provider/FilterBar';
+import ProviderTable from '../../../components/admin/pages/provider/ProviderTable';
+import ReviewQueue from '../../../components/admin/pages/provider/ReviewQueue';
 
 const ProvidersPage = () => {
   const [providers, setProviders] = useState(mockProviders);
@@ -74,50 +74,50 @@ const ProvidersPage = () => {
   const stats = calculateStats();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-[#FFFFFF] p-6">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Provider Management</h1>
-            <p className="text-gray-600">Manage and verify all providers in the GOPHORA ecosystem</p>
+            <h1 className="text-2xl font-bold text-[#000000] mb-2">Provider Management</h1>
+            <p className="text-[#333333]">Manage and verify all providers in the GOPHORA ecosystem</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+            <button className="px-4 py-2 bg-white border border-[#333333] rounded-lg text-[#000000] hover:bg-gray-50">
               Export CSV
             </button>
-            <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+            <button className="px-4 py-2 bg-[#FF4F00] text-white rounded-lg hover:bg-[#E04600]">
               Add Provider
             </button>
           </div>
         </div>
       </div>
 
-      {/* Stats Cards - Simple inline version */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
-        <div className="bg-white p-4 rounded-xl border border-purple-100 shadow-sm">
-          <p className="text-sm text-gray-600">Total Providers</p>
-          <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+        <div className="bg-[#333333] p-4 rounded-xl border border-[#000000] shadow-sm">
+          <p className="text-sm text-white">Total Providers</p>
+          <p className="text-2xl font-bold text-white">{stats.total}</p>
         </div>
         
-        <div className="bg-white p-4 rounded-xl border border-green-100 shadow-sm">
-          <p className="text-sm text-gray-600">Verified</p>
-          <p className="text-2xl font-bold text-green-700">{stats.verified}</p>
+        <div className="bg-[#333333] p-4 rounded-xl border border-[#000000] shadow-sm">
+          <p className="text-sm text-white">Verified</p>
+          <p className="text-2xl font-bold text-white">{stats.verified}</p>
         </div>
         
-        <div className="bg-white p-4 rounded-xl border border-yellow-100 shadow-sm">
-          <p className="text-sm text-gray-600">Pending Review</p>
-          <p className="text-2xl font-bold text-yellow-700">{stats.pending}</p>
+        <div className="bg-[#333333] p-4 rounded-xl border border-[#000000] shadow-sm">
+          <p className="text-sm text-white">Pending Review</p>
+          <p className="text-2xl font-bold text-white">{stats.pending}</p>
         </div>
         
-        <div className="bg-white p-4 rounded-xl border border-red-100 shadow-sm">
-          <p className="text-sm text-gray-600">Denied</p>
-          <p className="text-2xl font-bold text-red-700">{stats.denied}</p>
+        <div className="bg-[#333333] p-4 rounded-xl border border-[#000000] shadow-sm">
+          <p className="text-sm text-white">Denied</p>
+          <p className="text-2xl font-bold text-white">{stats.denied}</p>
         </div>
         
-        <div className="bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
-          <p className="text-sm text-gray-600">Avg Trust Score</p>
-          <p className="text-2xl font-bold text-blue-700">{stats.avgScore}</p>
+        <div className="bg-[#333333] p-4 rounded-xl border border-[#000000] shadow-sm">
+          <p className="text-sm text-white">Avg Trust Score</p>
+          <p className="text-2xl font-bold text-white">{stats.avgScore}</p>
         </div>
       </div>
 
@@ -135,15 +135,15 @@ const ProvidersPage = () => {
       />
 
       {/* Providers Table */}
-      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
+      <div className="bg-white rounded-lg shadow border border-[#333333] overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-[#333333]">
+          <h2 className="text-lg font-semibold text-[#000000]">
             All Providers ({filteredProviders.length})
           </h2>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className="flex items-center gap-2 text-sm text-[#333333]">
             <span>Auto-refresh: </span>
             <span className="font-medium">30s</span>
-            <button className="text-purple-600 hover:text-purple-800 ml-2">Pause</button>
+            <button className="text-[#FF4F00] hover:text-[#E04600] ml-2">Pause</button>
           </div>
         </div>
         

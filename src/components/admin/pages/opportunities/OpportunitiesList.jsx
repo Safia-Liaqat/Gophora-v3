@@ -1,0 +1,353 @@
+import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import StatusBadge from '../../ui/StatusBadge'
+import AddOpportunityModal from './AddOpportunityModal'
+import { opportunitiesService } from '../../../../services/opportunities.service'
+
+const initialOpportunities = [
+  {
+    id: 1,
+    title: 'Frontend Intern',
+    company: 'TechCorp',
+    status: 'Pending',
+    positionStatus: 'Open',
+    applicants: 5,
+    featured: true,
+    tags: ['React', 'Tailwind'],
+    comments: '',
+  },
+  {
+    id: 2,
+    title: 'Backend Developer',
+    company: 'StartupX',
+    status: 'Approved',
+    positionStatus: 'Paused',
+    applicants: 2,
+    featured: false,
+    tags: ['Node.js', 'Express'],
+    comments: 'Good candidate pool',
+  },
+]
+
+export default function OpportunitiesList() {
+  const navigate = useNavigate()
+  const [opportunities, setOpportunities] = useState(initialOpportunities)
+  const [editingId, setEditingId] = useState(null)
+  const [editData, setEditData] = useState({})
+  const [showAddModal, setShowAddModal] = useState(false)
+
+  // Filters
+  const [statusFilter, setStatusFilter] = useState('All')
+  const [positionFilter, setPositionFilter] = useState('All')
+  const [search, setSearch] = useState('')
+
+  // -------- FILTER LOGIC --------
+  const filteredOpportunities = useMemo(() => {
+    return opportunities.filter(op => {
+      const statusMatch =
+        statusFilter === 'All' || op.status === statusFilter
+
+      const positionMatch =
+        positionFilter === 'All' || op.positionStatus === positionFilter
+
+      const searchMatch =
+        op.title.toLowerCase().includes(search.toLowerCase()) ||
+        op.company.toLowerCase().includes(search.toLowerCase())
+
+      return statusMatch && positionMatch && searchMatch
+    })
+  }, [opportunities, statusFilter, positionFilter, search])
+
+  // -------- STATUS --------
+  const updateStatus = async (id, status) => {
+    await opportunitiesService.updateStatus(id, status)
+    setOpportunities(prev =>
+      prev.map(op =>
+        op.id === id ? { ...op, status } : op
+      )
+    )
+  }
+
+  // -------- POSITION --------
+  const updatePositionStatus = async (id, positionStatus) => {
+    await opportunitiesService.update(id, { positionStatus })
+    setOpportunities(prev =>
+      prev.map(op =>
+        op.id === id ? { ...op, positionStatus } : op
+      )
+    )
+  }
+
+  // -------- ARCHIVE --------
+  const archiveOpportunity = async (id) => {
+    await opportunitiesService.archive(id)
+    setOpportunities(prev => prev.filter(op => op.id !== id))
+  }
+
+  // -------- DELETE (HARD) --------
+  const deleteOpportunity = async (id) => {
+    const confirm = window.confirm(
+      'This will permanently delete this opportunity. Continue?'
+    )
+    if (!confirm) return
+
+    await opportunitiesService.delete(id)
+    setOpportunities(prev => prev.filter(op => op.id !== id))
+  }
+
+  // -------- EDIT --------
+  const startEditing = (op) => {
+    setEditingId(op.id)
+    setEditData({
+      ...op,
+      tags: op.tags.join(', '),
+    })
+  }
+
+  const saveEdit = async (id) => {
+    const updated = {
+      ...editData,
+      tags: editData.tags.split(',').map(t => t.trim()),
+    }
+
+    await opportunitiesService.update(id, updated)
+
+    setOpportunities(prev =>
+      prev.map(op => (op.id === id ? updated : op))
+    )
+    setEditingId(null)
+  }
+
+  // -------- FEATURED --------
+  const toggleFeatured = async (id) => {
+    const target = opportunities.find(op => op.id === id)
+    await opportunitiesService.update(id, {
+      featured: !target.featured,
+    })
+
+    setOpportunities(prev =>
+      prev.map(op =>
+        op.id === id
+          ? { ...op, featured: !op.featured }
+          : op
+      )
+    )
+  }
+
+  // -------- ADD --------
+  const handleAddOpportunity = async (op) => {
+    const saved = await opportunitiesService.create(op)
+    setOpportunities(prev => [saved, ...prev])
+    setShowAddModal(false)
+  }
+
+  return (
+    <div className="bg-white p-6 rounded-lg border border-[#333333] shadow-sm">
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-[#000000]">Opportunity Management</h2>
+          <p className="text-[#333333] text-sm mt-1">Manage and track all opportunities in the system</p>
+        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="px-4 py-2 bg-[#FF4F00] text-white rounded-lg hover:bg-[#E04600] transition-colors text-sm font-medium self-start sm:self-auto"
+        >
+          + Add Opportunity
+        </button>
+      </div>
+
+      {/* FILTERS */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <input
+          placeholder="Search by title or company"
+          className="flex-1 border border-[#333333] p-2 rounded text-[#000000] focus:outline-none focus:ring-1 focus:ring-[#FF4F00] text-sm"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+
+        <div className="flex gap-2">
+          <select
+            className="flex-1 sm:w-auto border border-[#333333] p-2 rounded text-[#000000] focus:outline-none focus:ring-1 focus:ring-[#FF4F00] text-sm min-w-[100px]"
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+          >
+            <option value="All" className="text-[#000000]">All Status</option>
+            <option value="Pending" className="text-[#000000]">Pending</option>
+            <option value="Approved" className="text-[#000000]">Approved</option>
+            <option value="Rejected" className="text-[#000000]">Rejected</option>
+          </select>
+
+          <select
+            className="flex-1 sm:w-auto border border-[#333333] p-2 rounded text-[#000000] focus:outline-none focus:ring-1 focus:ring-[#FF4F00] text-sm min-w-[100px]"
+            value={positionFilter}
+            onChange={e => setPositionFilter(e.target.value)}
+          >
+            <option value="All" className="text-[#000000]">All Positions</option>
+            <option value="Open" className="text-[#000000]">Open</option>
+            <option value="Closed" className="text-[#000000]">Closed</option>
+            <option value="Paused" className="text-[#000000]">Paused</option>
+          </select>
+        </div>
+      </div>
+
+      {/* EMPTY STATE */}
+      {filteredOpportunities.length === 0 ? (
+        <div className="p-8 text-center border border-[#333333] rounded-lg">
+          <p className="text-lg text-[#000000] mb-2">No opportunities found</p>
+          <p className="text-[#333333]">Try adjusting your filters or add a new opportunity</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-[#333333]">
+          <table className="w-full min-w-[800px]">
+            <thead className="bg-[#333333] text-white">
+              <tr>
+                <th className="p-3 text-left text-xs font-medium uppercase tracking-wider">Title</th>
+                <th className="p-3 text-left text-xs font-medium uppercase tracking-wider">Company</th>
+                <th className="p-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
+                <th className="p-3 text-left text-xs font-medium uppercase tracking-wider">Position</th>
+                <th className="p-3 text-left text-xs font-medium uppercase tracking-wider">Applicants</th>
+                <th className="p-3 text-left text-xs font-medium uppercase tracking-wider">Featured</th>
+                <th className="p-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredOpportunities.map(op => (
+                <tr key={op.id} className="border-t border-[#333333] hover:bg-[#F5F5F5] transition-colors">
+                  {/* Title */}
+                  <td className="p-3 align-top">
+                    <div className="font-medium text-[#000000] text-sm">{op.title}</div>
+                    {op.tags && op.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {op.tags.map((tag, index) => (
+                          <span 
+                            key={index}
+                            className="px-1.5 py-0.5 bg-[#333333] text-white text-xs rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+
+                  {/* Company */}
+                  <td className="p-3 align-top">
+                    <div className="text-[#000000] text-sm">{op.company}</div>
+                  </td>
+
+                  {/* Status - FIXED BUTTON WIDTH */}
+                  <td className="p-3 align-top">
+                    <div className="space-y-2 max-w-[140px]">
+                      <StatusBadge status={op.status} />
+                      {op.status === 'Pending' && (
+                        <div className="flex gap-1 mt-1">
+                          <button
+                            onClick={() => updateStatus(op.id, 'Approved')}
+                            className="px-2 py-0.5 bg-[#FF4F00] text-white text-xs rounded hover:bg-[#E04600] transition-colors flex-1 min-w-0 truncate"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => updateStatus(op.id, 'Rejected')}
+                            className="px-2 py-0.5 bg-[#333333] text-white text-xs rounded hover:bg-[#000000] transition-colors flex-1 min-w-0 truncate"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Position Status - SHORTENED DROPDOWN */}
+                  <td className="p-3 align-top">
+                    <div className="w-20">
+                      <select
+                        value={op.positionStatus}
+                        onChange={e => updatePositionStatus(op.id, e.target.value)}
+                        className="w-full border border-[#333333] p-1 rounded text-[#000000] text-xs focus:outline-none focus:ring-1 focus:ring-[#FF4F00]"
+                      >
+                        <option value="Open" className="text-[#000000]">Open</option>
+                        <option value="Closed" className="text-[#000000]">Closed</option>
+                        <option value="Paused" className="text-[#000000]">Paused</option>
+                      </select>
+                    </div>
+                  </td>
+
+                  {/* Applicants */}
+                  <td className="p-3 align-top">
+                    <div className="text-[#000000] font-medium text-sm">{op.applicants}</div>
+                  </td>
+
+                  {/* Featured */}
+                  <td className="p-3 align-top">
+                    <div className="w-14">
+                      <button
+                        onClick={() => toggleFeatured(op.id)}
+                        className={`w-full px-1 py-0.5 rounded text-xs font-medium transition-colors ${
+                          op.featured 
+                            ? 'bg-[#FFF0E6] text-[#000000]' // Light orange background → Black text
+                            : 'bg-[#333333] text-white'     // Charcoal background → White text
+                        } hover:opacity-90 truncate`}
+                      >
+                        {op.featured ? 'Yes' : 'No'}
+                      </button>
+                    </div>
+                  </td>
+
+                  {/* Actions - COMPACT BUTTONS WITH VIEW APPLICATIONS */}
+                  <td className="p-3 align-top">
+                    <div className="flex flex-col gap-1.5 w-24">
+                      {/* View Applications Button - Added at the top */}
+                      <button
+                        onClick={() => navigate(`/admin/opportunities/${op.id}/applications`)}
+                        className="px-1.5 py-1 bg-[#FF4F00] text-white text-xs rounded hover:bg-[#E04600] transition-colors truncate"
+                      >
+                        View Applications
+                      </button>
+                      
+                      <button
+                        onClick={() => startEditing(op)}
+                        className="px-1.5 py-1 border border-[#333333] rounded text-[#000000] text-xs hover:bg-[#F5F5F5] transition-colors truncate"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => archiveOpportunity(op.id)}
+                        className="px-1.5 py-1 bg-[#333333] text-white text-xs rounded hover:bg-[#000000] transition-colors truncate"
+                      >
+                        Archive
+                      </button>
+
+                      <button
+                        onClick={() => deleteOpportunity(op.id)}
+                        className="px-1.5 py-1 bg-[#000000] text-white text-xs rounded hover:bg-[#333333] transition-colors truncate"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Stats Footer */}
+      {filteredOpportunities.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-[#333333] text-xs text-[#333333]">
+          Showing {filteredOpportunities.length} of {opportunities.length} opportunities
+        </div>
+      )}
+
+      <AddOpportunityModal
+        show={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSave={handleAddOpportunity}
+      />
+    </div>
+  )
+}
