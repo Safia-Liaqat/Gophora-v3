@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from 'lucide-react';
-import logo from "../../assets/gophora-plomo-logo.png";
+import { Menu, X } from "lucide-react";
+import logoLight from "../../assets/new-logolight.png";
+import logoDark from "../../assets/new-logo.png";
 
 // Icons
 const SunIcon = () => (
@@ -22,70 +23,35 @@ export default function Navbar() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isThemeLoaded, setIsThemeLoaded] = useState(false);
-  
-  // KEY FIX: Initialize theme to 'light' by default
   const [theme, setTheme] = useState("light");
 
-  // ---------- Theme Synchronization ----------
+  // ---------- Theme & Scroll Initialization ----------
   useEffect(() => {
-    // Determine initial theme from localStorage or system preference
     const savedTheme = localStorage.getItem("theme");
-    
-    let initialTheme;
-    if (savedTheme) {
-      // Use saved theme if exists
-      initialTheme = savedTheme;
-    } else {
-      // Otherwise use system preference
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      initialTheme = systemPrefersDark ? "dark" : "light";
-      localStorage.setItem("theme", initialTheme);
-    }
-    
-    // Apply to DOM immediately
-    const html = document.documentElement;
-    if (initialTheme === "dark") {
-      html.classList.add("dark");
-    } else {
-      html.classList.remove("dark");
-    }
-    
-    // Update state
+    const initialTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", initialTheme === "dark");
     setTheme(initialTheme);
+    localStorage.setItem("theme", initialTheme);
     setIsThemeLoaded(true);
-    
-    // Rest of your existing code
-    document.documentElement.lang = "en";
+
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
 
     const savedLang = localStorage.getItem("siteLanguage");
-    if (savedLang) {
-      setCurrentLang(savedLang);
-      if (savedLang === "es") setTimeout(() => applyGoogleTranslate("es"), 1500);
-    }
+    if (savedLang) setCurrentLang(savedLang);
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Theme toggle function
+  // ---------- Theme Toggle ----------
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
-    
-    // Apply immediately to DOM
-    const html = document.documentElement;
-    if (newTheme === "dark") {
-      html.classList.add("dark");
-    } else {
-      html.classList.remove("dark");
-    }
-    
-    // Update state and localStorage
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
   };
 
-  // ---------- Google Translate Logic ----------
+  // ---------- Google Translate ----------
   const loadGoogleTranslate = () =>
     new Promise((resolve) => {
       if (window.google && window.google.translate) resolve();
@@ -159,112 +125,71 @@ export default function Navbar() {
     }
   };
 
-  // Don't render until theme is loaded to prevent mismatch
-  if (!isThemeLoaded) {
-    return (
-      <nav className="fixed top-0 left-0 right-0 z-50 w-full px-6 md:px-12 py-4 transition-all duration-500 border-b backdrop-blur-md bg-white/70 border-fuchsia-100 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="Gophora Logo" className="h-8 w-auto" />
-          </div>
-          {/* Show sun icon during loading */}
-          <button className="p-2 rounded-full border border-fuchsia-100 bg-fuchsia-50 text-fuchsia-600">
-            <SunIcon />
-          </button>
-        </div>
-      </nav>
-    );
-  }
+  if (!isThemeLoaded) return null;
 
-  // --- Theme Variables ---
   const isDark = theme === "dark";
-  const textColor = isDark ? "text-white/80" : "text-[#2d124d]";
-  const navBg = isDark 
-    ? "backdrop-blur-md bg-black/40 border-white/10" 
-    : "backdrop-blur-md bg-white/70 border-fuchsia-100 shadow-sm";
+  const textColor = isDark ? "text-white/90" : "text-black";
+  const navBg = isDark ? "bg-black/90 border-white/10" : "bg-white/90 border-fuchsia-100 shadow-sm";
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 w-full px-6 md:px-12 py-4 transition-all duration-500 border-b ${navBg}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 w-full px-6 md:px-12 py-3 backdrop-blur-md border-b transition-all duration-500 ${navBg}`}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        
+
         {/* LOGO */}
-        <div className="flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-3 group">
+        <div className="flex items-center flex-shrink-0">
+          <Link to="/" className="flex items-center">
             <img
-              src={logo}
-              alt="Gophora Logo"
-              className={`h-8 w-auto transition-all duration-500 group-hover:scale-105 ${
-                isDark ? "" : "brightness-0" 
-              }`}
+              src={isDark ? logoLight : logoDark}
+              alt="Logo"
+              className="h-16 md:h-20 w-auto transition-all duration-500"
             />
           </Link>
         </div>
 
-        {/* DESKTOP NAV LINKS */}
-        <div className={`hidden lg:flex gap-8 text-[10px] uppercase tracking-[0.3em] font-bold ${textColor}`}>
-          <Link to="/about" className="hover:text-fuchsia-500 transition-colors">About</Link>
-          <Link to="/faq" className="hover:text-fuchsia-500 transition-colors">FAQ</Link>
-          <Link to="/organizations" className="hover:text-fuchsia-500 transition-colors">Organizations</Link>
+        {/* NAV LINKS */}
+        <div className={`hidden lg:flex gap-10 text-[12px] uppercase tracking-[0.25em] font-bold ${textColor}`}>
+          <Link to="/about" className="hover:text-[#FF4F00] transition-colors">About</Link>
+          <Link to="/faq" className="hover:text-[#FF4F00] transition-colors">FAQ</Link>
+          <Link to="/organizations" className="hover:text-[#FF4F00] transition-colors">Organizations</Link>
         </div>
 
         {/* UTILITIES */}
         <div className="flex items-center gap-4">
-          
+
           {/* Language Switch */}
-          <div className={`hidden sm:flex rounded-xl p-1 border transition-colors ${
-            isDark ? "bg-white/5 border-white/10" : "bg-fuchsia-50 border-fuchsia-100"
-          }`}>
+          <div className={`hidden sm:flex rounded-xl p-1 border transition-colors ${isDark ? "bg-white/5 border-white/10" : "bg-[#FF4F00]/10 border-[#FF4F00]/30"}`}>
             <button
               onClick={() => changeLanguage("en")}
-              disabled={isTranslating}
-              className={`px-3 py-1 rounded-lg text-[10px] font-bold tracking-widest transition-all ${
-                currentLang === "en" 
-                  ? "bg-fuchsia-500 text-white shadow-sm" 
-                  : isDark ? "text-white/40 hover:text-white" : "text-fuchsia-900/40 hover:text-fuchsia-900"
-              }`}
+              className={`px-3 py-1 rounded-lg text-[10px] font-bold tracking-widest transition-all ${currentLang === "en" ? "bg-[#FF4F00] text-white shadow-sm" : isDark ? "text-white/40 hover:text-white" : "text-[#FF4F00]/60 hover:text-[#FF4F00]"}`}
             >
-              EN
+              English
             </button>
             <button
               onClick={() => changeLanguage("es")}
-              disabled={isTranslating}
-              className={`px-3 py-1 rounded-lg text-[10px] font-bold tracking-widest transition-all ${
-                currentLang === "es" 
-                  ? "bg-fuchsia-500 text-white shadow-sm" 
-                  : isDark ? "text-white/40 hover:text-white" : "text-fuchsia-900/40 hover:text-fuchsia-900"
-              }`}
+              className={`px-3 py-1 rounded-lg text-[10px] font-bold tracking-widest transition-all ${currentLang === "es" ? "bg-[#FF4F00] text-white shadow-sm" : isDark ? "text-white/40 hover:text-white" : "text-[#FF4F00]/60 hover:text-[#FF4F00]"}`}
             >
-              ES
+              Español
             </button>
           </div>
 
-          {/* Theme toggle */}
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className={`p-2 rounded-full border transition-all ${
-              isDark 
-                ? "border-white/10 bg-white/5 hover:bg-white/10 text-white" 
-                : "border-fuchsia-100 bg-fuchsia-50 text-fuchsia-600 hover:bg-fuchsia-100"
-            }`}
+            className={`p-2 rounded-full border transition-all ${isDark ? "border-white/10 bg-white/5 hover:bg-white/10 text-white" : "border-[#FF4F00]/30 bg-[#FF4F00]/10 text-[#FF4F00] hover:bg-[#FF4F00]/20"}`}
           >
-            {/* Standard: Moon in dark mode, Sun in light mode */}
             {isDark ? <MoonIcon /> : <SunIcon />}
           </button>
 
           {/* Launch Button */}
-          <Link to='/register' className={`hidden sm:block px-5 py-2 border rounded-full text-[10px] uppercase tracking-widest transition-all ${
-            isDark 
-              ? "border-fuchsia-500/50 text-white hover:bg-fuchsia-500" 
-              : "border-fuchsia-600 bg-fuchsia-600 text-white hover:shadow-lg"
-          }`}>
+          <Link
+            to="/register"
+            className={`hidden sm:block px-5 py-2 border rounded-full text-[10px] uppercase tracking-widest transition-all ${isDark ? "border-[#FF4F00]/50 text-white hover:bg-[#FF4F00]" : "border-[#FF4F00] bg-[#FF4F00] text-white hover:shadow-lg"}`}
+          >
             Launch Mission
           </Link>
 
           {/* Mobile Menu Toggle */}
-          <button 
-            className={`lg:hidden transition-colors ${isDark ? "text-white" : "text-[#2d124d]"}`} 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
+          <button className={`lg:hidden transition-colors ${isDark ? "text-white" : "text-black"}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
@@ -272,20 +197,18 @@ export default function Navbar() {
 
       {/* MOBILE MENU */}
       {isMenuOpen && (
-        <div className={`absolute top-full left-0 w-full backdrop-blur-xl border-b p-8 flex flex-col gap-6 lg:hidden animate-in slide-in-from-top duration-300 ${
-          isDark ? "bg-[#0a0514]/90 border-white/10 text-white" : "bg-white border-fuchsia-100 text-[#2d124d]"
-        }`}>
-          <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold uppercase tracking-widest">About</Link>
-          <Link to="/faq" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold uppercase tracking-widest">FAQ</Link>
-          <Link to="/organizations" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold uppercase tracking-widest">Organizations</Link>
-          <hr className={isDark ? "border-white/5" : "border-fuchsia-100"} />
-          
+        <div className={`absolute top-full left-0 w-full backdrop-blur-xl border-b p-6 flex flex-col gap-6 lg:hidden animate-in slide-in-from-top duration-300 ${isDark ? "bg-black/90 border-white/10 text-white" : "bg-white border-[#FF4F00]/20 text-black"}`}>
+          <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold uppercase tracking-widest hover:text-[#FF4F00]">About</Link>
+          <Link to="/faq" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold uppercase tracking-widest hover:text-[#FF4F00]">FAQ</Link>
+          <Link to="/organizations" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold uppercase tracking-widest hover:text-[#FF4F00]">Organizations</Link>
+          <hr className={isDark ? "border-white/5" : "border-[#FF4F00]/30"} />
+
           <div className="flex justify-between items-center">
-             <span className="text-[10px] uppercase tracking-widest opacity-40">Language</span>
-             <div className="flex gap-2">
-                <button onClick={() => changeLanguage("en")} className={`px-4 py-2 rounded-lg text-xs font-bold ${currentLang === 'en' ? 'bg-fuchsia-500 text-white' : 'opacity-40'}`}>EN</button>
-                <button onClick={() => changeLanguage("es")} className={`px-4 py-2 rounded-lg text-xs font-bold ${currentLang === 'es' ? 'bg-fuchsia-500 text-white' : 'opacity-40'}`}>ES</button>
-             </div>
+            <span className="text-[10px] uppercase tracking-widest opacity-40">Language</span>
+            <div className="flex gap-2">
+              <button onClick={() => changeLanguage("en")} className={`px-4 py-2 rounded-lg text-xs font-bold ${currentLang === 'en' ? 'bg-[#FF4F00] text-white' : 'opacity-40'}`}>English</button>
+              <button onClick={() => changeLanguage("es")} className={`px-4 py-2 rounded-lg text-xs font-bold ${currentLang === 'es' ? 'bg-[#FF4F00] text-white' : 'opacity-40'}`}>Español</button>
+            </div>
           </div>
         </div>
       )}
