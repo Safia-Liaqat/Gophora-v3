@@ -103,6 +103,7 @@ app.add_middleware(
         "https://gophora.com",
         "https://www.gophora.com",
         "https://gophora-ai.web.app",
+        "http://localhost:5173",
 
         ],  # Change to specific domains in production
     allow_credentials=True,
