@@ -51,13 +51,16 @@ import AdminSettings from './pages/admin/Settings';
 import ImmediateMissions from './pages/admin/ImmediateMissions';
 */
 
-import AdminDashboard from './components/admin/pages/Dashboard'
+import AdminDashboard from './components/admin/pages/dashboard/AdminDashboard'
 import AdminLayout from './components/admin/layout/AdminLayout'
 import OpportunitiesList from './components/admin/pages/opportunities/OpportunitiesList'
 import ExplorersList from './components/admin/pages/explorers/ExplorersList'
 import MissionsList from './components/admin/pages/missions/MissionsList'
 import PlatformSettings from './components/admin/pages/settings/PlatformSettings'
 import ApplicationsList from './components/admin/pages/applications/ApplicationsList';
+import CategoriesSettings from './components/admin/pages/settings/CategoriesSettings';
+import SkillsSettings from './components/admin/pages/settings/SkillsSettings';
+import OpportunitySettings from './components/admin/pages/settings/OpportunitySettings';
 
 
 /* Footer Imports */
@@ -66,7 +69,7 @@ import PrivacyPolicy from './components/common/Footer/PrivacyPolicy';
 import CookiePolicy from './components/common/Footer/CookiePolicy';
 import LegalNotices from './components/common/Footer/LegalNotices';
 import HelpCenter from './components/common/Footer/HelpCenter';
-import ProvidersPage from './pages/admin/provider/ProvidersPage';
+import ProvidersPage from './components/admin/pages/provider/ProvidersPage';
 import ReviewPage from './pages/admin/provider/ReviewPage';
 
 
@@ -99,7 +102,11 @@ function App() {
           <Route path="admin/missions" element={<MissionsList />} />
         <Route path='/admin/provider' element={<ProvidersPage/>} />
         <Route path="/admin/providers/review" element={<ReviewPage/>} />
-          <Route path="/admin/settings" element={<PlatformSettings />} />
+          <Route path="/admin/settings" element={<PlatformSettings />}>
+           <Route path="categories" element={<CategoriesSettings />} />
+           <Route path="skills" element={<SkillsSettings />} />
+           <Route path="opportunity" element={<OpportunitySettings />} />
+        </Route>
         </Route>
 
         {/* Provider Routes */}

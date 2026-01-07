@@ -4,6 +4,17 @@ import StatusBadge from '../../ui/StatusBadge'
 import AddOpportunityModal from './AddOpportunityModal'
 import { opportunitiesService } from '../../../../services/opportunities.service'
 
+// Import Heroicons
+import { 
+  EyeIcon,
+  PencilIcon,
+  ArchiveBoxIcon,
+  TrashIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  StarIcon
+} from '@heroicons/react/24/outline'
+
 const initialOpportunities = [
   {
     id: 1,
@@ -237,36 +248,42 @@ export default function OpportunitiesList() {
                     <div className="text-[#000000] text-sm">{op.company}</div>
                   </td>
 
-                  {/* Status - FIXED BUTTON WIDTH */}
+                  {/* Status - WITH SPACE BETWEEN BADGE AND BUTTONS */}
                   <td className="p-3 align-top">
-                    <div className="space-y-2 max-w-[140px]">
-                      <StatusBadge status={op.status} />
+                    <div className="max-w-[120px]">
+                      <div className="mb-2">
+                        <StatusBadge status={op.status} />
+                      </div>
                       {op.status === 'Pending' && (
-                        <div className="flex gap-1 mt-1">
+                        <div className="flex gap-1">
                           <button
                             onClick={() => updateStatus(op.id, 'Approved')}
-                            className="px-2 py-0.5 bg-[#FF4F00] text-white text-xs rounded hover:bg-[#E04600] transition-colors flex-1 min-w-0 truncate"
+                            className="flex items-center justify-center gap-1 px-2 py-1 bg-[#FF4F00] text-white text-xs rounded hover:bg-[#E04600] transition-colors flex-1"
+                            title="Approve"
                           >
-                            Approve
+                            <CheckCircleIcon className="h-3 w-3" />
+                            <span>Approve</span>
                           </button>
                           <button
                             onClick={() => updateStatus(op.id, 'Rejected')}
-                            className="px-2 py-0.5 bg-[#333333] text-white text-xs rounded hover:bg-[#000000] transition-colors flex-1 min-w-0 truncate"
+                            className="flex items-center justify-center gap-1 px-2 py-1 bg-[#333333] text-white text-xs rounded hover:bg-[#000000] transition-colors flex-1"
+                            title="Reject"
                           >
-                            Reject
+                            <XCircleIcon className="h-3 w-3" />
+                            <span>Reject</span>
                           </button>
                         </div>
                       )}
                     </div>
                   </td>
 
-                  {/* Position Status - SHORTENED DROPDOWN */}
+                  {/* Position Status */}
                   <td className="p-3 align-top">
                     <div className="w-20">
                       <select
                         value={op.positionStatus}
                         onChange={e => updatePositionStatus(op.id, e.target.value)}
-                        className="w-full border border-[#333333] p-1 rounded text-[#000000] text-xs focus:outline-none focus:ring-1 focus:ring-[#FF4F00]"
+                        className="w-full border border-[#333333] p-1.5 rounded text-[#000000] text-xs focus:outline-none focus:ring-1 focus:ring-[#FF4F00]"
                       >
                         <option value="Open" className="text-[#000000]">Open</option>
                         <option value="Closed" className="text-[#000000]">Closed</option>
@@ -280,53 +297,58 @@ export default function OpportunitiesList() {
                     <div className="text-[#000000] font-medium text-sm">{op.applicants}</div>
                   </td>
 
-                  {/* Featured */}
+                  {/* Featured - ICON ONLY */}
                   <td className="p-3 align-top">
-                    <div className="w-14">
-                      <button
-                        onClick={() => toggleFeatured(op.id)}
-                        className={`w-full px-1 py-0.5 rounded text-xs font-medium transition-colors ${
-                          op.featured 
-                            ? 'bg-[#FFF0E6] text-[#000000]' // Light orange background → Black text
-                            : 'bg-[#333333] text-white'     // Charcoal background → White text
-                        } hover:opacity-90 truncate`}
-                      >
-                        {op.featured ? 'Yes' : 'No'}
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => toggleFeatured(op.id)}
+                      className={`p-2 rounded transition-colors ${
+                        op.featured 
+                          ? 'bg-[#FFF0E6] text-[#FF4F00] border border-[#FF4F00]' 
+                          : 'bg-[#333333] text-white hover:bg-[#000000]'
+                      }`}
+                      title={op.featured ? 'Remove from featured' : 'Mark as featured'}
+                    >
+                      <StarIcon className="h-4 w-4" />
+                    </button>
                   </td>
 
-                  {/* Actions - COMPACT BUTTONS WITH VIEW APPLICATIONS */}
+                  {/* Actions - REMOVED NUMBER FROM VIEW BUTTON */}
                   <td className="p-3 align-top">
-                    <div className="flex flex-col gap-1.5 w-24">
-                      {/* View Applications Button - Added at the top */}
+                    <div className="space-y-2 w-28">
+                      {/* View Applications - WITHOUT NUMBER */}
                       <button
                         onClick={() => navigate(`/admin/opportunities/${op.id}/applications`)}
-                        className="px-1.5 py-1 bg-[#FF4F00] text-white text-xs rounded hover:bg-[#E04600] transition-colors truncate"
+                        className="w-full px-2 py-1.5 bg-[#FF4F00] text-white text-xs rounded hover:bg-[#E04600] transition-colors flex items-center justify-center gap-1"
+                        title="View Applications"
                       >
-                        View Applications
+                        <EyeIcon className="h-3 w-3" />
+                        <span>View Apps</span>
                       </button>
                       
-                      <button
-                        onClick={() => startEditing(op)}
-                        className="px-1.5 py-1 border border-[#333333] rounded text-[#000000] text-xs hover:bg-[#F5F5F5] transition-colors truncate"
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        onClick={() => archiveOpportunity(op.id)}
-                        className="px-1.5 py-1 bg-[#333333] text-white text-xs rounded hover:bg-[#000000] transition-colors truncate"
-                      >
-                        Archive
-                      </button>
-
-                      <button
-                        onClick={() => deleteOpportunity(op.id)}
-                        className="px-1.5 py-1 bg-[#000000] text-white text-xs rounded hover:bg-[#333333] transition-colors truncate"
-                      >
-                        Delete
-                      </button>
+                      {/* Action Buttons Grid */}
+                      <div className="grid grid-cols-3 gap-1">
+                        <button
+                          onClick={() => startEditing(op)}
+                          className="p-1.5 border border-[#333333] rounded text-[#000000] hover:bg-[#F5F5F5] transition-colors flex items-center justify-center"
+                          title="Edit"
+                        >
+                          <PencilIcon className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => archiveOpportunity(op.id)}
+                          className="p-1.5 bg-[#333333] text-white rounded hover:bg-[#000000] transition-colors flex items-center justify-center"
+                          title="Archive"
+                        >
+                          <ArchiveBoxIcon className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => deleteOpportunity(op.id)}
+                          className="p-1.5 bg-[#000000] text-white rounded hover:bg-[#333333] transition-colors flex items-center justify-center"
+                          title="Delete"
+                        >
+                          <TrashIcon className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -339,7 +361,25 @@ export default function OpportunitiesList() {
       {/* Stats Footer */}
       {filteredOpportunities.length > 0 && (
         <div className="mt-4 pt-4 border-t border-[#333333] text-xs text-[#333333]">
-          Showing {filteredOpportunities.length} of {opportunities.length} opportunities
+          <div className="flex justify-between items-center">
+            <div>
+              Showing {filteredOpportunities.length} of {opportunities.length} opportunities
+            </div>
+            <div className="flex gap-4">
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-[#333333] rounded-full"></span>
+                <span>Approved: {opportunities.filter(o => o.status === 'Approved').length}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-[#FF4F00] rounded-full"></span>
+                <span>Pending: {opportunities.filter(o => o.status === 'Pending').length}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-[#666666] rounded-full"></span>
+                <span>Rejected: {opportunities.filter(o => o.status === 'Rejected').length}</span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
