@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { ChevronDown, Star } from "lucide-react"; // Added Star icon
 import OpportunityForm from "../../components/forms/OpportunityForm";
-import { APIURL } from "../../services/api.js";
+import { APIURL } from "../../services/api";
 
 export default function Opportunities() {
   const [opportunities, setOpportunities] = useState([]);
@@ -9,29 +8,31 @@ export default function Opportunities() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [error, setError] = useState("");
-  const [isDarkMode, setIsDarkMode] = useState(
-    document.documentElement.classList.contains("dark")
-  );
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
-
+  /* =========================
+     FETCH OPPORTUNITIES
+  ========================= */
   const fetchOpportunities = async () => {
     try {
+      setLoading(true);
+      setError("");
+
       const token = localStorage.getItem("token");
-      const response = await fetch(`${APIURL}/opportunities/me`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`${APIURL}/opportunities/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      if (!response.ok) throw new Error("Failed to fetch opportunities");
-      const data = await response.json();
+
+      if (!res.ok) throw new Error("Failed to fetch opportunities");
+
+      const data = await res.json();
       setOpportunities(data);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,178 +40,205 @@ export default function Opportunities() {
     fetchOpportunities();
   }, []);
 
-  const handleEdit = (op) => setEditingOp(op);
+  /* =========================
+     EDIT
+  ========================= */
+  const handleEdit = (op) => {
+    setEditingOp({
+      ...op,
+      tags: (op.tags || []).join(", "),
+    });
+  };
 
+  /* =========================
+     DELETE
+  ========================= */
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this opportunity?")) {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${APIURL}/opportunities/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Failed to delete opportunity");
-        setOpportunities(opportunities.filter((op) => op.id !== id));
-      } catch (err) {
-        setError(err.message);
-      }
+    if (!window.confirm("Are you sure you want to delete this opportunity?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${APIURL}/opportunities/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to delete opportunity");
+
+      setOpportunities((prev) => prev.filter((op) => op.id !== id));
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  const handleUpdate = async (updatedOp) => {
+  /* =========================
+     UPDATE
+  ========================= */
+  const handleUpdate = async (updatedData) => {
     try {
       const token = localStorage.getItem("token");
-      const processedData = {
-        ...updatedOp,
-        tags: updatedOp.tags ? updatedOp.tags.split(",").map((tag) => tag.trim()) : [],
+
+      const payload = {
+        ...updatedData,
+        tags: updatedData.tags
+          ? updatedData.tags.split(",").map((t) => t.trim())
+          : [],
       };
-      const response = await fetch(`${APIURL}/opportunities/${updatedOp.id}`, {
+
+      const res = await fetch(`${APIURL}/opportunities/${editingOp.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(processedData),
+        body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error("Failed to update opportunity");
-      const data = await response.json();
-      setOpportunities(opportunities.map((op) => (op.id === data.id ? data : op)));
+
+      if (!res.ok) throw new Error("Failed to update opportunity");
+
+      const data = await res.json();
+
+      setOpportunities((prev) =>
+        prev.map((op) => (op.id === data.id ? data : op))
+      );
       setEditingOp(null);
     } catch (err) {
       setError(err.message);
     }
   };
 
+  /* =========================
+     FILTER
+  ========================= */
   const filteredOpportunities = opportunities.filter((op) => {
     const matchesSearch =
-      (op.title?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
-      (op.tags?.join(", ") || "").toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterType === "all" || op.type === filterType;
-    return matchesSearch && matchesFilter;
+      op.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (op.tags || []).join(", ").toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesType = filterType === "all" || op.type === filterType;
+
+    return matchesSearch && matchesType;
   });
 
-  const theme = {
-    bgCard: isDarkMode ? "bg-white/[0.02] border-white/10" : "bg-white border-fuchsia-100 shadow-lg",
-    text: isDarkMode ? "text-white" : "text-black",
-    accent: "text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-indigo-400",
-    input: isDarkMode
-      ? "bg-white/5 text-white border-white/10 placeholder-gray-400 focus:ring-fuchsia-400"
-      : "bg-white text-black border-fuchsia-100 placeholder-gray-500 focus:ring-fuchsia-500",
-    buttonPrimary: isDarkMode
-      ? "bg-gradient-to-br from-fuchsia-600 to-purple-700 text-white hover:scale-105 transition-all"
-      : "bg-gradient-to-br from-fuchsia-500 to-indigo-600 text-white hover:scale-105 transition-all",
-    buttonSecondary: isDarkMode
-      ? "bg-fuchsia-500/20 text-white hover:bg-fuchsia-500/30 transition-all"
-      : "bg-fuchsia-100 text-black hover:bg-fuchsia-200 transition-all",
-    tableHeader: isDarkMode ? "bg-white/5 text-white" : "bg-fuchsia-100 text-black",
-    tableRowHover: isDarkMode ? "hover:bg-white/5" : "hover:bg-fuchsia-50",
-    tableText: isDarkMode ? "text-white" : "text-black",
-    error: isDarkMode ? "text-red-500 bg-red-500/10" : "text-red-600 bg-red-100",
-    optionBg: isDarkMode ? "bg-[#161B30] text-white" : "bg-white text-black",
+  const getStatusBadge = (status) => {
+    const styles = {
+      approved: "bg-[#333333] text-white",
+      pending: "bg-[#FF4F00] text-white",
+      rejected: "bg-[#666666] text-white",
+    };
+
+    return (
+      <span className={`px-2 py-1 rounded text-xs font-medium ${styles[status]}`}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
   };
 
+  /* =========================
+     RENDER
+  ========================= */
   return (
-    <div className="flex flex-col gap-8">
-      {/* Header with new logo */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-3">
-          <Star className="w-6 h-6 text-[#C5A3FF]" /> {/* New logo */}
-          <h2 className={`text-3xl font-bold ${theme.text}`}>My Opportunities</h2>
-        </div>
-        <div className="border-b border-fuchsia-300 w-36"></div>
-        <p className={`text-sm ${theme.text}`}>Manage and track all your posted opportunities.</p>
+    <div className="bg-white p-6 rounded-lg border border-[#333333] shadow-sm">
+      {/* HEADER */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-[#000000]">My Opportunities</h2>
+        <p className="text-[#333333] text-sm mt-1">
+          Manage and track all your posted opportunities
+        </p>
       </div>
 
-      {error && <p className={`p-3 rounded-2xl ${theme.error}`}>{error}</p>}
+      {error && (
+        <div className="mb-4 p-3 bg-[#FFF0E6] border border-[#FF4F00] rounded text-[#000000]">
+          {error}
+        </div>
+      )}
 
-      {/* Search & Filter */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
+      {/* FILTERS */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <input
           type="text"
-          placeholder="Search by title or tags..."
+          placeholder="Search by title or tags"
+          className="flex-1 border border-[#333333] p-2 rounded text-[#000000] focus:outline-none focus:ring-1 focus:ring-[#FF4F00]"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className={`flex-1 p-3 rounded-xl border focus:outline-none focus:ring-2 ${theme.input} shadow-sm`}
         />
 
-        <div className="relative w-full md:w-60">
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className={`w-full p-3 pr-10 rounded-xl border appearance-none focus:outline-none focus:ring-2 ${theme.input} shadow-sm`}
-          >
-            {[ 
-              { value: "all", label: "All Types" },
-              { value: "job", label: "Job" },
-              { value: "internship", label: "Internship" },
-              { value: "hackathon", label: "Hackathon" },
-              { value: "project", label: "Project" },
-              { value: "collaboration", label: "Collaboration" },
-              { value: "other", label: "Other" },
-            ].map((opt) => (
-              <option key={opt.value} value={opt.value} className={theme.optionBg}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-
-          <ChevronDown
-            size={18}
-            className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${theme.text}`}
-          />
-        </div>
+        <select
+          className="border border-[#333333] p-2 rounded text-[#000000] focus:outline-none focus:ring-1 focus:ring-[#FF4F00]"
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+        >
+          <option value="all">All Types</option>
+          <option value="job">Job</option>
+          <option value="internship">Internship</option>
+          <option value="hackathon">Hackathon</option>
+          <option value="project">Project</option>
+          <option value="collaboration">Collaboration</option>
+          <option value="other">Other</option>
+        </select>
       </div>
 
-      {/* Edit Form */}
+      {/* EDIT FORM */}
       {editingOp && (
-        <div className={`${theme.bgCard} border p-6 rounded-2xl shadow-lg`}>
-          <h3 className={`text-lg font-semibold mb-4 ${theme.accent}`}>Edit Opportunity</h3>
+        <div className="mb-6 p-6 border border-[#333333] rounded-lg bg-[#F5F5F5]">
+          <h3 className="text-lg font-bold text-[#000000] mb-4">
+            Edit Opportunity
+          </h3>
+
           <OpportunityForm
-            onSubmit={(data) => handleUpdate({ ...editingOp, ...data })}
             initialData={editingOp}
+            onSubmit={handleUpdate}
           />
+
           <button
             onClick={() => setEditingOp(null)}
-            className={`mt-4 px-4 py-2 rounded-lg ${theme.buttonSecondary}`}
+            className="mt-4 px-5 py-2.5 border border-[#333333] rounded-lg text-[#000000] hover:bg-[#E5E5E5]"
           >
             Cancel
           </button>
         </div>
       )}
 
-      {/* Opportunities Table */}
-      {filteredOpportunities.length === 0 ? (
-        <p className={`italic ${theme.tableText}`}>No opportunities found.</p>
+      {/* TABLE */}
+      {loading ? (
+        <p className="text-[#333333]">Loading opportunities...</p>
+      ) : filteredOpportunities.length === 0 ? (
+        <p className="text-[#333333]">No opportunities found.</p>
       ) : (
-        <div className={`${theme.bgCard} border rounded-2xl overflow-x-auto shadow-lg`}>
-          <table className="min-w-full text-left text-sm">
-            <thead className={`${theme.tableHeader} rounded-t-xl`}>
+        <div className="overflow-x-auto rounded-lg border border-[#333333]">
+          <table className="w-full min-w-[800px]">
+            <thead className="bg-[#333333] text-white">
               <tr>
-                {["Title", "Type", "Status", "Tags", "Actions"].map((header) => (
-                  <th key={header} className="p-4 font-semibold">{header}</th>
-                ))}
+                <th className="p-3 text-left">Title</th>
+                <th className="p-3 text-left">Type</th>
+                <th className="p-3 text-left">Status</th>
+                <th className="p-3 text-left">Tags</th>
+                <th className="p-3 text-left">Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {filteredOpportunities.map((op) => (
                 <tr
                   key={op.id}
-                  className={`border-t border-white/10 ${theme.tableRowHover} transition`}
+                  className="border-t border-[#333333] hover:bg-[#F5F5F5]"
                 >
-                  <td className={`p-4 ${theme.tableText}`}>{op.title}</td>
-                  <td className={`p-4 capitalize ${theme.tableText}`}>{op.type}</td>
-                  <td className={`p-4 capitalize ${theme.tableText}`}>{op.status}</td>
-                  <td className={`p-4 ${theme.tableText}`}>{(op.tags || []).join(", ")}</td>
-                  <td className="p-4 flex justify-center gap-3">
+                  <td className="p-3">{op.title}</td>
+                  <td className="p-3 capitalize">{op.type}</td>
+                  <td className="p-3">{getStatusBadge(op.status)}</td>
+                  <td className="p-3">{(op.tags || []).join(", ")}</td>
+                  <td className="p-3 space-x-2">
                     <button
                       onClick={() => handleEdit(op)}
-                      className={`px-4 py-1 rounded-lg ${theme.buttonPrimary}`}
+                      className="px-3 py-1 bg-[#FF4F00] text-white rounded hover:bg-[#E04600]"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(op.id)}
-                      className="px-4 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
+                      className="px-3 py-1 bg-black text-white rounded hover:bg-[#333333]"
                     >
                       Delete
                     </button>

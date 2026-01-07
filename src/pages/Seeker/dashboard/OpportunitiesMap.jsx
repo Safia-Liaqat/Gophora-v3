@@ -3,8 +3,8 @@ import Globe from "react-globe.gl";
 import axios from 'axios';
 import api from '../../../services/api';
 
-const COLOR_GENERAL = "#4717F6";
-const COLOR_PERSONALIZED = "#A239CA";
+const COLOR_GENERAL = "#FF4F00";
+const COLOR_PERSONALIZED = "#333333";
 
 // Helper function to get location details from coordinates
 const getLocationDetails = async (lat, lng) => {
@@ -75,35 +75,6 @@ export default function OpportunitiesMap() {
   const [hoveredCountry, setHoveredCountry] = useState(null);
   const [isRotating, setIsRotating] = useState(true);
   const [globeReady, setGlobeReady] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
-
-  // Listen for theme changes
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.documentElement.classList.contains('dark'));
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  // Theme based on landing page
-  const theme = {
-    bg: isDarkMode ? "bg-[#0a0514]" : "bg-slate-50",
-    text: isDarkMode ? "text-white" : "text-gray-900",
-    textSecondary: isDarkMode ? "text-gray-300" : "text-gray-600",
-    textTertiary: isDarkMode ? "text-gray-400" : "text-gray-500",
-    card: isDarkMode 
-      ? "bg-white/[0.02] border border-white/10 backdrop-blur-sm" 
-      : "bg-white border border-gray-200 shadow-sm",
-    accent: isDarkMode ? "text-fuchsia-400" : "text-fuchsia-600",
-    accentBg: isDarkMode ? "bg-fuchsia-500/10" : "bg-fuchsia-50",
-    accentBorder: isDarkMode ? "border-fuchsia-500/30" : "border-fuchsia-200",
-  };
 
   useLayoutEffect(() => {
     const handleResize = () => {
@@ -190,24 +161,17 @@ export default function OpportunitiesMap() {
   const filteredJobs = filter === "All" ? allJobs : allJobs.filter((j) => j.category === filter);
 
   return (
-    <div className={`p-4 md:p-6 space-y-6 ${theme.bg} min-h-screen ${theme.text} flex flex-col overflow-hidden transition-colors duration-700`}>
+    <div className="p-4 md:p-6 space-y-6 bg-white min-h-screen text-black flex flex-col overflow-hidden">
       
-      {/* Background elements matching landing page */}
-      <div className="fixed inset-0 overflow-hidden -z-10">
-        <div className={`absolute top-[-10%] left-[-10%] w-[70%] h-[40%] blur-[120px] rounded-full ${isDarkMode ? 'bg-fuchsia-900/20' : 'bg-fuchsia-500/10'}`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[70%] h-[40%] blur-[120px] rounded-full ${isDarkMode ? 'bg-indigo-900/20' : 'bg-indigo-500/10'}`} />
-        {!isDarkMode && <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(217,70,239,0.03)_50%,transparent_100%)] h-[20%] w-full animate-scan" />}
-      </div>
-
-      {/* Header matching landing page style */}
+      {/* Header */}
       <div className="text-center space-y-3">
-        <div className="inline-block px-3 py-1 mb-2 border rounded-full text-[10px] uppercase tracking-[0.4em] border-fuchsia-500/30 text-fuchsia-500">
+        <div className="inline-block px-3 py-1 mb-2 border rounded-full text-[10px] uppercase tracking-[0.4em] border-[#FF4F00]/30 text-[#FF4F00]">
           Global Activation
         </div>
-        <h1 className={`text-3xl md:text-4xl font-serif font-bold ${theme.text}`}>
-          Mission <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-indigo-400">Horizons</span>
+        <h1 className="text-3xl md:text-4xl font-bold text-black">
+          Mission <span className="text-[#FF4F00]">Horizons</span>
         </h1>
-        <p className={`text-sm max-w-md mx-auto ${theme.textTertiary}`}>
+        <p className="text-sm max-w-md mx-auto text-gray-600">
           Real-time career opportunities across the globe. Select a region or hover over coordinates to explore active missions.
         </p>
       </div>
@@ -217,48 +181,28 @@ export default function OpportunitiesMap() {
         {/* Map Container */}
         <div 
           ref={containerRef} 
-          className={`relative flex-1 w-full min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] rounded-2xl border overflow-hidden shadow-xl ${
-            isDarkMode 
-              ? "border-white/10 bg-black/40" 
-              : "border-gray-200 bg-white/80"
-          }`}
+          className="relative flex-1 w-full min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] rounded-lg border overflow-hidden shadow-lg border-gray-200 bg-white"
         >
           {/* Loading overlay */}
           {(!dimensions.width || !globeReady) && (
-            <div className={`absolute inset-0 flex flex-col items-center justify-center z-10 ${
-              isDarkMode 
-                ? "bg-gradient-to-br from-[#0a0514]/90 to-[#0a0514]/90" 
-                : "bg-gradient-to-br from-white/90 to-slate-50/90"
-            }`}>
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-white">
               <div className="relative">
                 {/* Animated globe preview */}
-                <div className={`w-40 h-40 rounded-full border-2 border-dashed ${
-                  isDarkMode ? "border-fuchsia-500/30" : "border-fuchsia-400/30"
-                } animate-spin`}>
+                <div className="w-40 h-40 rounded-full border-2 border-dashed border-[#FF4F00]/30 animate-spin">
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className={`w-32 h-32 rounded-full animate-pulse ${
-                      isDarkMode 
-                        ? "bg-gradient-to-br from-fuchsia-500/20 to-indigo-500/20" 
-                        : "bg-gradient-to-br from-fuchsia-500/10 to-indigo-500/10"
-                    }`}></div>
+                    <div className="w-32 h-32 rounded-full animate-pulse bg-[#FF4F00]/10"></div>
                   </div>
                 </div>
                 
                 {/* Loading text */}
                 <div className="mt-8 text-center space-y-2">
-                  <h3 className={`text-lg font-bold ${theme.text}`}>INITIALIZING GLOBAL RADAR</h3>
+                  <h3 className="text-lg font-bold text-black">INITIALIZING GLOBAL RADAR</h3>
                   <div className="flex items-center justify-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full animate-pulse ${
-                      isDarkMode ? "bg-fuchsia-500" : "bg-fuchsia-600"
-                    }`} style={{ animationDelay: '0s' }}></div>
-                    <div className={`w-2 h-2 rounded-full animate-pulse ${
-                      isDarkMode ? "bg-indigo-500" : "bg-indigo-600"
-                    }`} style={{ animationDelay: '0.2s' }}></div>
-                    <div className={`w-2 h-2 rounded-full animate-pulse ${
-                      isDarkMode ? "bg-fuchsia-400" : "bg-fuchsia-500"
-                    }`} style={{ animationDelay: '0.4s' }}></div>
+                    <div className="w-2 h-2 rounded-full animate-pulse bg-[#FF4F00]" style={{ animationDelay: '0s' }}></div>
+                    <div className="w-2 h-2 rounded-full animate-pulse bg-[#333333]" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 rounded-full animate-pulse bg-[#FF4F00]" style={{ animationDelay: '0.4s' }}></div>
                   </div>
-                  <p className={`text-xs ${theme.textTertiary} mt-4 max-w-sm`}>
+                  <p className="text-xs text-gray-600 mt-4 max-w-sm">
                     Scanning global opportunities...
                     <br />
                     <span className="text-[10px] opacity-50">Loading: {loading ? 'Fetching data...' : 'Rendering globe...'}</span>
@@ -277,7 +221,6 @@ export default function OpportunitiesMap() {
               bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
               backgroundImageUrl="//unpkg.com/three-globe/example/img/night-sky.png"
               
-              // Callback when globe is ready
               onGlobeReady={() => {
                 setTimeout(() => {
                   setGlobeReady(true);
@@ -285,13 +228,11 @@ export default function OpportunitiesMap() {
               }}
               
               polygonsData={countries.features}
-              polygonCapColor={d => d === hoveredCountry ? 'rgba(162, 57, 202, 0.4)' : 'rgba(71, 23, 246, 0.1)'}
+              polygonCapColor={d => d === hoveredCountry ? 'rgba(255, 79, 0, 0.3)' : 'rgba(51, 51, 51, 0.1)'}
               polygonSideColor={() => 'rgba(255, 255, 255, 0.05)'}
               polygonStrokeColor={() => '#444'}
               polygonLabel={({ properties: d }) => `
-                <div class="${isDarkMode ? 'bg-black/90' : 'bg-white/95'} p-2 rounded border ${
-                isDarkMode ? 'border-white/20' : 'border-gray-300'
-              } text-xs ${isDarkMode ? 'text-white' : 'text-gray-900'}">
+                <div class="bg-white/95 p-2 rounded border border-gray-300 text-xs text-gray-900">
                   ${d.ADMIN}
                 </div>
               `}
@@ -332,11 +273,9 @@ export default function OpportunitiesMap() {
               pointAltitude={0.06}
               pointRadius={0.6}
               pointLabel={d => `
-                <div class="${isDarkMode ? 'bg-black/90' : 'bg-white/95'} p-3 rounded-lg border ${
-                isDarkMode ? 'border-fuchsia-500/50' : 'border-fuchsia-400/50'
-              } shadow-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}">
-                  <b class="${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}">${d.title || 'Mission Opportunity'}</b><br/>
-                  <span class="${isDarkMode ? 'text-gray-300' : 'text-gray-600'} text-[10px]">${d.company || 'Classified'}</span>
+                <div class="bg-white/95 p-3 rounded-lg border border-[#FF4F00]/50 shadow-lg text-gray-900">
+                  <b class="text-[#FF4F00]">${d.title || 'Mission Opportunity'}</b><br/>
+                  <span class="text-gray-600 text-[10px]">${d.company || 'Classified'}</span>
                 </div>
               `}
               
@@ -351,17 +290,17 @@ export default function OpportunitiesMap() {
 
         {/* Side Panel */}
         <div className="w-full lg:w-80 xl:w-96 flex flex-col shrink-0">
-          <div className={`rounded-2xl p-5 h-full flex flex-col ${theme.card}`}>
+          <div className="rounded-lg p-5 h-full flex flex-col bg-white border border-gray-200 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <div className={`w-2 h-2 rounded-full ${isDarkMode ? 'bg-fuchsia-400' : 'bg-fuchsia-600'} animate-pulse`}></div>
-              <h2 className={`text-lg font-bold ${theme.text}`}>MISSION INTEL</h2>
+              <div className="w-2 h-2 rounded-full bg-[#FF4F00] animate-pulse"></div>
+              <h2 className="text-lg font-bold text-black">MISSION INTEL</h2>
             </div>
             
             {selectedLocation && locationDetails ? (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className={`p-3 rounded-lg border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
-                  <p className={`text-[10px] uppercase tracking-widest ${theme.textTertiary}`}>Coordinates</p>
-                  <p className={`font-mono text-xs ${theme.text}`}>
+              <div className="space-y-4">
+                <div className="p-3 rounded-lg border bg-gray-50 border-gray-200">
+                  <p className="text-[10px] uppercase tracking-widest text-gray-500">Coordinates</p>
+                  <p className="font-mono text-xs text-black">
                     {selectedLocation.lat.toFixed(4)}N, {selectedLocation.lng.toFixed(4)}E
                   </p>
                 </div>
@@ -372,34 +311,26 @@ export default function OpportunitiesMap() {
                     { label: "Country", value: locationDetails.country },
                     { label: "Sector", value: locationDetails.city }
                   ].map((item, idx) => (
-                    <div key={idx} className={`flex justify-between items-center border-b pb-2 ${
-                      isDarkMode ? 'border-white/5' : 'border-gray-200'
-                    }`}>
-                      <span className={`text-xs ${theme.textTertiary}`}>{item.label}</span>
-                      <span className={`text-sm font-medium ${theme.text}`}>{item.value}</span>
+                    <div key={idx} className="flex justify-between items-center border-b pb-2 border-gray-200">
+                      <span className="text-xs text-gray-500">{item.label}</span>
+                      <span className="text-sm font-medium text-black">{item.value}</span>
                     </div>
                   ))}
                 </div>
 
                 <button 
                   onClick={() => { setSelectedLocation(null); setLocationDetails(null); }}
-                  className={`w-full mt-4 py-2 text-xs rounded-lg transition-all border ${
-                    isDarkMode 
-                      ? 'bg-white/5 hover:bg-white/10 border-white/10' 
-                      : 'bg-gray-50 hover:bg-gray-100 border-gray-200'
-                  } ${theme.text}`}
+                  className="w-full mt-4 py-2 text-xs rounded-lg transition-all border bg-gray-50 hover:bg-gray-100 border-gray-200 text-black"
                 >
                   Reset Scanner
                 </button>
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
-                <div className={`w-12 h-12 border-2 border-dashed rounded-full flex items-center justify-center mb-4 ${
-                  isDarkMode ? 'border-fuchsia-500/30' : 'border-fuchsia-400/30'
-                }`}>
-                  <span className={`text-xl ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>🛰️</span>
+                <div className="w-12 h-12 border-2 border-dashed rounded-full flex items-center justify-center mb-4 border-[#FF4F00]/30">
+                  <span className="text-xl">🛰️</span>
                 </div>
-                <p className={`text-xs ${theme.textTertiary}`}>
+                <p className="text-xs text-gray-500">
                   Standby for input...<br/>Select a target on the globe
                 </p>
               </div>
@@ -416,16 +347,8 @@ export default function OpportunitiesMap() {
             onClick={() => setFilter(cat)}
             className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all border whitespace-nowrap ${
               filter === cat 
-                ? `${
-                    isDarkMode 
-                      ? "bg-gradient-to-r from-fuchsia-600 to-indigo-600 border-fuchsia-500 text-white shadow-lg" 
-                      : "bg-gradient-to-r from-fuchsia-600 to-indigo-600 border-fuchsia-600 text-white shadow-lg"
-                  }` 
-                : `${
-                    isDarkMode 
-                      ? "bg-white/5 border-white/10 text-gray-400 hover:border-white/30" 
-                      : "bg-white/90 border-gray-300 text-gray-600 hover:border-gray-400"
-                  }`
+                ? "bg-[#FF4F00] border-[#FF4F00] text-white shadow-lg" 
+                : "bg-white border-gray-300 text-gray-600 hover:border-gray-400"
             }`}
           >
             {cat}
@@ -434,13 +357,6 @@ export default function OpportunitiesMap() {
       </div>
 
       <style jsx>{`
-        @keyframes scan { 
-          from { transform: translateY(-100%); } 
-          to { transform: translateY(500%); } 
-        }
-        .animate-scan { 
-          animation: scan 6s linear infinite; 
-        }
         .animate-pulse {
           animation: pulse 1.5s ease-in-out infinite;
         }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { APIURL } from '../../services/api.js'
+import { APIURL } from '../../services/api.js';
 
 export default function VerificationForm() {
   const navigate = useNavigate();
@@ -51,17 +51,12 @@ export default function VerificationForm() {
     setFormData({ ...formData, social_profiles: updatedSocials });
   };
 
-  // In VerificationForm.jsx
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    // 1. Get the token from localStorage
     const token = localStorage.getItem("token");
-
-    // 2. Check if the user is logged in
     if (!token) {
       setError("Not authenticated. Please log in again.");
       setLoading(false);
@@ -73,9 +68,7 @@ export default function VerificationForm() {
       provider_name: formData.provider_name,
       email: formData.email,
       website_url: formData.website_url,
-      // --- UPDATE THIS LINE ---
       domain_age: formData.domain_age ? parseInt(formData.domain_age, 10) : null,
-      // --- END UPDATE ---
       social_profiles: formData.social_profiles,
       portfolio_url: formData.portfolio_url,
       video_intro_url: formData.video_intro_url,
@@ -87,7 +80,6 @@ export default function VerificationForm() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // 3. Add the Authorization header
           "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
@@ -95,9 +87,8 @@ export default function VerificationForm() {
 
       if (!response.ok) {
         const errData = await response.json();
-        // Handle both 401 and other errors
         if (response.status === 401) {
-            throw new Error("Your session has expired. Please log out and log in again.");
+          throw new Error("Your session has expired. Please log out and log in again.");
         }
         throw new Error(errData.detail || "Verification failed");
       }
@@ -116,65 +107,63 @@ export default function VerificationForm() {
     }
   };
 
+  // --- THEME COLORS ---
+  const theme = {
+    bgCard: "bg-white border border-gray-200 shadow-lg", // card background
+    text: "text-black", // primary text
+    label: "text-black", // label color
+    input: "bg-white text-black border border-gray-300 placeholder-gray-400 focus:ring-orange-400", // input
+    buttonPrimary: "bg-orange-500 text-white hover:bg-orange-600 transition-all", // submit
+    buttonSecondary: "bg-white text-black hover:bg-gray-100 transition-all border border-gray-300", // cancel/back
+    error: "text-red-600 bg-red-100 p-2 rounded-xl",
+    accent: "text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600", // heading
+  };
+
   return (
-    <div className="min-h-screen p-6 text-white bg-gradient-to-b from-[#1E1B2E] to-[#0E0C18]">
-      <div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-[0_0_25px_rgba(158,123,255,0.3)]">
-        <h2 className="text-3xl font-semibold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-[#C5A3FF] to-[#9E7BFF]">
+    <div className="min-h-screen p-6 bg-gray-50 flex items-center justify-center">
+      <div className={`w-full max-w-3xl ${theme.bgCard} rounded-2xl p-8`}>
+        <h2 className={`text-3xl font-semibold mb-2 ${theme.accent}`}>
           Provider Verification 🔍
         </h2>
-        <p className="text-gray-300 mb-8">
+        <p className="text-gray-700 mb-8">
           Complete your verification to unlock trust and visibility on GOPHORA.
         </p>
 
-        {/* Show Gemini Result */}
         {result ? (
           <div className="text-center">
-            <h3 className="text-2xl font-bold mb-3 text-green-400">
+            <h3 className="text-2xl font-bold mb-3 text-green-600">
               Verification Complete ✅
             </h3>
-            <p className="text-lg mb-2 text-white">
+            <p className="text-lg mb-2 text-black">
               Trust Score: {result.trust_score} / 100
             </p>
-            <p className="text-gray-300 mb-2">Reason: {result.reason}</p>
-            <p className="text-sm text-[#C5A3FF] mb-4 italic">
+            <p className="text-gray-700 mb-2">Reason: {result.reason}</p>
+            <p className="text-sm text-orange-500 mb-4 italic">
               Verified by Gemini AI System
             </p>
 
-            {/* Improvement Suggestions */}
             {result.trust_score < 85 && (
-              <div className="bg-white/10 border border-white/20 rounded-xl p-4 text-left max-w-md mx-auto mb-6">
-                <p className="text-[#C5A3FF] font-semibold mb-1">
+              <div className="bg-white/90 border border-gray-200 rounded-xl p-4 text-left max-w-md mx-auto mb-6">
+                <p className="text-orange-500 font-semibold mb-1">
                   💡 How to improve your verification:
                 </p>
-                <ul className="text-gray-300 text-sm list-disc list-inside space-y-1">
+                <ul className="text-gray-700 text-sm list-disc list-inside space-y-1">
                   {providerType === "institutional" && (
                     <>
-                      <li>
-                        Add complete “About Us” and “Contact” pages on your
-                        website.
-                      </li>
+                      <li>Add complete “About Us” and “Contact” pages on your website.</li>
                       <li>Use a corporate email (e.g., info@yourdomain.com).</li>
                     </>
                   )}
                   {providerType === "professional" && (
                     <>
-                      <li>
-                        Connect more active social profiles (LinkedIn, Instagram).
-                      </li>
-                      <li>
-                        Increase posting consistency and engagement rate.
-                      </li>
+                      <li>Connect more active social profiles (LinkedIn, Instagram).</li>
+                      <li>Increase posting consistency and engagement rate.</li>
                     </>
                   )}
                   {providerType === "new_talent" && (
                     <>
-                      <li>
-                        Upload a clear introduction video (30–60 seconds).
-                      </li>
-                      <li>
-                        Ask early users for positive reviews to raise your
-                        score.
-                      </li>
+                      <li>Upload a clear introduction video (30–60 seconds).</li>
+                      <li>Ask early users for positive reviews to raise your score.</li>
                     </>
                   )}
                 </ul>
@@ -184,45 +173,40 @@ export default function VerificationForm() {
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setResult(null)}
-                className="bg-[#6B5ACD] px-6 py-2 rounded-lg font-semibold hover:bg-[#5948b6]"
+                className={`${theme.buttonSecondary} px-6 py-2 rounded-lg font-semibold`}
               >
                 Try Again
               </button>
               <button
                 onClick={() => navigate("/provider/dashboard")}
-                className="bg-[#9E7BFF] px-6 py-2 rounded-lg font-semibold hover:bg-[#8258ff]"
+                className={`${theme.buttonPrimary} px-6 py-2 rounded-lg font-semibold`}
               >
                 Back to Dashboard
               </button>
             </div>
           </div>
         ) : (
-          // Verification Form
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Provider Type */}
             <div>
-              <label className="block text-sm mb-2 text-gray-300">
+              <label className={`block text-sm mb-2 ${theme.label}`}>
                 Provider Type
               </label>
               <select
                 name="provider_type"
                 value={providerType}
                 onChange={(e) => setProviderType(e.target.value)}
-                className="w-full p-3 bg-[#2B2540] text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9E7BFF]"
+                className={`w-full p-3 rounded-lg focus:outline-none focus:ring-2 ${theme.input}`}
               >
-                <option value="institutional">
-                  Institutional (Company / Organization)
-                </option>
-                <option value="professional">
-                  Professional / Freelancer
-                </option>
+                <option value="institutional">Institutional (Company / Organization)</option>
+                <option value="professional">Professional / Freelancer</option>
                 <option value="new_talent">New Talent / Explorer</option>
               </select>
             </div>
 
             {/* Common Fields */}
             <div>
-              <label className="block text-sm mb-2 text-gray-300">
+              <label className={`block text-sm mb-2 ${theme.label}`}>
                 Provider Name
               </label>
               <input
@@ -230,19 +214,19 @@ export default function VerificationForm() {
                 name="provider_name"
                 value={formData.provider_name}
                 onChange={handleChange}
-                className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white"
+                className={`w-full p-3 rounded-lg ${theme.input}`}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm mb-2 text-gray-300">Email</label>
+              <label className={`block text-sm mb-2 ${theme.label}`}>Email</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white"
+                className={`w-full p-3 rounded-lg ${theme.input}`}
                 required
               />
             </div>
@@ -251,28 +235,24 @@ export default function VerificationForm() {
             {providerType === "institutional" && (
               <>
                 <div>
-                  <label className="block text-sm mb-2 text-gray-300">
-                    Website URL
-                  </label>
+                  <label className={`block text-sm mb-2 ${theme.label}`}>Website URL</label>
                   <input
                     type="url"
                     name="website_url"
                     value={formData.website_url}
                     onChange={handleChange}
-                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white"
+                    className={`w-full p-3 rounded-lg ${theme.input}`}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm mb-2 text-gray-300">
-                    Domain Age (years)
-                  </label>
+                  <label className={`block text-sm mb-2 ${theme.label}`}>Domain Age (years)</label>
                   <input
                     type="number"
                     name="domain_age"
                     value={formData.domain_age}
                     onChange={handleChange}
-                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white"
+                    className={`w-full p-3 rounded-lg ${theme.input}`}
                   />
                 </div>
               </>
@@ -282,22 +262,20 @@ export default function VerificationForm() {
             {providerType === "professional" && (
               <>
                 <div>
-                  <label className="block text-sm mb-2 text-gray-300">
-                    Social Profiles
-                  </label>
+                  <label className={`block text-sm mb-2 ${theme.label}`}>Social Profiles</label>
                   {formData.social_profiles.map((social, index) => (
                     <div key={index} className="flex items-center gap-2 mb-2">
                       <select
                         name="platform"
                         value={social.platform}
                         onChange={(e) => handleSocialChange(index, e)}
-                        className="p-3 bg-white/10 border border-white/20 rounded-lg text-white"
+                        className={`p-3 rounded-lg ${theme.input}`}
                       >
-                        <option className="bg-[#2B2540]" value="linkedin">LinkedIn</option>
-                        <option className="bg-[#2B2540]" value="instagram">Instagram</option>
-                        <option className="bg-[#2B2540]" value="behance">Behance</option>
-                        <option className="bg-[#2B2540]" value="github">GitHub</option>
-                        <option className="bg-[#2B2540]" value="other">Other</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="behance">Behance</option>
+                        <option value="github">GitHub</option>
+                        <option value="other">Other</option>
                       </select>
                       <input
                         type="url"
@@ -305,7 +283,7 @@ export default function VerificationForm() {
                         value={social.url}
                         onChange={(e) => handleSocialChange(index, e)}
                         placeholder="https://linkedin.com/in/your-profile"
-                        className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white"
+                        className={`w-full p-3 rounded-lg ${theme.input}`}
                       />
                       <button
                         type="button"
@@ -316,16 +294,12 @@ export default function VerificationForm() {
                       </button>
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    onClick={addSocialField}
-                    className="text-[#C5A3FF] font-semibold"
-                  >
+                  <button type="button" onClick={addSocialField} className="text-orange-500 font-semibold">
                     + Add another profile
                   </button>
                 </div>
                 <div>
-                  <label className="block text-sm mb-2 text-gray-300">
+                  <label className={`block text-sm mb-2 ${theme.label}`}>
                     Portfolio / Website (optional)
                   </label>
                   <input
@@ -333,7 +307,7 @@ export default function VerificationForm() {
                     name="portfolio_url"
                     value={formData.portfolio_url}
                     onChange={handleChange}
-                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white"
+                    className={`w-full p-3 rounded-lg ${theme.input}`}
                   />
                 </div>
               </>
@@ -343,7 +317,7 @@ export default function VerificationForm() {
             {providerType === "new_talent" && (
               <>
                 <div>
-                  <label className="block text-sm mb-2 text-gray-300">
+                  <label className={`block text-sm mb-2 ${theme.label}`}>
                     Video Introduction URL
                   </label>
                   <input
@@ -351,7 +325,7 @@ export default function VerificationForm() {
                     name="video_intro_url"
                     value={formData.video_intro_url}
                     onChange={handleChange}
-                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white"
+                    className={`w-full p-3 rounded-lg ${theme.input}`}
                   />
                 </div>
               </>
@@ -359,7 +333,7 @@ export default function VerificationForm() {
 
             {/* Description */}
             <div>
-              <label className="block text-sm mb-2 text-gray-300">
+              <label className={`block text-sm mb-2 ${theme.label}`}>
                 Description / Bio
               </label>
               <textarea
@@ -367,16 +341,16 @@ export default function VerificationForm() {
                 value={formData.user_description}
                 onChange={handleChange}
                 rows={3}
-                className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white"
+                className={`w-full p-3 rounded-lg ${theme.input}`}
               />
             </div>
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && <p className={theme.error}>{error}</p>}
 
             <button
               type="submit"
               disabled={loading}
-              className="bg-[#9E7BFF] w-full py-3 rounded-lg font-semibold hover:bg-[#8258ff] disabled:opacity-50"
+              className={`${theme.buttonPrimary} w-full py-3 rounded-lg font-semibold disabled:opacity-50`}
             >
               {loading ? "Verifying..." : "Submit for Verification"}
             </button>

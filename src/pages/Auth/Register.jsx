@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { User, Building2 } from "lucide-react";
-import AOS from "aos";
+import { User, Building2, ChevronLeft, Mail, Lock, Briefcase } from "lucide-react";
 
 export default function Register() {
   const [role, setRole] = useState("");
-  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains("dark"));
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -17,8 +16,8 @@ export default function Register() {
     password: "",
     confirmPassword: "",
     skills: "",
-    dob: "",
     country: "",
+    state: "",
     city: "",
   });
 
@@ -26,16 +25,9 @@ export default function Register() {
   const [touched, setTouched] = useState({});
   const [codeSent, setCodeSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
-
-  // Initialize AOS and dark mode observer
-  useEffect(() => {
-    AOS.init({ duration: 1000, once: true });
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
+  const [generatedCode, setGeneratedCode] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   // Countdown timer for verification code
   useEffect(() => {
@@ -50,11 +42,10 @@ export default function Register() {
   useEffect(() => {
     async function fetchCountries() {
       try {
-        const res = await fetch("https://countriesnow.space/api/v0.1/countries/positions");
+        const res = await fetch("https://countriesnow.space/api/v0.1/countries/states");
         const data = await res.json();
         if (!data.error && data.data) {
-          const countryNames = data.data.map(c => c.name).sort();
-          setCountries(countryNames);
+          setCountries(data.data);
         }
       } catch (err) {
         console.error("Country fetch failed", err);
@@ -63,43 +54,56 @@ export default function Register() {
     fetchCountries();
   }, []);
 
-  // Fetch cities when country changes
-  const fetchCities = async (country) => {
-    if (!country) return;
+  // Fetch states when country changes
+  const fetchStates = async (countryName) => {
+    if (!countryName) return;
     try {
-      const res = await fetch("https://countriesnow.space/api/v0.1/countries/cities", {
+      const country = countries.find(c => c.name === countryName);
+      if (country && country.states) {
+        setStates(country.states);
+        setFormData(prev => ({ ...prev, state: "", city: "" }));
+        setCities([]);
+      }
+    } catch (err) {
+      console.error("State fetch failed", err);
+      setStates([]);
+    }
+  };
+
+  // Fetch cities when state changes
+  const fetchCities = async (stateName) => {
+    if (!stateName || !formData.country) return;
+    try {
+      const res = await fetch("https://countriesnow.space/api/v0.1/countries/state/cities", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ country }),
+        body: JSON.stringify({ country: formData.country, state: stateName }),
       });
       const data = await res.json();
       if (!data.error && data.data) {
-        const sortedCities = data.data.sort();
-        setCities(sortedCities);
-        setFormData(prev => ({ ...prev, city: sortedCities[0] || "" }));
+        setCities(data.data);
+        setFormData(prev => ({ ...prev, city: "" }));
       } else {
         setCities([]);
-        setFormData(prev => ({ ...prev, city: "" }));
       }
     } catch (err) {
       console.error("City fetch failed", err);
       setCities([]);
-      setFormData(prev => ({ ...prev, city: "" }));
     }
   };
 
   const theme = {
-    bg: isDarkMode ? "bg-[#000000] text-white" : "bg-[#FFFFFF] text-black",
-    card: isDarkMode
-      ? "bg-[#333333]/20 border-white/10 shadow-2xl"
-      : "bg-white border-[#333333]/10 shadow-xl",
+    bg: isDarkMode ? "bg-[#0a0a0a]" : "bg-[#f8f8f8]",
+    card: isDarkMode ? "bg-[#1a1a1a]" : "bg-white",
+    text: isDarkMode ? "text-white" : "text-gray-900",
+    textMuted: isDarkMode ? "text-gray-400" : "text-gray-500",
+    input: isDarkMode
+      ? "bg-[#2a2a2a] text-white border-transparent placeholder:text-gray-500"
+      : "bg-[#f5f5f5] text-gray-900 border-transparent placeholder:text-gray-400",
     explorerCard: isDarkMode
-      ? "bg-[#111111] border-[#FF4F00] hover:bg-[#FF4F00]/10"
+      ? "bg-[#1a1a1a] border-[#FF4F00] hover:bg-[#FF4F00]/10"
       : "bg-white border-[#FF4F00] hover:bg-[#FF4F00]/5",
     providerCard: "bg-[#FF4F00] border-[#FF4F00] text-white hover:opacity-95",
-    input: isDarkMode
-      ? "bg-[#333333] text-white border-white/20 placeholder:text-white/50"
-      : "bg-white text-black border-[#333333] placeholder:text-black/40",
   };
 
   const validateField = (name, value) => {
@@ -128,11 +132,11 @@ export default function Register() {
       case "skills":
         if (!value) return "Skills required";
         return "";
-      case "dob":
-        if (!value) return "DOB required";
-        return "";
       case "country":
         if (!value) return "Country required";
+        return "";
+      case "state":
+        if (!value) return "State required";
         return "";
       case "city":
         if (!value) return "City required";
@@ -146,9 +150,22 @@ export default function Register() {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: validateField(field, value) }));
 
+    // Check verification code
+    if (field === "verificationCode" && value.length === 6) {
+      if (value === generatedCode) {
+        setIsVerified(true);
+        setErrors(prev => ({ ...prev, verificationCode: "" }));
+      } else {
+        setIsVerified(false);
+        setErrors(prev => ({ ...prev, verificationCode: "Invalid code" }));
+      }
+    }
+
     if (field === "country") {
+      fetchStates(value);
+    }
+    if (field === "state") {
       fetchCities(value);
-      setFormData(prev => ({ ...prev, city: "" }));
     }
   };
 
@@ -166,22 +183,58 @@ export default function Register() {
     return newErrors;
   };
 
-  const sendVerificationCode = () => {
+  const sendVerificationCode = async () => {
     if (!formData.email || validateField("email", formData.email)) {
       setErrors(prev => ({ ...prev, email: validateField("email", formData.email) }));
       return;
     }
-    setCodeSent(true);
-    setCountdown(60);
-    alert(`Verification code sent to ${formData.email} (Demo)`);
+
+    setIsSending(true);
+    
+    // Generate 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedCode(code);
+
+    // Simulate sending email (1 second delay)
+    setTimeout(() => {
+      setCodeSent(true);
+      setCountdown(60);
+      setIsSending(false);
+      
+      // Show code in a styled alert for demo purposes
+      const alertDiv = document.createElement('div');
+      alertDiv.innerHTML = `
+        <div style="position: fixed; top: 20px; right: 20px; background: #1a1a1a; color: white; padding: 20px 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 10000; border: 2px solid #FF4F00; max-width: 350px;">
+          <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #FF4F00;">📧 Verification Code Sent!</div>
+          <div style="font-size: 14px; margin-bottom: 15px; opacity: 0.8;">Sent to: ${formData.email}</div>
+          <div style="background: #2a2a2a; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 10px;">
+            <div style="font-size: 12px; opacity: 0.6; margin-bottom: 5px;">Your verification code is:</div>
+            <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #FF4F00; font-family: monospace;">${code}</div>
+          </div>
+          <div style="font-size: 11px; opacity: 0.5; text-align: center;">This is a demo - in production, this would be sent to your email</div>
+        </div>
+      `;
+      document.body.appendChild(alertDiv);
+      
+      // Auto remove after 10 seconds
+      setTimeout(() => {
+        alertDiv.remove();
+      }, 10000);
+    }, 1000);
   };
 
   const handleSubmit = () => {
+    // Check if email is verified
+    if (codeSent && !isVerified) {
+      alert("Please verify your email first!");
+      return;
+    }
+
     setTouched(Object.keys(formData).reduce((acc, f) => ({ ...acc, [f]: true }), {}));
     const formErrors = validateForm();
     setErrors(formErrors);
     if (Object.keys(formErrors).length === 0) {
-      alert("Registration successful! (Demo)");
+      alert("Registration successful!");
       console.log(formData);
     }
   };
@@ -190,67 +243,93 @@ export default function Register() {
 
   return (
     <div className={`min-h-screen ${theme.bg} flex items-center justify-center px-4 py-12`}>
-      <div className="max-w-2xl w-full">
-        {!role && (
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold">
-              Welcome! How do you want to use <span className="text-[#FF4F00]">GOPHORA</span> today?
-            </h1>
-          </div>
-        )}
+      <div className="max-w-3xl w-full">
+        <div className="absolute top-6 right-6">
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className={`px-4 py-2 rounded-lg ${theme.card} ${theme.text} text-sm`}
+          >
+            {isDarkMode ? "☀️ Light" : "🌙 Dark"}
+          </button>
+        </div>
 
-        <div className={`p-8 rounded-[2.5rem] border ${theme.card}`}>
-          {!role ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {!role ? (
+          <div className={`${theme.card} rounded-[3rem] shadow-2xl p-12`}>
+            <div className="text-center mb-12">
+              <h1 className={`text-4xl font-bold ${theme.text} mb-2`}>
+                Welcome! How do you want to use <span className="text-[#FF4F00]">GOPHORA</span> today?
+              </h1>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <button
                 onClick={() => setRole("seeker")}
-                className={`p-8 rounded-3xl border text-left transition-all ${theme.explorerCard}`}
+                className={`p-12 rounded-[2rem] border-2 text-left transition-all transform hover:scale-105 ${theme.explorerCard} min-h-[280px] flex flex-col justify-between`}
               >
-                <User className="text-[#FF4F00] mb-4" size={32} />
-                <h3 className="text-xl font-bold mb-2">I want to be an Explorer</h3>
-                <p className="text-sm opacity-70">
+                <div>
+                  <User className="text-[#FF4F00] mb-8" size={48} />
+                  <h3 className={`text-2xl font-bold mb-4 ${theme.text}`}>I want to be an Explorer</h3>
+                </div>
+                <p className={`text-sm ${theme.textMuted} leading-relaxed`}>
                   Discover personalized opportunities for growth, learning, and contribution.
                 </p>
               </button>
 
               <button
                 onClick={() => setRole("provider")}
-                className={`p-8 rounded-3xl border text-left transition-all ${theme.providerCard}`}
+                className={`p-12 rounded-[2rem] border-2 text-left transition-all transform hover:scale-105 ${theme.providerCard} min-h-[280px] flex flex-col justify-between`}
               >
-                <Building2 className="mb-4" size={32} />
-                <h3 className="text-xl font-bold mb-2">Opportunity Provider</h3>
-                <p className="text-sm opacity-90">
+                <div>
+                  <Building2 className="mb-8" size={48} />
+                  <h3 className="text-2xl font-bold mb-4">Opportunity Provider</h3>
+                </div>
+                <p className="text-sm opacity-90 leading-relaxed">
                   Offer projects and missions to a network of activated humans.
                 </p>
               </button>
             </div>
-          ) : (
+          </div>
+        ) : (
+          <div className={`${theme.card} rounded-3xl shadow-2xl p-8`}>
+            <button
+              onClick={() => setRole("")}
+              className={`flex items-center gap-2 text-sm mb-6 ${theme.textMuted} hover:text-[#FF4F00] transition-colors`}
+            >
+              <ChevronLeft size={16} />
+              BACK TO SELECTION
+            </button>
+
+            <div className="text-center mb-8">
+              <h1 className={`text-3xl font-bold ${theme.text} mb-2`}>
+                Join the <span className="text-[#FF4F00] italic">Mission</span>
+              </h1>
+              <p className={`text-xs uppercase tracking-widest ${theme.textMuted}`}>
+                Select your path to activation
+              </p>
+            </div>
+
             <div className="space-y-4">
-              {/* Name */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Full Name *</label>
+              {/* Full Name */}
+              <div className="relative">
+                <User className={`absolute left-4 top-1/2 -translate-y-1/2 ${theme.textMuted}`} size={18} />
                 <input
                   type="text"
-                  placeholder="John Doe"
-                  className={`w-full p-3 rounded border focus:outline-none focus:ring-2 ${
-                    isFieldInvalid("name") ? "border-[#FF4F00] focus:ring-[#FF4F00]" : "border-[#333333] focus:ring-[#FF4F00]"
-                  } ${theme.input}`}
+                  placeholder="FULL NAME"
+                  className={`w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF4F00] transition-all text-sm ${theme.input}`}
                   value={formData.name}
                   onChange={(e) => handleChange("name", e.target.value)}
                   onBlur={() => handleBlur("name")}
                 />
-                {isFieldInvalid("name") && <p className="text-sm text-[#FF4F00]">⚠ {errors.name}</p>}
+                {isFieldInvalid("name") && <p className="text-sm text-[#FF4F00] mt-1">⚠ {errors.name}</p>}
               </div>
 
               {/* Email */}
               <div className="relative">
-                <label className="block text-sm font-medium mb-1">Email *</label>
+                <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 ${theme.textMuted}`} size={18} />
                 <input
                   type="email"
-                  placeholder="john@example.com"
-                  className={`w-full p-3 rounded border focus:outline-none focus:ring-2 ${
-                    isFieldInvalid("email") ? "border-[#FF4F00] focus:ring-[#FF4F00]" : "border-[#333333] focus:ring-[#FF4F00]"
-                  } ${theme.input}`}
+                  placeholder="EMAIL ADDRESS"
+                  className={`w-full pl-12 pr-20 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF4F00] transition-all text-sm ${theme.input}`}
                   value={formData.email}
                   onChange={(e) => handleChange("email", e.target.value)}
                   onBlur={() => handleBlur("email")}
@@ -258,160 +337,165 @@ export default function Register() {
                 {!codeSent && (
                   <button
                     onClick={sendVerificationCode}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FF4F00] text-white px-3 py-1 rounded text-xs"
+                    disabled={isSending}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FF4F00] text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-[#FF6A33] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Send Code
+                    {isSending ? "Sending..." : "Send Code"}
                   </button>
                 )}
-                {isFieldInvalid("email") && <p className="text-sm text-[#FF4F00]">⚠ {errors.email}</p>}
+                {isFieldInvalid("email") && <p className="text-sm text-[#FF4F00] mt-1">⚠ {errors.email}</p>}
               </div>
 
               {/* Verification Code */}
               {codeSent && (
-                <div>
-                  <label className="block text-sm font-medium mb-1">Verification Code *</label>
+                <div className="relative">
                   <input
                     type="text"
-                    placeholder="6-digit code"
+                    placeholder="VERIFICATION CODE (6 DIGITS)"
                     maxLength={6}
-                    className={`w-full p-3 rounded border focus:outline-none focus:ring-2 ${
-                      isFieldInvalid("verificationCode")
-                        ? "border-[#FF4F00] focus:ring-[#FF4F00]"
-                        : "border-[#333333] focus:ring-[#FF4F00]"
-                    } ${theme.input}`}
+                    className={`w-full px-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF4F00] transition-all text-sm ${theme.input} ${
+                      isVerified ? "border-2 border-green-500" : ""
+                    }`}
                     value={formData.verificationCode}
                     onChange={(e) => handleChange("verificationCode", e.target.value)}
                     onBlur={() => handleBlur("verificationCode")}
                   />
-                  {isFieldInvalid("verificationCode") && <p className="text-sm text-[#FF4F00]">⚠ {errors.verificationCode}</p>}
-                  <p className="text-xs opacity-50">{countdown > 0 ? `Resend code in ${countdown}s` : "You can resend code now."}</p>
+                  {isVerified && (
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500 text-xl">✓</span>
+                  )}
+                  {isFieldInvalid("verificationCode") && (
+                    <p className="text-sm text-[#FF4F00] mt-1">⚠ {errors.verificationCode}</p>
+                  )}
+                  {isVerified && (
+                    <p className="text-sm text-green-500 mt-1">✓ Email verified successfully!</p>
+                  )}
+                  <p className={`text-xs mt-1 ${theme.textMuted}`}>
+                    {countdown > 0 ? `Resend code in ${countdown}s` : (
+                      <button
+                        onClick={sendVerificationCode}
+                        className="text-[#FF4F00] hover:underline"
+                      >
+                        Resend verification code
+                      </button>
+                    )}
+                  </p>
                 </div>
               )}
 
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Password *</label>
-                <input
-                  type="password"
-                  placeholder="********"
-                  className={`w-full p-3 rounded border focus:outline-none focus:ring-2 ${
-                    isFieldInvalid("password") ? "border-[#FF4F00] focus:ring-[#FF4F00]" : "border-[#333333] focus:ring-[#FF4F00]"
-                  } ${theme.input}`}
-                  value={formData.password}
-                  onChange={(e) => handleChange("password", e.target.value)}
-                  onBlur={() => handleBlur("password")}
-                />
-                {isFieldInvalid("password") && <p className="text-sm text-[#FF4F00]">⚠ {errors.password}</p>}
-              </div>
-
-              {/* Confirm Password */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Confirm Password *</label>
-                <input
-                  type="password"
-                  placeholder="********"
-                  className={`w-full p-3 rounded border focus:outline-none focus:ring-2 ${
-                    isFieldInvalid("confirmPassword") ? "border-[#FF4F00] focus:ring-[#FF4F00]" : "border-[#333333] focus:ring-[#FF4F00]"
-                  } ${theme.input}`}
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleChange("confirmPassword", e.target.value)}
-                  onBlur={() => handleBlur("confirmPassword")}
-                />
-                {isFieldInvalid("confirmPassword") && <p className="text-sm text-[#FF4F00]">⚠ {errors.confirmPassword}</p>}
+              {/* Password Row */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 ${theme.textMuted}`} size={18} />
+                  <input
+                    type="password"
+                    placeholder="PASSWORD"
+                    className={`w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF4F00] transition-all text-sm ${theme.input}`}
+                    value={formData.password}
+                    onChange={(e) => handleChange("password", e.target.value)}
+                    onBlur={() => handleBlur("password")}
+                  />
+                  {isFieldInvalid("password") && (
+                    <p className="text-xs text-[#FF4F00] mt-1">⚠ {errors.password}</p>
+                  )}
+                </div>
+                <div className="relative">
+                  <input
+                    type="password"
+                    placeholder="CONFIRM"
+                    className={`w-full px-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF4F00] transition-all text-sm ${theme.input}`}
+                    value={formData.confirmPassword}
+                    onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                    onBlur={() => handleBlur("confirmPassword")}
+                  />
+                  {isFieldInvalid("confirmPassword") && (
+                    <p className="text-xs text-[#FF4F00] mt-1">⚠ {errors.confirmPassword}</p>
+                  )}
+                </div>
               </div>
 
               {/* Skills */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Skills *</label>
+              <div className="relative">
+                <Briefcase className={`absolute left-4 top-1/2 -translate-y-1/2 ${theme.textMuted}`} size={18} />
                 <input
                   type="text"
-                  placeholder="e.g., React, Node, Design"
-                  className={`w-full p-3 rounded border focus:outline-none focus:ring-2 ${
-                    isFieldInvalid("skills") ? "border-[#FF4F00] focus:ring-[#FF4F00]" : "border-[#333333] focus:ring-[#FF4F00]"
-                  } ${theme.input}`}
+                  placeholder="SKILLS (COMMAS: REACT, PYTHON...)"
+                  className={`w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF4F00] transition-all text-sm ${theme.input}`}
                   value={formData.skills}
                   onChange={(e) => handleChange("skills", e.target.value)}
                   onBlur={() => handleBlur("skills")}
                 />
-                {isFieldInvalid("skills") && <p className="text-sm text-[#FF4F00]">⚠ {errors.skills}</p>}
+                {isFieldInvalid("skills") && <p className="text-sm text-[#FF4F00] mt-1">⚠ {errors.skills}</p>}
               </div>
 
-              {/* DOB */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Date of Birth *</label>
-                <input
-                  type="date"
-                  className={`w-full p-3 rounded border focus:outline-none focus:ring-2 ${
-                    isFieldInvalid("dob") ? "border-[#FF4F00] focus:ring-[#FF4F00]" : "border-[#333333] focus:ring-[#FF4F00]"
-                  } ${theme.input}`}
-                  value={formData.dob}
-                  onChange={(e) => handleChange("dob", e.target.value)}
-                  onBlur={() => handleBlur("dob")}
-                />
-                {isFieldInvalid("dob") && <p className="text-sm text-[#FF4F00]">⚠ {errors.dob}</p>}
+              {/* Location Row */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <select
+                    className={`w-full px-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF4F00] transition-all text-sm ${theme.input}`}
+                    value={formData.country}
+                    onChange={(e) => handleChange("country", e.target.value)}
+                    onBlur={() => handleBlur("country")}
+                  >
+                    <option value="">COUNTRY</option>
+                    {countries.map((c) => (
+                      <option key={c.name} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  {isFieldInvalid("country") && (
+                    <p className="text-xs text-[#FF4F00] mt-1">⚠ {errors.country}</p>
+                  )}
+                </div>
+
+                <div>
+                  <select
+                    className={`w-full px-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF4F00] transition-all text-sm ${theme.input}`}
+                    value={formData.state}
+                    onChange={(e) => handleChange("state", e.target.value)}
+                    onBlur={() => handleBlur("state")}
+                    disabled={!formData.country || states.length === 0}
+                  >
+                    <option value="">STATE</option>
+                    {states.map((s) => (
+                      <option key={s.name} value={s.name}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                  {isFieldInvalid("state") && <p className="text-xs text-[#FF4F00] mt-1">⚠ {errors.state}</p>}
+                </div>
+
+                <div>
+                  <select
+                    className={`w-full px-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF4F00] transition-all text-sm ${theme.input}`}
+                    value={formData.city}
+                    onChange={(e) => handleChange("city", e.target.value)}
+                    onBlur={() => handleBlur("city")}
+                    disabled={!formData.state || cities.length === 0}
+                  >
+                    <option value="">CITY</option>
+                    {cities.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                  {isFieldInvalid("city") && <p className="text-xs text-[#FF4F00] mt-1">⚠ {errors.city}</p>}
+                </div>
               </div>
 
-              {/* Country */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Country *</label>
-                <select
-                  className={`w-full p-3 rounded border focus:outline-none focus:ring-2 ${
-                    isFieldInvalid("country") ? "border-[#FF4F00] focus:ring-[#FF4F00]" : "border-[#333333] focus:ring-[#FF4F00]"
-                  } ${theme.input}`}
-                  value={formData.country}
-                  onChange={(e) => handleChange("country", e.target.value)}
-                  onBlur={() => handleBlur("country")}
-                >
-                  <option value="">Select Country</option>
-                  {countries.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-                {isFieldInvalid("country") && <p className="text-sm text-[#FF4F00]">⚠ {errors.country}</p>}
-              </div>
-
-              {/* City */}
-              <div>
-                <label className="block text-sm font-medium mb-1">City *</label>
-                <select
-                  className={`w-full p-3 rounded border focus:outline-none focus:ring-2 ${
-                    isFieldInvalid("city") ? "border-[#FF4F00] focus:ring-[#FF4F00]" : "border-[#333333] focus:ring-[#FF4F00]"
-                  } ${theme.input}`}
-                  value={formData.city}
-                  onChange={(e) => handleChange("city", e.target.value)}
-                  onBlur={() => handleBlur("city")}
-                  disabled={!formData.country || cities.length === 0}
-                >
-                  <option value="">Select City</option>
-                  {cities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-                {isFieldInvalid("city") && <p className="text-sm text-[#FF4F00]">⚠ {errors.city}</p>}
-              </div>
-
-              {/* Register button */}
+              {/* Register Button */}
               <button
                 onClick={handleSubmit}
-                className="w-full py-3 mt-4 bg-[#FF4F00] text-white rounded-full font-bold hover:opacity-90 transition-all"
+                className="w-full py-4 mt-6 bg-[#FF4F00] text-white rounded-xl font-bold hover:bg-[#FF6A33] transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider shadow-lg"
               >
-                Register
+                REGISTER
+                <span className="text-lg">→</span>
               </button>
-
-              {/* Footer */}
-              <p className="text-xs mt-4 opacity-60 text-center">
-                Already registered?{" "}
-                <Link to="/login" className="text-[#FF4F00] font-bold hover:underline">
-                  Sign In
-                </Link>
-              </p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -132,7 +132,8 @@ export default function Navbar() {
   const navBg = isDark ? "bg-black/90 border-white/10" : "bg-white/90 border-fuchsia-100 shadow-sm";
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 w-full px-6 md:px-12 py-3 backdrop-blur-md border-b transition-all duration-500 ${navBg}`}>
+<nav className={`fixed top-0 left-0 right-0 z-50 w-full px-6 md:px-12 pt-3 pb-[2px] backdrop-blur-md border-b transition-all duration-500 ${navBg}`}>
+
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         {/* LOGO */}

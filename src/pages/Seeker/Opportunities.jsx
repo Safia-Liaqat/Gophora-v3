@@ -62,34 +62,6 @@ export default function Opportunities() {
   const [itemsPerPage] = useState(10);
   const [userLocation, setUserLocation] = useState("");
   const [loading, setLoading] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
-
-  // Listen for theme changes
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.documentElement.classList.contains('dark'));
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  // Theme variables
-  const theme = {
-    bg: isDarkMode ? "bg-[#0a0514]" : "bg-slate-50",
-    card: isDarkMode ? "bg-white/[0.02] border border-white/5" : "bg-white border border-fuchsia-100 shadow-sm",
-    buttonPrimary: isDarkMode ? "bg-fuchsia-600 hover:bg-fuchsia-700 text-white" : "bg-[#2d124d] hover:bg-fuchsia-600 text-white",
-    buttonSecondary: isDarkMode ? "bg-white/5 border border-white/10 text-white hover:bg-white/10" : "bg-white border border-fuchsia-100 text-black hover:bg-fuchsia-50",
-    inputBg: isDarkMode ? "bg-white/5 border border-white/10" : "bg-white border border-fuchsia-200",
-    textColor: isDarkMode ? "text-white" : "text-black",
-    textMuted: isDarkMode ? "text-gray-300" : "text-gray-600",
-    accentBorder: isDarkMode ? "border-fuchsia-500/30" : "border-fuchsia-300",
-    focusRing: isDarkMode ? "focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50" : "focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500",
-  };
 
   useEffect(() => {
     const fetchUserLocation = async () => {
@@ -296,34 +268,30 @@ export default function Opportunities() {
   };
 
   return (
-    <div className={`${theme.bg} ${theme.textColor} transition-colors duration-700`}>
+    <div className="bg-white text-black">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            isDarkMode 
-              ? "bg-gradient-to-br from-fuchsia-600 to-purple-700" 
-              : "bg-fuchsia-100 border border-fuchsia-200"
-          }`}>
-            <Briefcase className={`h-5 w-5 ${isDarkMode ? 'text-white' : 'text-fuchsia-600'}`} />
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#FF4F00]">
+            <Briefcase className="h-5 w-5 text-white" />
           </div>
           <div>
             <h2 className="text-2xl font-bold">Opportunities</h2>
-            <p className={`text-sm ${theme.textMuted}`}>Find missions that match your skills</p>
+            <p className="text-sm text-gray-600">Find missions that match your skills</p>
           </div>
         </div>
       </div>
 
       {userLocation && (
-        <div className={`mb-6 p-4 rounded-2xl border ${theme.card}`}>
+        <div className="mb-6 p-4 rounded-lg bg-white border border-gray-200 shadow-sm">
           <div className="flex items-center gap-3">
-            <MapPin className={isDarkMode ? "text-fuchsia-400" : "text-fuchsia-600"} size={18} />
+            <MapPin className="text-[#FF4F00]" size={18} />
             <div>
-              <p className={`text-sm ${theme.textColor}`}>
-                <span className={`font-medium ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>Your location:</span> {userLocation}
+              <p className="text-sm text-black">
+                <span className="font-medium text-[#FF4F00]">Your location:</span> {userLocation}
                 {selectedLocation === userLocation && " (currently viewing)"}
               </p>
-              <p className={`text-xs ${theme.textMuted} mt-1`}>
+              <p className="text-xs text-gray-600 mt-1">
                 Showing opportunities in your location by default. Use filters to explore worldwide missions.
               </p>
             </div>
@@ -332,22 +300,22 @@ export default function Opportunities() {
       )}
 
       {error && (
-        <div className={`mb-6 p-4 rounded-2xl border ${isDarkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'}`}>
+        <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-600">
           <p className="text-sm">{error}</p>
         </div>
       )}
 
       {/* Filters Section */}
-      <div className={`mb-8 p-4 rounded-2xl border ${theme.card}`}>
+      <div className="mb-8 p-4 rounded-lg bg-white border border-gray-200 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Filter size={18} className={isDarkMode ? "text-fuchsia-400" : "text-fuchsia-600"} />
+          <Filter size={18} className="text-[#FF4F00]" />
           <h3 className="font-medium">Filter Opportunities</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Category Filter */}
           <div>
-            <label className={`block mb-2 text-sm font-medium ${theme.textColor}`}>Category</label>
+            <label className="block mb-2 text-sm font-medium text-black">Category</label>
             <div className="relative">
               <select
                 value={selectedCategory}
@@ -355,7 +323,7 @@ export default function Opportunities() {
                   setSelectedCategory(e.target.value);
                   setCurrentPage(1);
                 }}
-                className={`w-full p-3 rounded-xl appearance-none ${theme.inputBg} ${theme.textColor} ${theme.focusRing}`}
+                className="w-full p-3 rounded-lg appearance-none bg-white border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-[#FF4F00] focus:border-[#FF4F00]"
               >
                 <option value="">All Categories</option>
                 <option value="job">Job</option>
@@ -364,13 +332,13 @@ export default function Opportunities() {
                 <option value="project">Project</option>
                 <option value="collaboration">Collaboration</option>
               </select>
-              <ChevronDown size={18} className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'} pointer-events-none`} />
+              <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FF4F00] pointer-events-none" />
             </div>
           </div>
 
           {/* Location Filter */}
           <div>
-            <label className={`block mb-2 text-sm font-medium ${theme.textColor}`}>Location</label>
+            <label className="block mb-2 text-sm font-medium text-black">Location</label>
             <div className="relative">
               <select
                 value={selectedLocation}
@@ -378,7 +346,7 @@ export default function Opportunities() {
                   setSelectedLocation(e.target.value);
                   setCurrentPage(1);
                 }}
-                className={`w-full p-3 rounded-xl appearance-none ${theme.inputBg} ${theme.textColor} ${theme.focusRing}`}
+                className="w-full p-3 rounded-lg appearance-none bg-white border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-[#FF4F00] focus:border-[#FF4F00]"
               >
                 <option value={userLocation || ""}>
                   {userLocation ? `My Location (${userLocation})` : "Select Location"}
@@ -394,13 +362,13 @@ export default function Opportunities() {
                     country.toLowerCase().includes(loc.toLowerCase())
                   );
                   return (
-                    <option key={country} value={country} className={hasOpportunities ? theme.textColor : "text-gray-500"}>
+                    <option key={country} value={country} className={hasOpportunities ? "text-black" : "text-gray-500"}>
                       {country} {hasOpportunities ? "" : " (No current opportunities)"}
                     </option>
                   );
                 })}
               </select>
-              <ChevronDown size={18} className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'} pointer-events-none`} />
+              <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FF4F00] pointer-events-none" />
             </div>
           </div>
         </div>
@@ -410,11 +378,7 @@ export default function Opportunities() {
           {selectedLocation !== userLocation && userLocation && (
             <button 
               onClick={resetToUserLocation}
-              className={`px-4 py-2 rounded-xl text-sm border transition-all ${
-                isDarkMode 
-                  ? "bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-400 hover:bg-fuchsia-500/30" 
-                  : "bg-fuchsia-100 border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-200"
-              }`}
+              className="px-4 py-2 rounded-lg text-sm border bg-[#FF4F00]/10 border-[#FF4F00]/30 text-[#FF4F00] hover:bg-[#FF4F00]/20 transition-all"
               title="Show opportunities in my location"
             >
               <MapPin size={14} className="inline mr-1" /> My Location
@@ -422,33 +386,21 @@ export default function Opportunities() {
           )}
           <button 
             onClick={showRemoteOnly}
-            className={`px-4 py-2 rounded-xl text-sm border transition-all ${
-              isDarkMode 
-                ? "bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30" 
-                : "bg-blue-100 border-blue-200 text-blue-600 hover:bg-blue-200"
-            }`}
+            className="px-4 py-2 rounded-lg text-sm border bg-blue-100 border-blue-200 text-blue-600 hover:bg-blue-200 transition-all"
             title="Show remote/worldwide opportunities"
           >
             <Globe size={14} className="inline mr-1" /> Remote Only
           </button>
           <button 
             onClick={showAllLocations}
-            className={`px-4 py-2 rounded-xl text-sm border transition-all ${
-              isDarkMode 
-                ? "bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30" 
-                : "bg-green-100 border-green-200 text-green-600 hover:bg-green-200"
-            }`}
+            className="px-4 py-2 rounded-lg text-sm border bg-green-100 border-green-200 text-green-600 hover:bg-green-200 transition-all"
             title="Show all opportunities worldwide"
           >
             <Globe size={14} className="inline mr-1" /> Worldwide
           </button>
           <button 
             onClick={clearFilters} 
-            className={`px-4 py-2 rounded-xl text-sm border transition-all ${
-              isDarkMode 
-                ? "bg-white/10 border-white/10 text-white hover:bg-white/20" 
-                : "bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200"
-            }`}
+            className="px-4 py-2 rounded-lg text-sm border bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200 transition-all"
           >
             <X size={14} className="inline mr-1" /> Clear Filters
           </button>
@@ -457,11 +409,11 @@ export default function Opportunities() {
 
       {/* Results Summary */}
       <div className="mb-4 flex justify-between items-center">
-        <p className={`text-sm ${theme.textMuted}`}>
+        <p className="text-sm text-gray-600">
           {loading ? "Loading opportunities..." : 
            `Showing ${indexOfFirstItem + 1}-${Math.min(indexOfLastItem, filteredOpportunities.length)} of ${filteredOpportunities.length} opportunities`}
           {selectedLocation && selectedLocation !== "" && (
-            <span className={isDarkMode ? "text-fuchsia-400" : "text-fuchsia-600"}>
+            <span className="text-[#FF4F00]">
               {selectedLocation === userLocation ? " in your location" : 
                selectedLocation === "All Locations" ? " worldwide" : 
                selectedLocation === "Remote/Worldwide" ? " (remote/worldwide)" : 
@@ -474,27 +426,27 @@ export default function Opportunities() {
       {/* Opportunities Table */}
       <div className="overflow-x-auto mb-8">
         {loading ? (
-          <div className={`text-center py-10 ${theme.textColor}`}>
-            <div className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${isDarkMode ? 'border-fuchsia-500' : 'border-fuchsia-600'}`}></div>
-            <p className={`mt-4 text-sm ${theme.textMuted}`}>Loading opportunities...</p>
+          <div className="text-center py-10 text-black">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF4F00]"></div>
+            <p className="mt-4 text-sm text-gray-600">Loading opportunities...</p>
           </div>
         ) : (
           <>
-            <div className={`rounded-2xl border overflow-hidden ${theme.card}`}>
-              <div className={`overflow-x-auto ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
+            <div className="rounded-lg border overflow-hidden bg-white border-gray-200 shadow-sm">
+              <div className="overflow-x-auto bg-gray-50">
                 <table className="min-w-full">
                   <thead>
-                    <tr className={`border-b ${isDarkMode ? 'border-white/10' : 'border-gray-200'}`}>
-                      <th className={`py-4 px-4 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>
+                    <tr className="border-b border-gray-200">
+                      <th className="py-4 px-4 text-left text-xs font-medium uppercase tracking-wider text-[#FF4F00]">
                         Title
                       </th>
-                      <th className={`py-4 px-4 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>
+                      <th className="py-4 px-4 text-left text-xs font-medium uppercase tracking-wider text-[#FF4F00]">
                         Type
                       </th>
-                      <th className={`py-4 px-4 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>
+                      <th className="py-4 px-4 text-left text-xs font-medium uppercase tracking-wider text-[#FF4F00]">
                         Location
                       </th>
-                      <th className={`py-4 px-4 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>
+                      <th className="py-4 px-4 text-left text-xs font-medium uppercase tracking-wider text-[#FF4F00]">
                         Action
                       </th>
                     </tr>
@@ -503,39 +455,27 @@ export default function Opportunities() {
                     {currentOpportunities.map((op) => (
                       <tr 
                         key={op.id} 
-                        className={`border-b ${isDarkMode ? 'border-white/10 hover:bg-white/5' : 'border-gray-100 hover:bg-gray-50'} transition-colors`}
+                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                       >
                         <td className="py-4 px-4 font-medium text-sm">
                           {op.title}
                         </td>
                         <td className="py-4 px-4 text-sm capitalize">
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs ${
-                            isDarkMode 
-                              ? "bg-fuchsia-500/20 text-fuchsia-400" 
-                              : "bg-fuchsia-100 text-fuchsia-600"
-                          }`}>
+                          <span className="inline-block px-2 py-1 rounded-full text-xs bg-[#FF4F00]/10 text-[#FF4F00]">
                             {op.type}
                           </span>
                         </td>
                         <td className="py-4 px-4 text-sm">
                           <div className="flex items-center gap-2">
-                            <MapPin size={14} className={isDarkMode ? "text-fuchsia-400" : "text-fuchsia-600"} />
-                            <span className={theme.textMuted}>{op.location}</span>
+                            <MapPin size={14} className="text-[#FF4F00]" />
+                            <span className="text-gray-600">{op.location}</span>
                             {userLocation && op.location && op.location.toLowerCase().includes(userLocation.toLowerCase()) && (
-                              <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
-                                isDarkMode 
-                                  ? "bg-fuchsia-500/20 text-fuchsia-400" 
-                                  : "bg-fuchsia-100 text-fuchsia-600"
-                              }`}>
+                              <span className="ml-2 text-xs px-2 py-1 rounded-full bg-[#FF4F00]/10 text-[#FF4F00]">
                                 Your Location
                               </span>
                             )}
                             {op.location && (op.location.toLowerCase().includes("remote") || op.location.toLowerCase().includes("worldwide")) && (
-                              <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
-                                isDarkMode 
-                                  ? "bg-blue-500/20 text-blue-400" 
-                                  : "bg-blue-100 text-blue-600"
-                              }`}>
+                              <span className="ml-2 text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">
                                 Remote
                               </span>
                             )}
@@ -545,14 +485,10 @@ export default function Opportunities() {
                           <button
                             onClick={() => handleApply(op)}
                             disabled={appliedIds.includes(op.id)}
-                            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95 ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-95 ${
                               appliedIds.includes(op.id) 
-                                ? isDarkMode
-                                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                : isDarkMode
-                                  ? "bg-fuchsia-600 text-white hover:bg-fuchsia-700"
-                                  : "bg-[#2d124d] text-white hover:bg-fuchsia-600"
+                                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                : "bg-[#FF4F00] text-white hover:bg-[#FF4F00]/90"
                             }`}
                           >
                             {appliedIds.includes(op.id) ? "Applied" : "Apply"}
@@ -566,19 +502,15 @@ export default function Opportunities() {
             </div>
             
             {filteredOpportunities.length === 0 && !loading && (
-              <div className={`text-center py-12 rounded-2xl border ${theme.card}`}>
-                <MapPin size={48} className={`mx-auto mb-4 ${theme.textMuted}`} />
-                <p className={`text-lg font-medium mb-2 ${theme.textColor}`}>No opportunities found</p>
-                <p className={`text-sm ${theme.textMuted} mb-4`}>
+              <div className="text-center py-12 rounded-lg border bg-white border-gray-200 shadow-sm">
+                <MapPin size={48} className="mx-auto mb-4 text-gray-600" />
+                <p className="text-lg font-medium mb-2 text-black">No opportunities found</p>
+                <p className="text-sm text-gray-600 mb-4">
                   Try adjusting your filters or check back later for new missions.
                 </p>
                 <button
                   onClick={clearFilters}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium ${
-                    isDarkMode 
-                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-700" 
-                      : "bg-[#2d124d] text-white hover:bg-fuchsia-600"
-                  }`}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-[#FF4F00] text-white hover:bg-[#FF4F00]/90"
                 >
                   Clear Filters
                 </button>
@@ -591,7 +523,7 @@ export default function Opportunities() {
       {/* Pagination */}
       {filteredOpportunities.length > itemsPerPage && !loading && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className={`text-sm ${theme.textMuted}`}>
+          <div className="text-sm text-gray-600">
             Page {currentPage} of {totalPages}
           </div>
           
@@ -599,14 +531,10 @@ export default function Opportunities() {
             <button
               onClick={prevPage}
               disabled={currentPage === 1}
-              className={`p-2 rounded-xl transition-all ${
+              className={`p-2 rounded-lg transition-all ${
                 currentPage === 1 
-                  ? isDarkMode
-                    ? "text-gray-500 cursor-not-allowed bg-white/5"
-                    : "text-gray-400 cursor-not-allowed bg-gray-100"
-                  : isDarkMode
-                    ? "text-white hover:bg-white/10"
-                    : "text-black hover:bg-gray-100"
+                  ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                  : "text-black hover:bg-gray-100"
               }`}
             >
               <ChevronLeft size={20} />
@@ -615,21 +543,17 @@ export default function Opportunities() {
             <div className="flex gap-1">
               {getPageNumbers().map((pageNum, index) => (
                 pageNum === '...' ? (
-                  <span key={`ellipsis-${index}`} className={`px-3 py-2 ${theme.textMuted}`}>
+                  <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-600">
                     ...
                   </span>
                 ) : (
                   <button
                     key={pageNum}
                     onClick={() => goToPage(pageNum)}
-                    className={`px-4 py-2 rounded-xl text-sm transition-all ${
+                    className={`px-4 py-2 rounded-lg text-sm transition-all ${
                       currentPage === pageNum
-                        ? isDarkMode
-                          ? "bg-fuchsia-600 text-white font-medium"
-                          : "bg-[#2d124d] text-white font-medium"
-                        : isDarkMode
-                          ? "text-gray-300 hover:bg-white/10"
-                          : "text-gray-700 hover:bg-gray-100"
+                        ? "bg-[#FF4F00] text-white font-medium"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     {pageNum}
@@ -641,21 +565,17 @@ export default function Opportunities() {
             <button
               onClick={nextPage}
               disabled={currentPage === totalPages}
-              className={`p-2 rounded-xl transition-all ${
+              className={`p-2 rounded-lg transition-all ${
                 currentPage === totalPages
-                  ? isDarkMode
-                    ? "text-gray-500 cursor-not-allowed bg-white/5"
-                    : "text-gray-400 cursor-not-allowed bg-gray-100"
-                  : isDarkMode
-                    ? "text-white hover:bg-white/10"
-                    : "text-black hover:bg-gray-100"
+                  ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                  : "text-black hover:bg-gray-100"
               }`}
             >
               <ChevronRight size={20} />
             </button>
           </div>
 
-          <div className={`text-sm ${theme.textMuted} hidden sm:block`}>
+          <div className="text-sm text-gray-600 hidden sm:block">
             {itemsPerPage} per page
           </div>
         </div>
