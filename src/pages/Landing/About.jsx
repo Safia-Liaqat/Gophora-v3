@@ -57,9 +57,6 @@ export default function AboutUs() {
 
       {/* Header */}
       <section className="relative text-center py-16 px-4 md:py-20">
-        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none w-full text-center ${isDarkMode ? 'opacity-5' : 'opacity-[0.03]'}`}>
-          <h1 className="text-[15vw] font-serif leading-none uppercase whitespace-nowrap">GOPHORA</h1>
-        </div>
         
         <div className="relative z-10 max-w-4xl mx-auto">
           <span className={`inline-block px-4 py-1 mb-4 border rounded-full text-[10px] uppercase tracking-[0.4em] ${isDarkMode ? 'border-white/20 text-white/60' : 'border-gray-300 text-gray-600'}`}>

@@ -8,11 +8,11 @@ export default function ExploreMissions() {
   const { t } = useTranslation();
 
   const missions = [
-    { id: 1, title: t("m1_title"), example: t("m1_ex"), icon: <FaRocket />, color: "from-purple-500 to-pink-500" },
-    { id: 2, title: t("m2_title"), example: t("m2_ex"), icon: <FaLightbulb />, color: "from-blue-500 to-cyan-500" },
-    { id: 3, title: t("m3_title"), example: t("m3_ex"), icon: <FaUsers />, color: "from-emerald-500 to-green-500" },
-    { id: 4, title: t("m4_title"), example: t("m4_ex"), icon: <FaGlobe />, color: "from-amber-500 to-yellow-500" },
-    { id: 5, title: t("m5_title"), example: t("m5_ex"), icon: <FaChartLine />, color: "from-indigo-500 to-purple-500" },
+    { id: 1, title: t("m1_title"), example: t("m1_ex"), icon: <FaRocket />, color: "bg-[#FF4F00]" },
+    { id: 2, title: t("m2_title"), example: t("m2_ex"), icon: <FaLightbulb />, color: "bg-[#FF4F00]" },
+    { id: 3, title: t("m3_title"), example: t("m3_ex"), icon: <FaUsers />, color: "bg-[#FF4F00]" },
+    { id: 4, title: t("m4_title"), example: t("m4_ex"), icon: <FaGlobe />, color: "bg-[#FF4F00]" },
+    { id: 5, title: t("m5_title"), example: t("m5_ex"), icon: <FaChartLine />, color: "bg-[#FF4F00]" },
   ];
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -34,38 +34,32 @@ export default function ExploreMissions() {
     e.preventDefault();
     toast.success(t("toast_success"), {
       style: {
-        background: "rgba(17, 24, 39, 0.9)",
-        backdropFilter: "blur(10px)",
-        color: "#fff",
-        border: "1px solid rgba(139, 92, 246, 0.5)",
+        background: "#FFFFFF",
+        color: "#000000",
+        border: "1px solid #FF4F00",
         fontWeight: "500",
         borderRadius: "12px",
       },
       iconTheme: {
-        primary: "#8b5cf6",
-        secondary: "#111827",
+        primary: "#FF4F00",
+        secondary: "#000000",
       },
     });
     closeModal();
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white pt-24 px-4 sm:px-6 relative">
-      {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
-
+    <div className="min-h-screen bg-[#FFFFFF] text-black pt-24 px-4 sm:px-6 relative">
       <Toaster position="top-right" reverseOrder={false} />
 
       {/* Header */}
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">
+          <h2 className="text-4xl md:text-5xl font-extrabold mb-4 text-black tracking-tight">
             {t("explore_title")}
           </h2>
-          <p className="text-gray-300 text-lg max-w-3xl mx-auto">
+          <div className="w-24 h-1 bg-[#FF4F00] mx-auto mb-6 rounded-full"></div>
+          <p className="text-[#333333] text-lg max-w-3xl mx-auto leading-relaxed">
             {t("explore_desc")}
           </p>
         </div>
@@ -75,28 +69,28 @@ export default function ExploreMissions() {
           {missions.map((mission) => (
             <div
               key={mission.id}
-              className="bg-gradient-to-b from-gray-900/80 to-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300 group hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/10"
+              className="bg-white border border-[#333333]/20 rounded-2xl p-6 shadow-md hover:shadow-xl hover:border-[#FF4F00] transition-all duration-300 group hover:scale-[1.02]"
             >
               {/* Icon Header */}
               <div className="flex items-center gap-4 mb-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${mission.color} flex items-center justify-center text-white text-xl`}>
+                <div className={`w-12 h-12 rounded-xl ${mission.color} flex items-center justify-center text-white text-xl shadow-md`}>
                   {mission.icon}
                 </div>
                 <div>
-                  <div className="text-xs text-gray-400 font-mono">Mission #{mission.id}</div>
-                  <h3 className="text-xl font-bold text-white">{mission.title}</h3>
+                  <div className="text-xs text-[#333333]/70 font-mono">Mission #{mission.id}</div>
+                  <h3 className="text-xl font-bold text-black">{mission.title}</h3>
                 </div>
               </div>
 
               {/* Description */}
-              <p className="text-gray-400 mb-6 text-sm leading-relaxed">
+              <p className="text-[#333333] mb-6 text-sm leading-relaxed">
                 {mission.example}
               </p>
               
               {/* Button */}
               <button
                 onClick={() => openModal(mission)}
-                className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 group-hover:shadow-purple-500/30"
+                className="w-full py-3 bg-[#FF4F00] hover:bg-[#E04600] text-white font-semibold rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
               >
                 {t("mission_submit_btn")}
               </button>
@@ -105,19 +99,29 @@ export default function ExploreMissions() {
         </div>
 
         {/* Stats Bar */}
-        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { value: "24h", label: "Activation Time", color: "text-purple-400" },
-            { value: "100%", label: "Mission Focus", color: "text-pink-400" },
-            { value: "0", label: "CV Required", color: "text-blue-400" },
-            { value: "∞", label: "Potential", color: "text-emerald-400" }
+            { value: "24h", label: "Activation Time" },
+            { value: "100%", label: "Mission Focus" },
+            { value: "0", label: "CV Required" },
+            { value: "∞", label: "Potential" }
           ].map((stat, idx) => (
-            <div 
+            <div
               key={idx}
-              className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 text-center hover:border-purple-500/30 transition-colors duration-300"
+              className="relative bg-white rounded-2xl p-6 text-center border-2 border-[#333333]/20 shadow-sm hover:shadow-lg hover:border-[#FF4F00] transition-all duration-300 group"
             >
-              <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-              <div className="text-xs text-gray-400 mt-1">{stat.label}</div>
+              {/* Accent bar */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-[#FF4F00] rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              {/* Value */}
+              <div className="text-4xl font-extrabold text-black mb-3 tracking-tight">
+                {stat.value}
+              </div>
+
+              {/* Label */}
+              <div className="text-sm font-semibold text-[#333333] uppercase tracking-wide">
+                {stat.label}
+              </div>
             </div>
           ))}
         </div>
@@ -125,27 +129,27 @@ export default function ExploreMissions() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-          <div className="bg-gradient-to-b from-gray-900/90 to-gray-800/70 backdrop-blur-md border border-gray-700/50 rounded-2xl w-full max-w-md relative shadow-2xl">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+          <div className="bg-[#FFFFFF] border border-[#333333]/30 rounded-2xl w-full max-w-md relative shadow-2xl">
             {/* Close Button */}
             <button 
               onClick={closeModal} 
-              className="absolute -top-3 -right-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 rounded-full p-2 border border-gray-600 hover:border-purple-500 transition-all duration-300 z-10"
+              className="absolute -top-3 -right-3 bg-[#FFFFFF] hover:bg-[#FF4F00]/10 rounded-full p-2 border border-[#FF4F00] transition-all duration-300 z-10"
             >
-              <X size={18} className="text-gray-300 hover:text-white" />
+              <X size={18} className="text-[#333333]" />
             </button>
             
             {/* Modal Content */}
             <div className="p-8">
               {/* Modal Header */}
               <div className="flex items-center gap-4 mb-6">
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-r ${selectedMission?.color || 'from-purple-500 to-pink-500'} flex items-center justify-center text-white text-xl`}>
+                <div className="w-14 h-14 rounded-xl bg-[#FF4F00] flex items-center justify-center text-white text-xl shadow-md">
                   {selectedMission?.icon || <FaRocket />}
                 </div>
                 <div>
-                  <div className="text-sm text-gray-400 font-mono">MISSION BRIEF</div>
-                  <h3 className="text-2xl font-bold text-white">
-                    Submit: <span className="text-purple-300">{selectedMission?.title}</span>
+                  <div className="text-sm text-[#333333] font-mono">MISSION BRIEF</div>
+                  <h3 className="text-2xl font-bold text-black">
+                    Submit: <span className="text-[#FF4F00]">{selectedMission?.title}</span>
                   </h3>
                 </div>
               </div>
@@ -153,7 +157,7 @@ export default function ExploreMissions() {
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                  <label className="block text-sm font-medium text-black mb-3">
                     Your Mission Proposal
                   </label>
                   <textarea
@@ -162,32 +166,33 @@ export default function ExploreMissions() {
                     placeholder={t("placeholder_idea")}
                     required
                     rows={5}
-                    className="w-full p-4 bg-gradient-to-b from-gray-900/50 to-gray-800/30 border border-gray-700/50 rounded-xl text-gray-300 placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none"
+                    className="w-full p-4 bg-[#FFFFFF] border border-[#333333]/30 rounded-xl text-black placeholder-[#333333]/60 focus:outline-none focus:border-[#FF4F00] focus:ring-2 focus:ring-[#FF4F00] transition-all duration-300 resize-none"
                     maxLength={500}
                   />
                   <div className="text-right mt-2">
-                    <span className={`text-xs ${idea.length >= 490 ? 'text-red-400' : 'text-gray-500'}`}>
+                    <span className={`text-xs ${idea.length >= 490 ? 'text-[#FF4F00]' : 'text-[#333333]/70'}`}>
                       {idea.length}/500 characters
                     </span>
                   </div>
                 </div>
                 
                 {/* Action Buttons */}
-                <div className="flex gap-4 pt-4">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="flex-1 py-3 px-4 bg-gradient-to-b from-gray-800/50 to-gray-900/50 hover:from-gray-700/50 hover:to-gray-800/50 border border-gray-700/50 rounded-xl text-gray-300 text-sm font-medium transition-all duration-300 hover:border-gray-600 hover:text-white"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl text-white text-sm font-medium transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20"
-                  >
-                    {t("btn_submit")}
-                  </button>
-                </div>
+<div className="flex gap-4 pt-4">
+  <button
+    type="button"
+    onClick={closeModal}
+    className="flex-1 py-3 px-4 bg-[#FFFFFF] border-2 border-[#333333]/30 rounded-xl text-[#333333] text-sm font-semibold transition-all duration-300 hover:border-[#FF4F00] hover:text-[#000000] hover:shadow-md"
+  >
+    Cancel
+  </button>
+  <button
+    type="submit"
+    className="flex-1 py-3 px-4 bg-[#FF4F00] hover:bg-[#E04600] rounded-xl text-white text-sm font-semibold transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-[#FF4F00]/30"
+  >
+    {t("btn_submit")}
+  </button>
+</div>
+
               </form>
             </div>
           </div>

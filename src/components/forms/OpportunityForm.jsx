@@ -59,15 +59,19 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
         console.error("Geoapify API key not found.");
         return;
       }
-      fetch(`https://api.geoapify.com/v1/geocode/search?text=${location}&apiKey=${apiKey}`)
-        .then(response => response.json())
-        .then(data => {
+      fetch(
+        `https://api.geoapify.com/v1/geocode/search?text=${location}&apiKey=${apiKey}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
           if (data.features.length > 0) {
             const { lat, lon } = data.features[0].properties;
-            setFormData(prev => ({ ...prev, lat, lng: lon }));
+            setFormData((prev) => ({ ...prev, lat, lng: lon }));
           }
         })
-        .catch(error => console.error('Error fetching geocoding data:', error));
+        .catch((error) =>
+          console.error("Error fetching geocoding data:", error)
+        );
     }
   }, [formData.city, formData.country]);
 
@@ -82,7 +86,10 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.workMode === "onsite" && (!formData.country || !formData.city)) {
+    if (
+      formData.workMode === "onsite" &&
+      (!formData.country || !formData.city)
+    ) {
       alert("Please select a valid country and city!");
       return;
     }
@@ -92,9 +99,9 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-5 bg-white/10 backdrop-blur-lg border border-white/10 p-8 rounded-2xl shadow-[0_0_25px_rgba(158,123,255,0.2)] max-w-2xl mx-auto"
+      className="flex flex-col gap-5 bg-white border border-gray-200 p-8 rounded-2xl shadow-[0_0_25px_rgba(255,79,0,0.2)] max-w-2xl mx-auto"
     >
-      <h3 className="text-2xl font-semibold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#C5A3FF] to-[#9E7BFF] drop-shadow-[0_0_10px_rgba(158,123,255,0.6)]">
+      <h3 className="text-2xl font-semibold mb-4 text-[#FF4F00]">
         Post a New Opportunity
       </h3>
 
@@ -105,7 +112,7 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
         onChange={handleChange}
         placeholder="Opportunity Title"
         required
-        className="border border-white/20 p-3 rounded-xl bg-[#161B30] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
+        className="border-2 border-gray-300 p-3 rounded-xl bg-white text-black placeholder-black/50 focus:outline-none focus:border-[#FF4F00] focus:ring-2 focus:ring-[#FF4F00]"
       />
 
       <div className="relative">
@@ -113,7 +120,7 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
           name="type"
           value={formData.type}
           onChange={handleChange}
-          className="border border-white/20 p-3 pr-10 rounded-xl bg-[#161B30] text-white w-full appearance-none focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
+          className="border-2 border-gray-300 p-3 pr-10 rounded-xl bg-white text-black w-full appearance-none focus:outline-none focus:border-[#FF4F00] focus:ring-2 focus:ring-[#FF4F00]"
         >
           <option value="job">Job</option>
           <option value="internship">Internship</option>
@@ -123,7 +130,10 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
           <option value="education">Education</option>
           <option value="hobby">Hobby</option>
         </select>
-        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C5A3FF]" size={18} />
+        <ChevronDown
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FF4F00]"
+          size={18}
+        />
       </div>
 
       <div className="relative">
@@ -131,12 +141,15 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
           name="workMode"
           value={formData.workMode}
           onChange={handleChange}
-          className="border border-white/20 p-3 pr-10 rounded-xl bg-[#161B30] text-white w-full appearance-none focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
+          className="border-2 border-gray-300 p-3 pr-10 rounded-xl bg-white text-black w-full appearance-none focus:outline-none focus:border-[#FF4F00] focus:ring-2 focus:ring-[#FF4F00]"
         >
           <option value="remote">Remote</option>
           <option value="onsite">Onsite</option>
         </select>
-        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C5A3FF]" size={18} />
+        <ChevronDown
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FF4F00]"
+          size={18}
+        />
       </div>
 
       <textarea
@@ -146,7 +159,7 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
         placeholder="Description"
         rows="5"
         required
-        className="border border-white/20 p-3 rounded-xl bg-[#161B30] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
+        className="border-2 border-gray-300 p-3 rounded-xl bg-white text-black placeholder-black/50 focus:outline-none focus:border-[#FF4F00] focus:ring-2 focus:ring-[#FF4F00]"
       />
 
       {formData.workMode === "onsite" && (
@@ -157,7 +170,7 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
               value={formData.country}
               onChange={handleChange}
               required
-              className="border border-white/20 p-3 pr-10 rounded-xl bg-[#161B30] text-white w-full appearance-none focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
+              className="border-2 border-gray-300 p-3 pr-10 rounded-xl bg-white text-black w-full appearance-none focus:outline-none focus:border-[#FF4F00] focus:ring-2 focus:ring-[#FF4F00]"
             >
               <option value="">Select Country</option>
               {countries.map((c) => (
@@ -166,7 +179,10 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C5A3FF]" size={18} />
+            <ChevronDown
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FF4F00]"
+              size={18}
+            />
           </div>
 
           <div className="relative">
@@ -175,7 +191,7 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
               value={formData.city}
               onChange={handleCityChange}
               required
-              className="border border-white/20 p-3 pr-10 rounded-xl bg-[#161B30] text-white w-full appearance-none focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
+              className="border-2 border-gray-300 p-3 pr-10 rounded-xl bg-white text-black w-full appearance-none focus:outline-none focus:border-[#FF4F00] focus:ring-2 focus:ring-[#FF4F00]"
             >
               <option value="">Select City</option>
               {cities.map((c) => (
@@ -184,7 +200,10 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C5A3FF]" size={18} />
+            <ChevronDown
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FF4F00]"
+              size={18}
+            />
           </div>
         </>
       )}
@@ -195,12 +214,12 @@ export default function OpportunityForm({ onSubmit, initialData = {} }) {
         value={formData.tags}
         onChange={handleChange}
         placeholder="Tags / Skills (comma separated)"
-        className="border border-white/20 p-3 rounded-xl bg-[#161B30] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C5A3FF]"
+        className="border-2 border-gray-300 p-3 rounded-xl bg-white text-black placeholder-black/50 focus:outline-none focus:border-[#FF4F00] focus:ring-2 focus:ring-[#FF4F00]"
       />
 
       <button
         type="submit"
-        className="w-full py-3 bg-gradient-to-r from-[#C5A3FF] to-[#9E7BFF] text-white rounded-xl font-semibold hover:opacity-90"
+        className="w-full py-3 bg-[#FF4F00] text-white rounded-xl font-semibold hover:bg-[#E04600] transition-colors"
       >
         Post Opportunity
       </button>

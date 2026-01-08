@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { User, Building2, ChevronLeft, Mail, Lock, Briefcase } from "lucide-react";
+import { User, Building2, ChevronLeft, Mail, Lock, Briefcase, ArrowRight } from "lucide-react";
 
 export default function Register() {
   const [role, setRole] = useState("");
@@ -239,6 +239,11 @@ export default function Register() {
     }
   };
 
+  const handleSignIn = () => {
+    // Navigate to login page - Update this path to match your routing
+    window.location.href = '/login';
+  };
+
   const isFieldInvalid = (field) => touched[field] && errors[field];
 
   return (
@@ -286,6 +291,30 @@ export default function Register() {
                 <p className="text-sm opacity-90 leading-relaxed">
                   Offer projects and missions to a network of activated humans.
                 </p>
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="relative my-8 max-w-md mx-auto">
+              <div className={`absolute inset-0 flex items-center`}>
+                <div className={`w-full border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className={`px-4 text-[10px] uppercase tracking-widest ${theme.bg} ${theme.textMuted} italic`}>
+                  Mission Access
+                </span>
+              </div>
+            </div>
+
+            {/* Sign In Link */}
+            <div className="text-center">
+              <p className={`text-sm ${theme.textMuted} mb-1`}>Already registered?</p>
+              <button
+                onClick={handleSignIn}
+                className="text-[#FF4F00] hover:text-[#FF6A33] font-bold inline-flex items-center gap-2 group transition-all"
+              >
+                Sign in to continue
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>
@@ -493,6 +522,30 @@ export default function Register() {
                 REGISTER
                 <span className="text-lg">→</span>
               </button>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className={`absolute inset-0 flex items-center`}>
+                  <div className={`w-full border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className={`px-4 text-[10px] uppercase tracking-widest ${theme.bg} ${theme.textMuted} italic`}>
+                    Mission Access
+                  </span>
+                </div>
+              </div>
+
+              {/* Sign In Link */}
+              <div className="text-center">
+                <p className={`text-sm ${theme.textMuted} mb-1`}>Already registered?</p>
+                <button
+                  onClick={handleSignIn}
+                  className="text-[#FF4F00] hover:text-[#FF6A33] font-bold inline-flex items-center gap-2 group transition-all"
+                >
+                  Sign in to continue
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
             </div>
           </div>
         )}
